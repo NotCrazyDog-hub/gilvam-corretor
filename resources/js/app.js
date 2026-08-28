@@ -1,7 +1,2 @@
-
-
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+import './bootstrap'; // se já existir no seu projeto
+import './contract-form';
