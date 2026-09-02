@@ -13,7 +13,24 @@ return new class extends Migration
     {
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('contract_group_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('version');
+
+            $table->json('content_json');      
+            $table->longText('content_html')->nullable(); 
+
+            $table->json('contratante');       
+            $table->json('contratado');
+            $table->json('imovel');
+
+            $table->string('file_path')->nullable();  
+            $table->string('file_format')->default('docx'); 
+            $table->timestamp('generated_at')->nullable();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+
             $table->timestamps();
+
+            $table->unique(['contract_group_id', 'version']);
         });
     }
 
