@@ -24,8 +24,7 @@ return new class extends Migration
             $table->json('imovel');
 
             $table->string('file_path')->nullable();  
-            $table->string('file_format')->default('docx'); 
-            $table->timestamp('generated_at')->nullable();
+            $table->string('file_format')->default('docx');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
 
             $table->timestamps();
