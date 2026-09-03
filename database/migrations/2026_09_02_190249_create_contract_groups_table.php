@@ -22,8 +22,6 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('status')->default('draft'); 
  
-            $table->timestamps();
- 
             $table->index(['client_type', 'client_id']);
             $table->timestamps();
         });
