@@ -17,8 +17,6 @@ class Contract extends Model
         'imovel',
         'file_path',
         'file_format',
-        'generated_at',
-        'created_by',
     ];
 
     protected $casts = [
@@ -26,7 +24,6 @@ class Contract extends Model
         'contratante'  => 'array',
         'contratado'   => 'array',
         'imovel'       => 'array',
-        'generated_at' => 'datetime',
     ];
 
     public function group(): BelongsTo
