@@ -2,19 +2,22 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PessoaFisicaController;
+use App\Http\Controllers\PessoaJuridicaController;
+
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-require __DIR__.'/auth.php'; // rotas de login/registro geradas pelo Breeze
+Route::middleware(['auth'])->group(function () {
+    Route::resource('pessoas-fisicas', PessoaFisicaController::class);
+    Route::resource('pessoas-juridicas', PessoaJuridicaController::class);
+});
+
 
 Route::get('/', function () {
     return redirect('/login');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
 
 Route::get('/dashboard', function () {
@@ -26,7 +29,5 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-Route::get('/imoveis/{imovel}/mapa', [ImovelController::class, 'mapa'])->name('imoveis.mapa');
 
 require __DIR__.'/auth.php';
