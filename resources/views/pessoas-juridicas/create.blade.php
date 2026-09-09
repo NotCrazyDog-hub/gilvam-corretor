@@ -1,0 +1,98 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Nova Pessoa Jurídica
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+
+                @if ($errors->any())
+                    <div class="mb-4 p-4 bg-red-100 text-red-800 rounded">
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('pessoas-juridicas.store') }}" method="POST">
+                    @csrf
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Razão Social</label>
+                        <input type="text" name="razao_social" value="{{ old('razao_social') }}"
+                               class="mt-1 block w-full rounded border-gray-300">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nome Fantasia</label>
+                            <input type="text" name="nome_fantasia" value="{{ old('nome_fantasia') }}"
+                                   class="mt-1 block w-full rounded border-gray-300">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">CNPJ</label>
+                            <input type="text" name="cnpj" value="{{ old('cnpj') }}" maxlength="14"
+                                   placeholder="Somente números"
+                                   class="mt-1 block w-full rounded border-gray-300">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Inscrição Estadual</label>
+                        <input type="text" name="inscricao_estadual" value="{{ old('inscricao_estadual') }}"
+                               class="mt-1 block w-full rounded border-gray-300">
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700">Endereço</label>
+                        <input type="text" name="endereco" value="{{ old('endereco') }}"
+                               class="mt-1 block w-full rounded border-gray-300">
+                    </div>
+
+                    <hr class="mb-6">
+
+                    <h3 class="text-sm font-semibold text-gray-600 uppercase mb-4">Representante Legal</h3>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Nome do Representante</label>
+                        <input type="text" name="representante_legal_nome" value="{{ old('representante_legal_nome') }}"
+                               class="mt-1 block w-full rounded border-gray-300">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">CPF do Representante</label>
+                            <input type="text" name="representante_legal_cpf" value="{{ old('representante_legal_cpf') }}"
+                                   maxlength="11" placeholder="Somente números"
+                                   class="mt-1 block w-full rounded border-gray-300">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Cargo</label>
+                            <input type="text" name="representante_legal_cargo" value="{{ old('representante_legal_cargo') }}"
+                                   class="mt-1 block w-full rounded border-gray-300">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-2">
+                        <a href="{{ route('pessoas-juridicas.index') }}"
+                           class="px-4 py-2 rounded border border-gray-300 text-gray-700">
+                            Cancelar
+                        </a>
+                        <button type="submit"
+                                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                            Salvar
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</x-app-layout>

@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PessoaFisicaController;
 use App\Http\Controllers\PessoaJuridicaController;
+use App\Models\PessoaFisica;
+use App\Models\PessoaJuridica;
 
 
 Route::get('/', function () {
@@ -21,7 +23,12 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('dashboard', [
+        'totalPessoasFisicas' => PessoaFisica::count(),
+        'totalPessoasJuridicas' => PessoaJuridica::count(),
+        'ultimasPessoasFisicas' => PessoaFisica::latest()->take(5)->get(),
+        'ultimasPessoasJuridicas' => PessoaJuridica::latest()->take(5)->get(),
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

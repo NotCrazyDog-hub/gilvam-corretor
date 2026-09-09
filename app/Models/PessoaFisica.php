@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 
 class PessoaFisica extends Model
 {
+    protected $table = 'pessoas_fisicas';
     protected $fillable = [
         'nome', 'cpf', 'rg', 'data_nascimento', 'estado_civil',
         'nacionalidade', 'profissao', 'telefone', 'email', 'endereco',

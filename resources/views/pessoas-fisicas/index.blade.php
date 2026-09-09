@@ -4,12 +4,6 @@
             Pessoas Físicas
         </h2>
     </x-slot>
-    <div>
-        <a href="{{ route('pessoas-fisicas.create') }}"
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            + Nova Pessoa Física
-        </a>
-    </div>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -18,6 +12,10 @@
                 <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
                     {{ session('success') }}
                 </div>
+                <p>
+                    Gilvam Vieira Corretoria
+
+                </p>
             @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
