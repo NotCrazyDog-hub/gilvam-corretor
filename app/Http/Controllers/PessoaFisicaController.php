@@ -37,9 +37,11 @@ class PessoaFisicaController extends Controller
     }
 
     public function edit(PessoaFisica $pessoas_fisica)
-    {
-        return view('pessoas-fisicas.edit', compact('pessoas_fisica'));
-    }
+{
+    return view('pessoas-fisicas.edit', [
+        'pessoasFisica' => $pessoas_fisica,
+    ]);
+}
 
     public function update(UpdatePessoaFisicaRequest $request, PessoaFisica $pessoas_fisica)
     {
