@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\ContractGroup;
 
 class PessoaJuridica extends Model
 {
@@ -29,5 +31,10 @@ class PessoaJuridica extends Model
     protected function getRepresentanteLegalCpfAttribute($value): string
     {
         return Crypt::decryptString($value);
+    }
+
+    public function contractGroups(): MorphMany
+    {
+        return $this->morphMany(ContractGroup::class, 'client');
     }
 }

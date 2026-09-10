@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\ContractGroup;
 
 class PessoaFisica extends Model
 {
@@ -36,5 +38,10 @@ class PessoaFisica extends Model
     protected function getRgAttribute($value): ?string
     {
         return $value ? Crypt::decryptString($value) : null;
+    }
+
+    public function contractGroups(): MorphMany
+    {
+        return $this->morphMany(ContractGroup::class, 'client');
     }
 }
