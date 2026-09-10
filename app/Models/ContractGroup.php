@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ContractGroup extends Model
 {
@@ -41,5 +42,17 @@ class ContractGroup extends Model
     public function getRouteKeyName()
     {
         return 'uuid';
+    }
+
+    public function client(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function getClientDisplayNameAttribute(): string
+    {
+        return $this->client?->nome
+            ?? $this->latestVersion?->contratante['nome']
+            ?? '—';
     }
 }
