@@ -1,34 +1,35 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Crypt;
-
-class PessoaJuridica extends Model
+return new class extends Migration
 {
-    protected $table = 'pessoas_juridicas';
-
-    protected $fillable = [
-        'razao_social',
-        'nome_fantasia',
-        'cnpj',
-        'inscricao_estadual',
-        'endereco',
-        'representante_legal_nome',
-        'representante_legal_cpf',
-        'representante_legal_cpf_hash',
-        'representante_legal_cargo',
-    ];
-
-    protected function setRepresentanteLegalCpfAttribute($value): void
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        $this->attributes['representante_legal_cpf'] = Crypt::encryptString($value);
-        $this->attributes['representante_legal_cpf_hash'] = hash('sha256', $value);
+        Schema::create('pessoas_juridicas', function (Blueprint $table) {
+            $table->id();
+            $table->string('razao_social');
+            $table->string('nome_fantasia')->nullable();
+            $table->string('cnpj')->unique();
+            $table->string('inscricao_estadual')->nullable();
+            $table->string('endereco');
+            $table->string('representante_legal_nome');
+            $table->string('representante_legal_cpf');
+            $table->string('representante_legal_cargo'); 
+            $table->timestamps();
+        });
     }
 
-    protected function getRepresentanteLegalCpfAttribute($value): string
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        return Crypt::decryptString($value);
+        Schema::dropIfExists('pessoas_juridicas');
     }
-}
+};
