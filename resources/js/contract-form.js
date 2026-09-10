@@ -86,6 +86,114 @@ async function downloadContract(url, filename) {
     URL.revokeObjectURL(a.href);
 }
 
+/**
+ * Busca/autocomplete de pessoa física cadastrada. Ao selecionar um
+ * resultado, preenche os campos do contratante automaticamente (mas eles
+ * continuam editáveis — o snapshot salvo é o que estiver no form no submit,
+ * não o cadastro em si).
+ */
+function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, searchUrl }) {
+    const buscaInput = document.querySelector(inputSelector);
+    const resultadosDiv = document.querySelector(resultsSelector);
+    const clientIdInput = document.querySelector(clientIdSelector);
+
+    if (!buscaInput || !resultadosDiv || !clientIdInput) return;
+
+    let timeoutId;
+    let currentController;
+
+    const limparSelecao = () => {
+        clientIdInput.value = '';
+    };
+
+    const renderResultados = (pessoas) => {
+        resultadosDiv.innerHTML = '';
+
+        if (pessoas.length === 0) {
+            resultadosDiv.classList.add('hidden');
+            return;
+        }
+
+        pessoas.forEach((p) => {
+            const item = document.createElement('div');
+            item.className = 'resultado-item';
+            item.dataset.id = p.id;
+            item.dataset.nome = p.nome ?? '';
+            item.dataset.cpf = p.cpf ?? '';
+            item.dataset.endereco = p.endereco ?? '';
+            item.dataset.profissao = p.profissao ?? '';
+            item.dataset.estadoCivil = p.estado_civil ?? '';
+            item.dataset.telefone = p.telefone ?? '';
+
+            // textContent em vez de innerHTML: dado vem do cadastro, evita XSS.
+            item.textContent = `${p.nome} — ${p.cpf}`;
+            resultadosDiv.appendChild(item);
+        });
+
+        resultadosDiv.classList.remove('hidden');
+    };
+
+    buscaInput.addEventListener('input', () => {
+        clearTimeout(timeoutId);
+        limparSelecao(); // se o usuário editar a busca, invalida a seleção anterior
+
+        const q = buscaInput.value.trim();
+        if (q.length < 2) {
+            resultadosDiv.classList.add('hidden');
+            return;
+        }
+
+        timeoutId = setTimeout(async () => {
+            currentController?.abort();
+            currentController = new AbortController();
+
+            try {
+                const res = await fetch(`${searchUrl}?q=${encodeURIComponent(q)}`, {
+                    signal: currentController.signal,
+                    credentials: 'same-origin',
+                });
+                if (!res.ok) throw new Error('Falha na busca.');
+                renderResultados(await res.json());
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Erro ao buscar pessoa física:', err);
+                }
+            }
+        }, 300);
+    });
+
+    resultadosDiv.addEventListener('click', (e) => {
+        const item = e.target.closest('.resultado-item');
+        if (!item) return;
+
+        clientIdInput.value = item.dataset.id;
+
+        const campos = {
+            'contratante[nome]': item.dataset.nome,
+            'contratante[cpf]': item.dataset.cpf,
+            'contratante[endereco]': item.dataset.endereco,
+            'contratante[profissao]': item.dataset.profissao,
+            'contratante[estado_civil]': item.dataset.estadoCivil,
+            'contratante[telefones]': item.dataset.telefone,
+        };
+
+        for (const [name, value] of Object.entries(campos)) {
+            const campo = document.querySelector(`[name="${name}"]`);
+            if (campo && value) campo.value = value;
+        }
+
+        buscaInput.value = item.dataset.nome;
+        resultadosDiv.classList.add('hidden');
+    });
+
+    // Fecha a lista de resultados ao clicar fora
+    document.addEventListener('click', (e) => {
+        if (!resultadosDiv.contains(e.target) && e.target !== buscaInput) {
+            resultadosDiv.classList.add('hidden');
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const config = window.contractFormConfig || {};
 
@@ -101,6 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
         hiddenJsonSelector: '#input-condicoes-json',
         hiddenHtmlSelector: '#input-condicoes',
         initialContent: config.condicoesContent,
+    });
+
+    mountClientSearch({
+        inputSelector: '#busca-cliente',
+        resultsSelector: '#resultados-busca-cliente',
+        clientIdSelector: '#input-client-id',
+        searchUrl: '/contracts/pessoas-fisicas/search',
     });
 
     const form = document.getElementById('contract-form');
