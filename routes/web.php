@@ -36,26 +36,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    Route::prefix('contracts')->name('contracts.')->group(function () {
+        Route::get('/', [ContractController::class, 'index'])->name('index');
+    
+        Route::get('/create', [ContractController::class, 'chooseClientType'])->name('create');
+        Route::get('/create/pf', [ContractController::class, 'createForPessoaFisica'])->name('create.pf');
+        Route::get('/create/pj', [ContractController::class, 'createForPessoaJuridica'])->name('create.pj');
+    
+        Route::get('/pessoas-fisicas/search', [ContractController::class, 'searchPessoasFisicas'])
+            ->name('pessoas-fisicas.search');
+    
+        Route::post('/', [ContractController::class, 'store'])->name('store');
+    
+        Route::get('/{group:uuid}/edit', [ContractController::class, 'edit'])->name('edit');
+        Route::put('/{group:uuid}', [ContractController::class, 'update'])->name('update');
+    
+        Route::get('/{group:uuid}/versions', [ContractController::class, 'versions'])->name('versions');
+        Route::get('/{group:uuid}/versions/{version}/download', [ContractController::class, 'download'])
+            ->whereNumber('version')->name('download');
+    });
 });
 
-Route::prefix('contracts')->name('contracts.')->group(function () {
-    Route::get('/', [ContractController::class, 'index'])->name('index');
-
-    Route::get('/create', [ContractController::class, 'chooseClientType'])->name('create');
-    Route::get('/create/pf', [ContractController::class, 'createForPessoaFisica'])->name('create.pf');
-    Route::get('/create/pj', [ContractController::class, 'createForPessoaJuridica'])->name('create.pj');
-
-    Route::get('/pessoas-fisicas/search', [ContractController::class, 'searchPessoasFisicas'])
-        ->name('pessoas-fisicas.search');
-
-    Route::post('/', [ContractController::class, 'store'])->name('store');
-
-    Route::get('/{group:uuid}/edit', [ContractController::class, 'edit'])->name('edit');
-    Route::put('/{group:uuid}', [ContractController::class, 'update'])->name('update');
-
-    Route::get('/{group:uuid}/versions', [ContractController::class, 'versions'])->name('versions');
-    Route::get('/{group:uuid}/versions/{version}/download', [ContractController::class, 'download'])
-        ->whereNumber('version')->name('download');
-});
 
 require __DIR__.'/auth.php';
