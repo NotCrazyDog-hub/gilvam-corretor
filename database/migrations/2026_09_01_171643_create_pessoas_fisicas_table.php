@@ -1,41 +1,37 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Crypt;
-
-class PessoaFisica extends Model
+return new class extends Migration
 {
-    protected $table = 'pessoas_fisicas';
-
-    protected $fillable = [
-        'nome', 'cpf', 'rg', 'data_nascimento', 'estado_civil',
-        'nacionalidade', 'profissao', 'telefone', 'email', 'endereco',
-        'cpf_hash', 'rg_hash',
-    ];
-
-    protected function setCpfAttribute($value): void
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        $this->attributes['cpf'] = Crypt::encryptString($value);
-        $this->attributes['cpf_hash'] = hash('sha256', $value);
+        Schema::create('pessoas_fisicas', function (Blueprint $table) {
+            $table->id();
+            $table->string('nome');
+            $table->string('cpf')->unique();
+            $table->string('rg')->nullable();
+            $table->date('data_nascimento');
+            $table->string('estado_civil');
+            $table->string('nacionalidade')->nullable();
+            $table->string('profissao')->nullable();
+            $table->string('telefone');
+            $table->string('email');
+            $table->string('endereco');
+            $table->timestamps();
+        });
     }
 
-    protected function getCpfAttribute($value): string
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        return Crypt::decryptString($value);
+        Schema::dropIfExists('pessoas_fisicas');
     }
-
-    protected function setRgAttribute($value): void
-    {
-        if ($value) {
-            $this->attributes['rg'] = Crypt::encryptString($value);
-            $this->attributes['rg_hash'] = hash('sha256', $value);
-        }
-    }
-
-    protected function getRgAttribute($value): ?string
-    {
-        return $value ? Crypt::decryptString($value) : null;
-    }
-}
+};

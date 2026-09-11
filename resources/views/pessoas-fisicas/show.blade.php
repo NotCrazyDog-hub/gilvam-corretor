@@ -17,7 +17,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">CPF</dt>
-                        <dd class="text-gray-800">{{ $pessoas_fisica->cpf }}</dd>
+                        <dd class="text-gray-800">{{ $pessoas_fisica->cpf_formatado }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">RG</dt>
@@ -41,7 +41,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Telefone</dt>
-                        <dd class="text-gray-800">{{ $pessoas_fisica->telefone }}</dd>
+                        <dd class="text-gray-800">{{ $pessoas_fisica->telefone_formatado }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Email</dt>

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\FormataDocumentos;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 
 class PessoaFisica extends Model
 {
+    use FormataDocumentos;
     protected $table = 'pessoas_fisicas';
     protected $fillable = [
         'nome', 'cpf', 'rg', 'data_nascimento', 'estado_civil',
@@ -36,5 +38,15 @@ class PessoaFisica extends Model
     protected function getRgAttribute($value): ?string
     {
         return $value ? Crypt::decryptString($value) : null;
+    }
+
+    public function getCpfFormatadoAttribute(): ?string
+    {
+    return $this->formatarCpf($this->cpf);
+    }
+
+    public function getTelefoneFormatadoAttribute(): ?string
+    {
+    return $this->formatarTelefone($this->telefone);
     }
 }

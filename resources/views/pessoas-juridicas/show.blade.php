@@ -21,7 +21,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">CNPJ</dt>
-                        <dd class="text-gray-800">{{ $pessoas_juridica->cnpj }}</dd>
+                        <dd class="text-gray-800">{{ $pessoas_juridica->cnpj_formatado }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Inscrição Estadual</dt>
@@ -37,7 +37,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">CPF do Representante</dt>
-                        <dd class="text-gray-800">{{ $pessoas_juridica->representante_legal_cpf }}</dd>
+                        <dd class="text-gray-800">{{ $pessoas_juridica->representante_legal_cpf_formatado }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Cargo</dt>

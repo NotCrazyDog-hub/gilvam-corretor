@@ -21,6 +21,9 @@
                     <x-nav-link :href="route('pessoas-juridicas.index')" :active="request()->routeIs('pessoas-juridicas.*')">
                         {{ __('Pessoas Jurídicas') }}
                     </x-nav-link>
+                    <x-nav-link href="#" :active="false">
+                         {{ __('Geração de Contratos') }}
+                    </x-nav-link>
                 </div>
             </div>
 
