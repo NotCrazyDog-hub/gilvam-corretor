@@ -19,8 +19,8 @@ class ContractVersionService
         $baseSlug = Str::slug(($data['contratante']['nome'] ?? 'contrato') . '-' . now()->format('Y-m-d-His'));
 
         return ContractGroup::create([
-            'client_type'   => $data['client_type'] ?? null,
-            'client_id'     => $data['client_id'] ?? null,
+            'client_type'   => $data['client_type'],
+            'client_id'     => $data['client_id'],
             'contract_type' => $data['contract_type'] ?? 'corretagem_venda',
             'slug'          => $baseSlug,
         ]);
