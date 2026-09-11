@@ -32,7 +32,7 @@
                         <td>{{ $group->latestVersion->contratante['nome'] ?? '—' }}</td>
                         <td>{{ $group->contract_type }}</td>
                         <td>Versão {{ $group->latestVersion->version ?? '—' }}</td>
-                        <td>{{ $group->latestVersion?->generated_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                        <td>{{ $group->latestVersion?->created_at?->format('d/m/Y H:i') ?? '—' }}</td>
                         <td>
                             <a href="{{ route('contracts.edit', $group) }}">Editar</a> ·
                             <a href="{{ route('contracts.versions', $group) }}">Histórico</a>
