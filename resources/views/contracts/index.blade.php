@@ -33,7 +33,7 @@
                 @forelse ($groups as $group)
                     <tr>
                         <td>{{ $group->latestVersion->contratante['nome'] ?? '—' }}</td>
-                        <td>{{ strtoupper($group->contract_type) }}</td>
+                        <td>{{ $group->contract_type }}</td>
                         <td>Versão {{ $group->latestVersion->version ?? '—' }}</td>
                         <td>{{ $group->latestVersion?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}</td>
                         <td>
