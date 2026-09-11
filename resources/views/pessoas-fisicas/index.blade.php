@@ -41,8 +41,8 @@
                         @forelse ($pessoasFisicas as $pessoa)
                             <tr class="border-b hover:bg-gray-50">
                                 <td class="py-2">{{ $pessoa->nome }}</td>
-                                <td class="py-2">{{ $pessoa->cpf }}</td>
-                                <td class="py-2">{{ $pessoa->telefone }}</td>
+                                <td class="py-2">{{ $pessoa->cpf_formatado }}</td>
+                                <td class="py-2">{{ $pessoa->telefone_formatado }}</td>
                                 <td class="py-2">{{ $pessoa->email }}</td>
                                 <td class="py-2 text-right space-x-2">
                                     <a href="{{ route('pessoas-fisicas.show', $pessoa) }}"

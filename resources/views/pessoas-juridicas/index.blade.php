@@ -38,7 +38,7 @@
                             <tr>
                                 <td class="px-4 py-3 text-sm text-gray-700">{{ $pessoa->razao_social }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700">{{ $pessoa->nome_fantasia ?? '—' }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ $pessoa->cnpj }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-700">{{ $pessoa->cnpj_formatado }}</td>
                                 <td class="px-4 py-3 text-sm text-right space-x-2">
                                     <a href="{{ route('pessoas-juridicas.show', $pessoa) }}"
                                        class="text-blue-600 hover:underline">Ver</a>

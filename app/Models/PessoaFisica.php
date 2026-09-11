@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\FormataDocumentos;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -9,6 +10,7 @@ use App\Models\ContractGroup;
 
 class PessoaFisica extends Model
 {
+    use FormataDocumentos;
     protected $table = 'pessoas_fisicas';
     protected $fillable = [
         'nome', 'cpf', 'rg', 'data_nascimento', 'estado_civil',
@@ -43,5 +45,15 @@ class PessoaFisica extends Model
     public function contractGroups(): MorphMany
     {
         return $this->morphMany(ContractGroup::class, 'client');
+    }
+    
+    public function getCpfFormatadoAttribute(): ?string
+    {
+    return $this->formatarCpf($this->cpf);
+    }
+
+    public function getTelefoneFormatadoAttribute(): ?string
+    {
+    return $this->formatarTelefone($this->telefone);
     }
 }
