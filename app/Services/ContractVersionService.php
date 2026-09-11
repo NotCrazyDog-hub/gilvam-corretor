@@ -21,7 +21,7 @@ class ContractVersionService
         return ContractGroup::create([
             'client_type'   => $data['client_type'],
             'client_id'     => $data['client_id'],
-            'contract_type' => $data['contract_type'] ?? 'corretagem de venda',
+            'contract_type' => $data['contract_type'] ?? 'Corretagem de venda',
             'slug'          => $baseSlug,
         ]);
     }
