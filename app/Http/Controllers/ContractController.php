@@ -25,7 +25,8 @@ class ContractController extends Controller
             ->when($clientType, fn ($q) => $q->where('client_type', $clientType))
             ->with('latestVersion')
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         return view('contracts.index', compact('groups', 'clientType'));
     }
