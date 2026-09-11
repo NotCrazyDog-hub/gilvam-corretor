@@ -19,10 +19,10 @@
         <table class="contracts">
             <thead>
                 <tr>
-                    <th>Contratante</th>
-                    <th>Tipo</th>
-                    <th>Versão vigente</th>
-                    <th>Gerado em</th>
+                    <th>Contratante:</th>
+                    <th>Tipo:</th>
+                    <th>Versão vigente:</th>
+                    <th>Gerado em:</th>
                     <th></th>
                 </tr>
             </thead>
@@ -31,7 +31,7 @@
                     <tr>
                         <td>{{ $group->latestVersion->contratante['nome'] ?? '—' }}</td>
                         <td>{{ $group->contract_type }}</td>
-                        <td>v{{ $group->latestVersion->version ?? '—' }}</td>
+                        <td>Versão {{ $group->latestVersion->version ?? '—' }}</td>
                         <td>{{ $group->latestVersion?->generated_at?->format('d/m/Y H:i') ?? '—' }}</td>
                         <td>
                             <a href="{{ route('contracts.edit', $group) }}">Editar</a> ·
