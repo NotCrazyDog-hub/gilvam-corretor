@@ -4,12 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $group ? 'Editar Contrato' : 'Novo Contrato de Corretagem' }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>{{ $group ? 'Editar Contrato' : 'Novo Contrato de Corretagem' }} - Gilvam Vieira</title>
+    @vite(['resources/css/app.css', 'resources/css/contracts.css', 'resources/js/app.js'])
 </head>
 <body>
     <div class="container">
-        <h1>{{ $group ? 'Editar Contrato (nova versão)' : 'Novo Contrato de Corretagem' }}</h1>
+        <header class="header-brand">
+            <img src="{{ asset('images/logo.png') }}" alt="Gilvam Vieira Corretor de Imóveis">
+            <h1>{{ $group ? 'Editar Contrato (nova versão)' : 'Novo Contrato de Corretagem' }}</h1>
+        </header>
 
         @if ($group)
             <p class="hint">
@@ -149,7 +152,7 @@
                 <div class="grid">
                     <input
                         name="contratado[nome]"
-                        value="{{ $contratado['nome'] ?? '' }}"
+                        value="{{ $contratado['nome'] ?? 'Gilvam Vieira' }}"
                         placeholder="Nome / Razão social"
                         class="input"
                         required

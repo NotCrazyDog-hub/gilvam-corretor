@@ -1,44 +1,136 @@
+:root {
+    --brand-red: #E31E24;
+    --brand-red-hover: #C11318;
+    --brand-green: #009640;
+    --brand-dark: #584E4A;
+    --bg-light: #F4F6F8;
+    --text-color: #222222;
+    --border-color: #E2E8F0;
+}
+
 body {
-    font-family: system-ui, -apple-system, sans-serif;
-    background: #f8fafc;
-    color: #1e293b;
+    background-color: var(--bg-light);
+    color: var(--text-color);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     margin: 0;
-    padding: 2rem 1rem;
+    padding: 20px 0;
 }
-.container { max-width: 800px; margin: 0 auto; }
-h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
-.hint { color: #475569; font-size: 0.9rem; margin-bottom: 1rem; }
-fieldset {
-    border: 1px solid #e2e8f0;
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 30px;
     border-radius: 8px;
-    padding: 1rem 1.25rem 1.25rem;
-    margin-bottom: 1.5rem;
-    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
-legend { font-weight: 600; padding: 0 0.5rem; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.col-span-2 { grid-column: span 2; }
+
+/* Header com Logo */
+.header-brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--brand-red);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.header-brand img {
+    max-height: 50px;
+}
+
+.header-brand h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--brand-dark);
+}
+
+/* Navegação e Links */
+a {
+    color: var(--brand-green);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.nav-links {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f1f5f9;
+    border-radius: 6px;
+}
+
+.nav-links a {
+    margin-right: 10px;
+}
+
+/* Formulários */
+fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+legend {
+    font-weight: bold;
+    color: var(--brand-red);
+    padding: 0 10px;
+}
+
 .input {
-    width: 100%; box-sizing: border-box; padding: 0.5rem 0.65rem;
-    border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
 }
-.input:focus { outline: 2px solid #3b82f6; outline-offset: 1px; }
-label.field-label { display: block; font-size: 0.85rem; font-weight: 500; margin: 1rem 0 0.35rem; }
-.editor-box {
-    border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.6rem;
-    min-height: 100px; background: #fff; font-size: 0.9rem;
+
+.input:focus {
+    border-color: var(--brand-green);
+    outline: none;
 }
-.editor-box:focus-within { outline: 2px solid #3b82f6; outline-offset: 1px; }
-.editor-box p { margin: 0 0 0.5rem; }
-button[type="submit"] {
-    background: #2563eb; color: #fff; border: none; padding: 0.65rem 1.5rem;
-    border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+
+/* Botões */
+button[type="submit"], .btn-primary {
+    background-color: var(--brand-red);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
 }
-button[type="submit"]:hover { background: #1d4ed8; }
-button[type="submit"]:disabled { background: #93c5fd; cursor: not-allowed; }
-#resultado { margin-top: 1.5rem; padding: 1rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; }
-#resultado a { color: #047857; font-weight: 600; text-decoration: underline; }
-#erro { margin-top: 1.5rem; padding: 1rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; color: #b91c1c; }
-.hidden { display: none; }
-table.contracts { width: 100%; border-collapse: collapse; }
-table.contracts th, table.contracts td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0; }
+
+button[type="submit"]:hover, .btn-primary:hover {
+    background-color: var(--brand-red-hover);
+}
+
+/* Tabelas */
+table.contracts {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table.contracts th {
+    background-color: var(--brand-dark);
+    color: white;
+    text-align: left;
+    padding: 12px;
+}
+
+table.contracts td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+table.contracts tr:hover {
+    background-color: #f8fafc;
+}
