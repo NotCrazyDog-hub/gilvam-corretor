@@ -89,7 +89,7 @@
                                 {{ $group->latestVersion?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}
                             </td>
                             <td class="p-3 border-b border-slate-200 text-sm">
-                                <a href="{{ route('contracts.edit', $group) }}" class="text-brand-green font-semibold hover:underline">Editar</a> ·
+                                <a href="{{ route('contracts.edit', $group) }}?from=index" class="text-brand-green font-semibold hover:underline">Editar</a> ·
                                 <a href="{{ route('contracts.versions', $group) }}" class="text-brand-green font-semibold hover:underline ml-1">Histórico</a>
                             </td>
                         </tr>
@@ -105,7 +105,6 @@
                 {{ $groups->links() }}
             </div>
 
-        </div>
+         </div>
     </div>
-</body>
-</html>
+</x-app-layout>
