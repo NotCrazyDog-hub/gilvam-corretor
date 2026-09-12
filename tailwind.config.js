@@ -15,9 +15,11 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                'brand-red': '#C1272D',
-                'brand-red-hover': '#A01F24',
-                'brand-green': '#2E7D32',
+                brand: {
+                    red: '#E31E24',
+                    'red-hover': '#C11318',
+                    green: '#009640',
+                },
             },
         },
     },
