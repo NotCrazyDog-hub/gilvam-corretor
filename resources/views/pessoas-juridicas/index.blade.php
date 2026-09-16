@@ -30,16 +30,16 @@
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Razão Social</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nome Fantasia</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">CNPJ</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse ($pessoasJuridicas as $pessoa)
                             <tr>
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ $pessoa->razao_social }}</td>
+                                <td class="px-4 py-3 text-sm font-semibold text-gray-800">{{ $pessoa->razao_social }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700">{{ $pessoa->nome_fantasia ?? '—' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700">{{ $pessoa->cnpj_formatado }}</td>
-                                <td class="px-4 py-3 text-sm text-right space-x-2">
+                                <td class="px-4 py-3 text-sm text-right whitespace-nowrap space-x-3">
                                     <a href="{{ route('pessoas-juridicas.show', $pessoa) }}"
                                        class="text-blue-600 hover:underline">Ver</a>
                                     <a href="{{ route('pessoas-juridicas.edit', $pessoa) }}"
