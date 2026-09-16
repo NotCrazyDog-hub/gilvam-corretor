@@ -22,7 +22,7 @@
 
                 <div class="flex justify-end mb-4">
                     <a href="{{ route('pessoas-fisicas.create') }}"
-                       class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition">
                         + Nova Pessoa Física
                     </a>
                 </div>
