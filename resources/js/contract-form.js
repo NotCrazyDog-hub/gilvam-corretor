@@ -2,6 +2,18 @@ import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 
 /**
+ * Mapeia chaves de erro (dot notation, como o Laravel devolve) para o
+ * seletor do elemento que deve ser marcado visualmente. Usado para os
+ * campos dos editores TipTap, cujo input real é um <input type="hidden">
+ * sem visibilidade pro usuário — nesses casos, redirecionamos o erro
+ * pro container do editor.
+ */
+const MAPA_ERRO_PARA_ELEMENTO_VISIVEL = {
+    'imovel.outros_dados': '#editor-outros-dados',
+    'imovel.condicoes_pagamento': '#editor-condicoes',
+};
+
+/**
  * Monta um editor TipTap e mantém dois inputs hidden sincronizados:
  * - hiddenJsonSelector: o JSON do TipTap (fonte da verdade, reeditável depois)
  * - hiddenHtmlSelector: o HTML renderizado (usado no back pra gerar o .docx)
@@ -194,6 +206,76 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
     });
 }
 
+/**
+ * Remove marcações de erro anteriores (classe de erro + texto de mensagem)
+ * de todos os campos e elementos de editor do form.
+ */
+function limparErrosDeCampo(form) {
+    form.querySelectorAll('.campo-invalido').forEach((el) =>
+        el.classList.remove('campo-invalido', 'border-red-400')
+    );
+    form.querySelectorAll('.erro-campo-texto').forEach((el) => el.remove());
+}
+
+/**
+ * Laravel devolve erros com chave em dot notation (ex: "contratante.nome"),
+ * mas os inputs usam bracket notation (ex: name="contratante[nome]").
+ * Essa função converte o name do input pro formato de chave do Laravel.
+ */
+function nomeInputParaChaveErro(nomeInput) {
+    // "contratante[nome]" -> "contratante.nome"
+    return nomeInput.replace(/\[([^\]]+)\]/g, '.$1');
+}
+
+/**
+ * Insere a mensagem de erro logo abaixo do elemento e marca a borda.
+ */
+function marcarElementoComErro(elemento, mensagem) {
+    elemento.classList.add('campo-invalido', 'border-red-400');
+
+    const texto = document.createElement('p');
+    texto.className = 'erro-campo-texto text-xs text-brand-red mt-1';
+    texto.textContent = mensagem;
+
+    elemento.insertAdjacentElement('afterend', texto);
+}
+
+/**
+ * Recebe o objeto `errors` retornado pelo Laravel (422) e marca cada campo
+ * correspondente, inserindo uma mensagem logo abaixo dele. Campos dos
+ * editores TipTap são redirecionados pro container visível do editor,
+ * já que o input real é hidden.
+ */
+function exibirErrosDeCampo(form, errors) {
+    limparErrosDeCampo(form);
+
+    const chavesTratadas = new Set();
+
+    // Primeiro, trata os casos com mapeamento especial (editores TipTap)
+    for (const [chave, elementoSelector] of Object.entries(MAPA_ERRO_PARA_ELEMENTO_VISIVEL)) {
+        const mensagens = errors[chave];
+        if (!mensagens?.length) continue;
+
+        const elemento = document.querySelector(elementoSelector);
+        if (elemento) {
+            marcarElementoComErro(elemento, mensagens[0]);
+            chavesTratadas.add(chave);
+        }
+    }
+
+    // Depois, percorre os inputs normais do form
+    const inputs = form.querySelectorAll('[name]');
+    inputs.forEach((input) => {
+        const chave = nomeInputParaChaveErro(input.name);
+        if (chavesTratadas.has(chave)) return;
+
+        const mensagens = errors[chave];
+        if (!mensagens?.length) return;
+
+        marcarElementoComErro(input, mensagens[0]);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const config = window.contractFormConfig || {};
 
@@ -231,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         erroBox?.classList.add('hidden');
         resultado?.classList.add('hidden');
+        limparErrosDeCampo(form);
         submitBtn.disabled = true;
         submitBtn.textContent = 'Gerando...';
 
@@ -242,29 +325,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
                     Accept: 'application/json',
                 },
                 body: JSON.stringify(payload),
             });
 
-            if (!response.ok) {
-                const body = await response.json().catch(() => null);
-                const msg = body?.message || 'Confira os campos obrigatórios.';
-                throw new Error(msg);
+            if (response.ok) {
+                const data = await response.json();
+
+                if (linkDownload) {
+                    linkDownload.href = data.download_url;
+                    linkDownload.onclick = (ev) => {
+                        ev.preventDefault();
+                        downloadContract(data.download_url, `contrato-v${data.version}.docx`);
+                    };
+                }
+                resultado?.classList.remove('hidden');
+                return;
             }
 
-            const data = await response.json();
-
-            if (linkDownload) {
-                linkDownload.href = data.download_url;
-                linkDownload.onclick = (ev) => {
-                    ev.preventDefault();
-                    downloadContract(data.download_url, `contrato-v${data.version}.docx`);
-                };
+            // Qualquer status de erro (419, 422, 500...) cai aqui.
+            let body = null;
+            try {
+                body = await response.json();
+            } catch {
+                // resposta não veio em JSON (ex: página de erro HTML do 419/500)
             }
-            resultado?.classList.remove('hidden');
+
+            if (response.status === 422 && body?.errors) {
+                exibirErrosDeCampo(form, body.errors);
+            }
+
+            if (erroBox) {
+                erroBox.textContent = body?.message
+                    || `Erro ao gerar contrato (HTTP ${response.status}). Confira os campos e tente novamente.`;
+                erroBox.classList.remove('hidden');
+            }
+
+            form.querySelector('.campo-invalido')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } catch (err) {
+            // erro de rede, não de resposta HTTP
             if (erroBox) {
                 erroBox.textContent = 'Erro ao gerar contrato: ' + err.message;
                 erroBox.classList.remove('hidden');
