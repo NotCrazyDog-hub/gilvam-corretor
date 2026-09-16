@@ -47,11 +47,11 @@
 
                     <div x-show="open" x-cloak x-transition
                          class="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
-                        <a href="{{ route('contracts.create', ['client_type' => 'pf']) }}"
+                        <a href="{{ route('contracts.create.pf') }}"
                            class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                             Contrato Pessoa física
                         </a>
-                        <a href="{{ route('contracts.create', ['client_type' => 'pj']) }}"
+                        <a href="{{ route('contracts.create.pj') }}"
                            class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                             Contrato Pessoa jurídica
                         </a>
@@ -75,14 +75,12 @@
                     @forelse ($groups as $group)
                         <tr class="hover:bg-slate-50">
                             <td class="p-3 border-b border-slate-200 text-sm font-medium">
-                                {{ $group->latestVersion->contratante['nome'] ?? '—' }}
+                                {{ $group->client_display_name }}
                             </td>
                             <td class="p-3 border-b border-slate-200">
-                                @if ($group->contract_type === 'pf')
-                                    <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-green-100 text-brand-green">PF</span>
-                                @else
-                                    <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-red-100 text-brand-red">PJ</span>
-                                @endif
+                                <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-slate-100 text-slate-600">
+                                    {{ \Illuminate\Support\Str::of($group->contract_type)->replace('_', ' ')->title() }}
+                                </span>
                             </td>
                             <td class="p-3 border-b border-slate-200 text-sm text-slate-600">
                                 Versão {{ $group->latestVersion->version ?? '—' }}
@@ -91,7 +89,7 @@
                                 {{ $group->latestVersion?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}
                             </td>
                             <td class="p-3 border-b border-slate-200 text-sm">
-                                <a href="{{ route('contracts.edit', $group) }}" class="text-brand-green font-semibold hover:underline">Editar</a> ·
+                                <a href="{{ route('contracts.edit', $group) }}?from=index" class="text-brand-green font-semibold hover:underline">Editar</a> ·
                                 <a href="{{ route('contracts.versions', $group) }}" class="text-brand-green font-semibold hover:underline ml-1">Histórico</a>
                             </td>
                         </tr>
@@ -107,6 +105,6 @@
                 {{ $groups->links() }}
             </div>
 
-        </div>
+         </div>
     </div>
 </x-app-layout>

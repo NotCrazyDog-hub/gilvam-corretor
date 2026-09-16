@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use App\Models\ContractGroup;
 use App\Services\ContractGeneratorService;
+use App\Http\Requests\StoreContractRequest;
+use App\Http\Requests\UpdateContractRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PessoaFisica;
@@ -39,9 +41,9 @@ class ContractController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreContractRequest $request)
     {
-        $data = $this->validatedData($request);
+        $data = $request->validated();
 
         $contract = $this->generator->generate(
             group: null,
@@ -69,9 +71,9 @@ class ContractController extends Controller
     /**
      * "Editar" nunca sobrescreve: cria uma versão nova dentro do mesmo grupo.
      */
-    public function update(Request $request, ContractGroup $group)
+    public function update(UpdateContractRequest $request, ContractGroup $group)
     {
-        $data = $this->validatedData($request);
+        $data = $request->validated();
 
         $contract = $this->generator->generate(
             group: $group,
@@ -99,35 +101,6 @@ class ContractController extends Controller
         abort_unless($contract->file_path && Storage::exists($contract->file_path), 404);
 
         return Storage::download($contract->file_path, $contract->fileName());
-    }
-
-    private function validatedData(Request $request): array
-    {
-        $validated = $request->validate([
-            'client_type'   => 'required|string|in:pf,pj',
-            'client_id'     => 'required|integer',
-            'contract_type' => 'nullable|string|max:255',
-
-            'contratante'       => 'required|array',
-            'contratante.nome'  => 'required|string|max:255',
-            'contratante.cpf'   => 'required|string|max:20',
-
-            'contratado'          => 'required|array',
-            'contratado.nome'     => 'required|string|max:255',
-            'contratado.cpf_cnpj' => 'required|string|max:20',
-
-            'imovel' => 'required|array',
-
-            'content_json' => 'nullable|array',
-            'content_html' => 'nullable|string',
-        ]);
-
-        $table = $validated['client_type'] === 'pf' ? 'pessoas_fisicas' : 'pessoas_juridicas';
-        if (!DB::table($table)->where('id', $validated['client_id'])->exists()) {
-            abort(422, 'Cliente selecionado não foi encontrado.');
-        }
-
-        return $validated;
     }
 
     private function contractPayload(Contract $contract): array
