@@ -20,7 +20,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('pessoas-fisicas.update', $pessoasFisica) }}" method="POST">
+                <form action="{{ route('pessoas-fisicas.update', $pessoasFisica) }}" method="POST" id="form-pessoa-fisica">
                     @csrf
                     @method('PUT')
 
@@ -33,8 +33,8 @@
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">CPF</label>
-                            <input type="text" name="cpf" value="{{ old('cpf', $pessoasFisica->cpf) }}" maxlength="11"
-                                   placeholder="Somente números"
+                            <input type="text" name="cpf" value="{{ old('cpf', $pessoasFisica->cpf) }}" maxlength="14"
+                                   placeholder="000.000.000-00" data-mask="cpf"
                                    class="mt-1 block w-full rounded border-gray-300">
                         </div>
                         <div>
@@ -81,6 +81,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Telefone</label>
                             <input type="text" name="telefone" value="{{ old('telefone', $pessoasFisica->telefone) }}"
+                                   maxlength="15" placeholder="(00) 00000-0000" data-mask="telefone"
                                    class="mt-1 block w-full rounded border-gray-300">
                         </div>
                         <div>
@@ -112,4 +113,49 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function maskCPF(value) {
+            value = value.replace(/\D/g, '').slice(0, 11);
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            return value;
+        }
+
+        function maskTelefone(value) {
+            value = value.replace(/\D/g, '').slice(0, 11);
+            value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+            if (value.length > 10) {
+                value = value.replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+            } else {
+                value = value.replace(/(\d{4})(\d{1,4})$/, '$1-$2');
+            }
+            return value;
+        }
+
+        function unmask(value) {
+            return value.replace(/\D/g, '');
+        }
+
+        document.querySelectorAll('[data-mask="cpf"]').forEach((input) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = maskCPF(e.target.value);
+            });
+            input.value = maskCPF(input.value);
+        });
+
+        document.querySelectorAll('[data-mask="telefone"]').forEach((input) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = maskTelefone(e.target.value);
+            });
+            input.value = maskTelefone(input.value);
+        });
+
+        document.getElementById('form-pessoa-fisica').addEventListener('submit', () => {
+            document.querySelectorAll('[data-mask="cpf"], [data-mask="telefone"]').forEach((input) => {
+                input.value = unmask(input.value);
+            });
+        });
+    </script>
 </x-app-layout>

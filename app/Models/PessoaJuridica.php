@@ -33,6 +33,36 @@ class PessoaJuridica extends Model
         return Crypt::decryptString($value);
     }
 
+    protected function getRepresentanteLegalCpfFormatadoAttribute(): string
+    {
+        $cpf = preg_replace('/\D/', '', $this->representante_legal_cpf ?? '');
+
+        if (strlen($cpf) !== 11) {
+            return $this->representante_legal_cpf ?? '—';
+        }
+
+        return preg_replace(
+            '/(\d{3})(\d{3})(\d{3})(\d{2})/',
+            '$1.$2.$3-$4',
+            $cpf
+        );
+    }
+
+    protected function getCnpjFormatadoAttribute(): string
+    {
+        $cnpj = preg_replace('/\D/', '', $this->cnpj ?? '');
+
+        if (strlen($cnpj) !== 14) {
+            return $this->cnpj ?? '—';
+        }
+
+        return preg_replace(
+            '/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/',
+            '$1.$2.$3/$4-$5',
+            $cnpj
+        );
+    }
+
     public function contractGroups(): MorphMany
     {
         return $this->morphMany(ContractGroup::class, 'client');
