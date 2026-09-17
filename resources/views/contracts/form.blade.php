@@ -141,7 +141,7 @@
                     </div>
 
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="editor-outros-dados">
-                        Outras informações
+                        Outros dados
                     </label>
                     <div id="editor-outros-dados"
                          class="min-h-[120px] border border-slate-300 rounded-md p-3 text-sm mb-6 focus-within:border-brand-red"></div>
