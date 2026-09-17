@@ -65,7 +65,7 @@
                     <thead>
                         <tr class="border-b">
                             <th class="py-2">Contratante</th>
-                            <th class="py-2">Tipo</th>
+                            <th class="py-2">Tipo de contrato</th>
                             <th class="py-2">Versão vigente</th>
                             <th class="py-2">Gerado em</th>
                             <th class="py-2 text-right">Ações</th>
