@@ -11,7 +11,7 @@ use RuntimeException;
 
 class ContractGeneratorService
 {
-    private const TEMPLATE_PATH = 'templates/contrato-de-corretagem-de-venda-de-imoveis.docx';
+    private const TEMPLATE_PATH = 'templates/contrato-de-corretagem-pf.docx';
 
     public function __construct(private ContractVersionService $versioner) {}
 

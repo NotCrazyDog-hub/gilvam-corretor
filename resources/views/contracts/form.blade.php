@@ -64,13 +64,13 @@
                     <legend class="px-2 text-sm font-semibold text-slate-800">I. Contratante</legend>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <input name="contratante[nome]" value="{{ $contratante['nome'] ?? '' }}" placeholder="Nome" required
+                        <input name="contratante[nome]" value="{{ $contratante['nome'] ?? '' }}" placeholder="Nome"
                                class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
 
                         <input name="contratante[estado_civil]" value="{{ $contratante['estado_civil'] ?? '' }}" placeholder="Estado civil"
                                class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
 
-                        <input name="contratante[cpf]" value="{{ $contratante['cpf'] ?? '' }}" placeholder="CPF" required
+                        <input name="contratante[cpf]" value="{{ $contratante['cpf'] ?? '' }}" placeholder="CPF"
                                class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
 
                         <input name="contratante[conjuge_nome]" value="{{ $contratante['conjuge_nome'] ?? '' }}" placeholder="Nome do cônjuge"
@@ -100,10 +100,10 @@
                     <legend class="px-2 text-sm font-semibold text-slate-800">II. Contratado(a)</legend>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <input name="contratado[nome]" value="{{ $contratado['nome'] ?? 'Gilvam Vieira' }}" placeholder="Nome / Razão social" required
+                        <input name="contratado[nome]" value="{{ $contratado['nome'] ?? 'Gilvam Vieira' }}" placeholder="Nome / Razão social"
                                class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
 
-                        <input name="contratado[cpf_cnpj]" value="{{ $contratado['cpf_cnpj'] ?? '' }}" placeholder="CPF ou CNPJ" required
+                        <input name="contratado[cpf_cnpj]" value="{{ $contratado['cpf_cnpj'] ?? '' }}" placeholder="CPF ou CNPJ"
                                class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
 
                         <input name="contratado[endereco]" value="{{ $contratado['endereco'] ?? '' }}" placeholder="Endereço"
