@@ -60,86 +60,136 @@
                     $imovel = $contract->imovel ?? [];
                 @endphp
 
+                {{-- I. CONTRATANTE — segue a ordem/pareamento de linhas do template .docx --}}
                 <fieldset class="border border-slate-200 rounded-lg p-5">
                     <legend class="px-2 text-sm font-semibold text-slate-800">I. Contratante</legend>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <input name="contratante[nome]" value="{{ $contratante['nome'] ?? '' }}" placeholder="Nome"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 1: NOME --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="contratante[nome]" value="{{ $contratante['nome'] ?? '' }}" placeholder="Nome"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[estado_civil]" value="{{ $contratante['estado_civil'] ?? '' }}" placeholder="Estado civil"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 2: ESTADO CIVIL | PROFISSÃO --}}
+                        <div class="field-wrapper">
+                            <input name="contratante[estado_civil]" value="{{ $contratante['estado_civil'] ?? '' }}" placeholder="Estado civil"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[cpf]" value="{{ $contratante['cpf'] ?? '' }}" placeholder="CPF"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        <div class="field-wrapper">
+                            <input name="contratante[profissao]" value="{{ $contratante['profissao'] ?? '' }}" placeholder="Profissão"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[conjuge_nome]" value="{{ $contratante['conjuge_nome'] ?? '' }}" placeholder="Nome do cônjuge"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 3: CPF | IDENTIDADE --}}
+                        <div class="field-wrapper">
+                            <input name="contratante[cpf]" value="{{ $contratante['cpf'] ?? '' }}" placeholder="CPF"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[conjuge_cpf]" value="{{ $contratante['conjuge_cpf'] ?? '' }}" placeholder="CPF do cônjuge"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        <div class="field-wrapper">
+                            <input name="contratante[identidade]" value="{{ $contratante['identidade'] ?? '' }}" placeholder="Identidade"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[endereco]" value="{{ $contratante['endereco'] ?? '' }}" placeholder="Endereço"
-                               class="sm:col-span-2 rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 4: NOME DO CÔNJUGE --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="contratante[conjuge_nome]" value="{{ $contratante['conjuge_nome'] ?? '' }}" placeholder="Nome do cônjuge"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[telefones]" value="{{ $contratante['telefones'] ?? '' }}" placeholder="Telefones"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 5: ENDEREÇO | IDENTIDADE DO CÔNJUGE (pareamento do template) --}}
+                        <div class="field-wrapper">
+                            <input name="contratante[endereco]" value="{{ $contratante['endereco'] ?? '' }}" placeholder="Endereço"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[profissao]" value="{{ $contratante['profissao'] ?? '' }}" placeholder="Profissão"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        <div class="field-wrapper">
+                            <input name="contratante[conjuge_identidade]" value="{{ $contratante['conjuge_identidade'] ?? '' }}" placeholder="Identidade do cônjuge"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratante[identidade]" value="{{ $contratante['identidade'] ?? '' }}" placeholder="Identidade"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
-
-                        <input name="contratante[conjuge_identidade]" value="{{ $contratante['conjuge_identidade'] ?? '' }}" placeholder="Identidade do cônjuge"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 6: TELEFONES --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="contratante[telefones]" value="{{ $contratante['telefones'] ?? '' }}" placeholder="Telefones"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
                     </div>
                 </fieldset>
 
+                {{-- II. CONTRATADO --}}
                 <fieldset class="border border-slate-200 rounded-lg p-5">
                     <legend class="px-2 text-sm font-semibold text-slate-800">II. Contratado(a)</legend>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <input name="contratado[nome]" value="{{ $contratado['nome'] ?? 'Gilvam Vieira' }}" placeholder="Nome / Razão social"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 1: NOME --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="contratado[nome]" value="{{ $contratado['nome'] ?? 'Gilvam Vieira' }}" placeholder="Nome / Razão social"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratado[cpf_cnpj]" value="{{ $contratado['cpf_cnpj'] ?? '' }}" placeholder="CPF ou CNPJ"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 2: CPF/CNPJ | CRECI --}}
+                        <div class="field-wrapper">
+                            <input name="contratado[cpf_cnpj]" value="{{ $contratado['cpf_cnpj'] ?? '' }}" placeholder="CPF ou CNPJ"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratado[endereco]" value="{{ $contratado['endereco'] ?? '' }}" placeholder="Endereço"
-                               class="sm:col-span-2 rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        <div class="field-wrapper">
+                            <input name="contratado[creci]" value="{{ $contratado['creci'] ?? '' }}" placeholder="CRECI"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratado[telefones]" value="{{ $contratado['telefones'] ?? '' }}" placeholder="Telefones"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 3: ENDEREÇO --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="contratado[endereco]" value="{{ $contratado['endereco'] ?? '' }}" placeholder="Endereço"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="contratado[creci]" value="{{ $contratado['creci'] ?? '' }}" placeholder="CRECI"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 4: TELEFONES --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="contratado[telefones]" value="{{ $contratado['telefones'] ?? '' }}" placeholder="Telefones"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
                     </div>
                 </fieldset>
 
+                {{-- III. OBJETO DO CONTRATO --}}
                 <fieldset class="border border-slate-200 rounded-lg p-5">
                     <legend class="px-2 text-sm font-semibold text-slate-800">III. Objeto do Contrato</legend>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        <input name="imovel[tipo]" value="{{ $imovel['tipo'] ?? '' }}" placeholder="Tipo de imóvel"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 1: TIPO DE IMÓVEL --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="imovel[tipo]" value="{{ $imovel['tipo'] ?? '' }}" placeholder="Tipo de imóvel"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="imovel[localizacao]" value="{{ $imovel['localizacao'] ?? '' }}" placeholder="Localização"
-                               class="sm:col-span-2 rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 2: LOCALIZAÇÃO --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="imovel[localizacao]" value="{{ $imovel['localizacao'] ?? '' }}" placeholder="Localização"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="imovel[documento_propriedade]" value="{{ $imovel['documento_propriedade'] ?? '' }}" placeholder="Documento de propriedade"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 3: DOCUMENTO DE PROPRIEDADE --}}
+                        <div class="field-wrapper sm:col-span-2">
+                            <input name="imovel[documento_propriedade]" value="{{ $imovel['documento_propriedade'] ?? '' }}" placeholder="Documento de propriedade"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="imovel[matricula]" value="{{ $imovel['matricula'] ?? '' }}" placeholder="Matrícula"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        {{-- linha 4: MATRÍCULA | INSCRIÇÃO PREFEITURA --}}
+                        <div class="field-wrapper">
+                            <input name="imovel[matricula]" value="{{ $imovel['matricula'] ?? '' }}" placeholder="Matrícula"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
 
-                        <input name="imovel[inscricao_prefeitura]" value="{{ $imovel['inscricao_prefeitura'] ?? '' }}" placeholder="Inscrição prefeitura"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
-
-                        <input name="imovel[preco_venda]" value="{{ $imovel['preco_venda'] ?? '' }}" placeholder="Preço para venda"
-                               class="rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        <div class="field-wrapper">
+                            <input name="imovel[inscricao_prefeitura]" value="{{ $imovel['inscricao_prefeitura'] ?? '' }}" placeholder="Inscrição prefeitura"
+                                   class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red">
+                        </div>
                     </div>
 
+                    {{-- linha 5: OUTROS DADOS --}}
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="editor-outros-dados">
                         Outros dados
                     </label>
@@ -148,6 +198,20 @@
                     <input type="hidden" name="imovel[outros_dados]" id="input-outros-dados">
                     <input type="hidden" name="content_json[outros_dados]" id="input-outros-dados-json">
 
+                    {{-- linha 6: PREÇO PARA VENDA --}}
+                    <div class="field-wrapper mb-6">
+                        <input
+                            type="text"
+                            inputmode="numeric"
+                            id="input-preco-venda"
+                            name="imovel[preco_venda]"
+                            value="{{ $imovel['preco_venda'] ?? '' }}"
+                            placeholder="R$ 0,00"
+                            class="w-full rounded-md border-slate-300 text-sm focus:border-brand-red focus:ring-brand-red"
+                        >
+                    </div>
+
+                    {{-- linha 7: CONDIÇÕES DE PAGAMENTO --}}
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="editor-condicoes">
                         Condições de pagamento
                     </label>

@@ -229,6 +229,13 @@ function nomeInputParaChaveErro(nomeInput) {
 
 /**
  * Insere a mensagem de erro logo abaixo do elemento e marca a borda.
+ *
+ * Importante: a mensagem é inserida DENTRO do wrapper do campo
+ * (.field-wrapper), nunca como sibling direto do input no grid.
+ * Se o erro virasse um item a mais no grid, ele empurraria todos os
+ * campos seguintes uma célula pra frente, quebrando o alinhamento
+ * das colunas. Inserindo dentro do wrapper, só a altura daquela
+ * célula específica cresce.
  */
 function marcarElementoComErro(elemento, mensagem) {
     elemento.classList.add('campo-invalido', 'border-red-400');
@@ -237,7 +244,14 @@ function marcarElementoComErro(elemento, mensagem) {
     texto.className = 'erro-campo-texto text-xs text-brand-red mt-1';
     texto.textContent = mensagem;
 
-    elemento.insertAdjacentElement('afterend', texto);
+    const wrapper = elemento.closest('.field-wrapper');
+    if (wrapper) {
+        wrapper.appendChild(texto);
+    } else {
+        // fallback pra elementos fora de um field-wrapper (ex: containers
+        // dos editores TipTap, que já ficam fora do grid)
+        elemento.insertAdjacentElement('afterend', texto);
+    }
 }
 
 /**
@@ -276,6 +290,34 @@ function exibirErrosDeCampo(form, errors) {
     });
 }
 
+/**
+ * Máscara de moeda (BRL) pro campo de preço de venda. Trata a entrada
+ * como centavos e formata com toLocaleString — o valor enviado no form
+ * já sai formatado (ex: "R$ 1.500,00").
+ */
+function mountCurrencyMask(inputSelector) {
+    const input = document.querySelector(inputSelector);
+    if (!input) return;
+
+    const formatarMoeda = (valor) => {
+        const digits = valor.replace(/\D/g, '');
+        const numero = (Number(digits) / 100) || 0;
+
+        return numero.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        });
+    };
+
+    if (input.value) {
+        input.value = formatarMoeda(input.value);
+    }
+
+    input.addEventListener('input', (e) => {
+        e.target.value = formatarMoeda(e.target.value);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const config = window.contractFormConfig || {};
 
@@ -299,6 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
         clientIdSelector: '#input-client-id',
         searchUrl: '/contracts/pessoas-fisicas/search',
     });
+
+    mountCurrencyMask('#input-preco-venda');
 
     const form = document.getElementById('contract-form');
     if (!form) return;
