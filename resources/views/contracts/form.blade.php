@@ -224,7 +224,7 @@
                 <div class="flex justify-end gap-3">
                     <a href="{{ request('from') === 'versions' ? route('contracts.versions', $group) : route('contracts.index') }}"
                         class="bg-white hover:bg-red-50 text-brand-red border border-brand-red shadow-sm rounded-lg px-5 py-2.5 text-sm font-bold transition">
-                        Cancelar
+                        Cancelar e voltar
                     </a>
 
                     <button type="submit" id="submit-btn"

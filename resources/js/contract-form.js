@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     linkDownload.href = data.download_url;
                     linkDownload.onclick = (ev) => {
                         ev.preventDefault();
-                        downloadContract(data.download_url, `contrato-v${data.version}.docx`);
+                        downloadContract(data.download_url, data.file_name);
                     };
                 }
                 resultado?.classList.remove('hidden');
