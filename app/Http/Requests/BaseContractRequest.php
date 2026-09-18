@@ -16,8 +16,8 @@ abstract class BaseContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_type'   => 'required|string|in:pf,pj',
-            'client_id'     => 'required|integer',
+            'client_type'   => 'nullable|string|in:pf,pj',
+            'client_id'     => 'nullable|integer',
             'contract_type' => 'nullable|string|max:255',
 
             'contratante'              => 'required|array',
@@ -78,8 +78,15 @@ abstract class BaseContractRequest extends FormRequest
             $clientType = $this->input('client_type');
             $clientId = $this->input('client_id');
 
-            if (!$clientType || !$clientId) {
-                return; // já barrado pelas rules 'required' acima
+            // Vínculo com cadastro é opcional — só valida se o usuário de fato
+            // selecionou alguém na busca (client_id preenchido).
+            if (!$clientId) {
+                return;
+            }
+
+            if (!$clientType) {
+                $validator->errors()->add('client_type', 'Informe o tipo de cliente junto com o cliente selecionado.');
+                return;
             }
 
             $table = $clientType === 'pf' ? 'pessoas_fisicas' : 'pessoas_juridicas';
