@@ -7,6 +7,18 @@
         </div>
     </x-slot>
 
+    <style>
+        /* Os campos seguem o estilo "tabela" do .docx (sem borda própria no
+           input), então marcar erro só com border-red-400 não aparecia —
+           border-width continuava 0. Usamos outline (não afeta o layout)
+           + fundo leve pra destacar o campo inválido. */
+        .campo-invalido {
+            background-color: #fef2f2;
+            outline: 2px solid #f87171;
+            outline-offset: -2px;
+        }
+    </style>
+
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-[900px] mx-auto bg-white p-8 rounded-lg shadow-sm font-sans text-black">
 
@@ -73,66 +85,84 @@
 
                     <div class="border border-black divide-y divide-black text-sm">
                         {{-- linha 1: NOME --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">NOME:</label>
-                            <input name="contratante[nome]" value="{{ $contratante['nome'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">NOME:</label>
+                                <input name="contratante[nome]" value="{{ $contratante['nome'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
 
                         {{-- linha 2: ESTADO CIVIL | PROFISSÃO --}}
                         <div class="grid grid-cols-2 divide-x divide-black">
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">ESTADO CIVIL:</label>
-                                <input name="contratante[estado_civil]" value="{{ $contratante['estado_civil'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">ESTADO CIVIL:</label>
+                                    <input name="contratante[estado_civil]" value="{{ $contratante['estado_civil'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">PROFISSÃO:</label>
-                                <input name="contratante[profissao]" value="{{ $contratante['profissao'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">PROFISSÃO:</label>
+                                    <input name="contratante[profissao]" value="{{ $contratante['profissao'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
                         </div>
 
                         {{-- linha 3: CPF | IDENTIDADE --}}
                         <div class="grid grid-cols-2 divide-x divide-black">
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">CPF(MF) Nº:</label>
-                                <input name="contratante[cpf]" value="{{ $contratante['cpf'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">CPF(MF) Nº:</label>
+                                    <input name="contratante[cpf]" value="{{ $contratante['cpf'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">IDENTIDADE Nº:</label>
-                                <input name="contratante[identidade]" value="{{ $contratante['identidade'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">IDENTIDADE Nº:</label>
+                                    <input name="contratante[identidade]" value="{{ $contratante['identidade'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
                         </div>
 
                         {{-- linha 4: NOME DO CÔNJUGE --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">NOME DO CÔNJUGE:</label>
-                            <input name="contratante[conjuge_nome]" value="{{ $contratante['conjuge_nome'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
-                        </div>
-
-                        {{-- linha 5: ENDEREÇO | IDENTIDADE DO CÔNJUGE (pareamento do template) --}}
-                        <div class="grid grid-cols-2 divide-x divide-black">
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">ENDEREÇO:</label>
-                                <input name="contratante[endereco]" value="{{ $contratante['endereco'] ?? '' }}"
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">NOME DO CÔNJUGE:</label>
+                                <input name="contratante[conjuge_nome]" value="{{ $contratante['conjuge_nome'] ?? '' }}"
                                        class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
                             </div>
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">IDENTIDADE Nº:</label>
+                        </div>
+
+                        {{-- linha 5: IDENTIDADE DO CÔNJUGE --}}
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">IDENTIDADE DO CÔNJUGE Nº:</label>
                                 <input name="contratante[conjuge_identidade]" value="{{ $contratante['conjuge_identidade'] ?? '' }}"
                                        class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
                             </div>
                         </div>
 
-                        {{-- linha 6: TELEFONES --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">TELEFONES:</label>
-                            <input name="contratante[telefones]" value="{{ $contratante['telefones'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        {{-- linha 6: ENDEREÇO --}}
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">ENDEREÇO:</label>
+                                <input name="contratante[endereco]" value="{{ $contratante['endereco'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
+                        </div>
+
+                        {{-- linha 7: TELEFONES --}}
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">TELEFONES:</label>
+                                <input name="contratante[telefones]" value="{{ $contratante['telefones'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -143,38 +173,48 @@
 
                     <div class="border border-black divide-y divide-black text-sm">
                         {{-- linha 1: NOME --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">NOME:</label>
-                            <input name="contratado[nome]" value="{{ $contratado['nome'] ?? 'Gilvam Vieira' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">NOME:</label>
+                                <input name="contratado[nome]" value="{{ $contratado['nome'] ?? 'Gilvam Vieira' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
 
                         {{-- linha 2: CPF/CNPJ | CRECI --}}
                         <div class="grid grid-cols-2 divide-x divide-black">
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">CPF(MF) ou CNPJ(MF):</label>
-                                <input name="contratado[cpf_cnpj]" value="{{ $contratado['cpf_cnpj'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">CPF(MF) ou CNPJ(MF):</label>
+                                    <input name="contratado[cpf_cnpj]" value="{{ $contratado['cpf_cnpj'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">CRECI - 15ª REGIÃO Nº:</label>
-                                <input name="contratado[creci]" value="{{ $contratado['creci'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">CRECI - 15ª REGIÃO Nº:</label>
+                                    <input name="contratado[creci]" value="{{ $contratado['creci'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
                         </div>
 
                         {{-- linha 3: ENDEREÇO --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">ENDEREÇO:</label>
-                            <input name="contratado[endereco]" value="{{ $contratado['endereco'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">ENDEREÇO:</label>
+                                <input name="contratado[endereco]" value="{{ $contratado['endereco'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
 
                         {{-- linha 4: TELEFONES --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">TELEFONES:</label>
-                            <input name="contratado[telefones]" value="{{ $contratado['telefones'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">TELEFONES:</label>
+                                <input name="contratado[telefones]" value="{{ $contratado['telefones'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -185,42 +225,52 @@
 
                     <div class="border border-black divide-y divide-black text-sm">
                         {{-- linha 1: TIPO DE IMÓVEL --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">TIPO DE IMÓVEL:</label>
-                            <input name="imovel[tipo]" value="{{ $imovel['tipo'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">TIPO DE IMÓVEL:</label>
+                                <input name="imovel[tipo]" value="{{ $imovel['tipo'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
 
                         {{-- linha 2: LOCALIZAÇÃO --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">LOCALIZAÇÃO:</label>
-                            <input name="imovel[localizacao]" value="{{ $imovel['localizacao'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">LOCALIZAÇÃO:</label>
+                                <input name="imovel[localizacao]" value="{{ $imovel['localizacao'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
 
                         {{-- linha 3: DOCUMENTO DE PROPRIEDADE --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">DOCUMENTO DE PROPRIEDADE:</label>
-                            <input name="imovel[documento_propriedade]" value="{{ $imovel['documento_propriedade'] ?? '' }}"
-                                   class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">DOCUMENTO DE PROPRIEDADE:</label>
+                                <input name="imovel[documento_propriedade]" value="{{ $imovel['documento_propriedade'] ?? '' }}"
+                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            </div>
                         </div>
 
                         {{-- linha 4: MATRÍCULA | INSCRIÇÃO PREFEITURA --}}
                         <div class="grid grid-cols-2 divide-x divide-black">
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">MATRÍCULA:</label>
-                                <input name="imovel[matricula]" value="{{ $imovel['matricula'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">MATRÍCULA:</label>
+                                    <input name="imovel[matricula]" value="{{ $imovel['matricula'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
-                            <div class="flex items-baseline gap-1 px-2 py-1.5">
-                                <label class="font-bold whitespace-nowrap">INSCRIÇÃO PREFEITURA:</label>
-                                <input name="imovel[inscricao_prefeitura]" value="{{ $imovel['inscricao_prefeitura'] ?? '' }}"
-                                       class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                            <div class="field-wrapper px-2 py-1.5">
+                                <div class="flex items-baseline gap-1">
+                                    <label class="font-bold whitespace-nowrap">INSCRIÇÃO PREFEITURA:</label>
+                                    <input name="imovel[inscricao_prefeitura]" value="{{ $imovel['inscricao_prefeitura'] ?? '' }}"
+                                           class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                                </div>
                             </div>
                         </div>
 
                         {{-- linha 5: OUTROS DADOS --}}
-                        <div class="px-2 py-1.5">
+                        <div class="field-wrapper px-2 py-1.5">
                             <label class="font-bold block mb-1" for="editor-outros-dados">OUTROS DADOS:</label>
                             <div id="editor-outros-dados"
                                  class="min-h-[100px] border border-slate-300 p-2 text-sm focus-within:border-black"></div>
@@ -229,21 +279,23 @@
                         </div>
 
                         {{-- linha 6: PREÇO PARA VENDA --}}
-                        <div class="flex items-baseline gap-1 px-2 py-1.5">
-                            <label class="font-bold whitespace-nowrap">PREÇO PARA VENDA:</label>
-                            <input
-                                type="text"
-                                inputmode="numeric"
-                                id="input-preco-venda"
-                                name="imovel[preco_venda]"
-                                value="{{ $imovel['preco_venda'] ?? '' }}"
-                                placeholder="R$ 0,00"
-                                class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0"
-                            >
+                        <div class="field-wrapper px-2 py-1.5">
+                            <div class="flex items-baseline gap-1">
+                                <label class="font-bold whitespace-nowrap">PREÇO PARA VENDA:</label>
+                                <input
+                                    type="text"
+                                    inputmode="numeric"
+                                    id="input-preco-venda"
+                                    name="imovel[preco_venda]"
+                                    value="{{ $imovel['preco_venda'] ?? '' }}"
+                                    placeholder="R$ 0,00"
+                                    class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0"
+                                >
+                            </div>
                         </div>
 
                         {{-- linha 7: CONDIÇÕES DE PAGAMENTO --}}
-                        <div class="px-2 py-1.5">
+                        <div class="field-wrapper px-2 py-1.5">
                             <label class="font-bold block mb-1" for="editor-condicoes">CONDIÇÕES DE PAGAMENTO:</label>
                             <div id="editor-condicoes"
                                  class="min-h-[100px] border border-slate-300 p-2 text-sm focus-within:border-black"></div>
