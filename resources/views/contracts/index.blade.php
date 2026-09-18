@@ -45,17 +45,23 @@
                             </svg>
                         </button>
 
-                        <div x-show="open" x-cloak x-transition
-                             class="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
-                            <a href="{{ route('contracts.create.pf') }}"
-                               class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                Contrato Pessoa física
-                            </a>
-                            <a href="{{ route('contracts.create.pj') }}"
-                               class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                Contrato Pessoa jurídica
-                            </a>
-                        </div>
+                <div x-show="open" x-cloak x-transition
+                    class="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
+                    <a href="{{ route('contracts.create.pf') }}"
+                    class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                        <svg class="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                        </svg>
+                        Contrato Pessoa física
+                    </a>
+                    <a href="{{ route('contracts.create.pj') }}"
+                    class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                        <svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9h1m-1 4h1m-1 4h1" />
+                        </svg>
+                        Contrato Pessoa jurídica
+                    </a>
+                </div>
                     </div>
 
                 </div>

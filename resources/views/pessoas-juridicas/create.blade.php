@@ -20,7 +20,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('pessoas-juridicas.store') }}" method="POST">
+                <form action="{{ route('pessoas-juridicas.store') }}" method="POST" id="form-pessoa-juridica">
                     @csrf
 
                     <div class="mb-4">
@@ -37,8 +37,8 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">CNPJ</label>
-                            <input type="text" name="cnpj" value="{{ old('cnpj') }}" maxlength="14"
-                                   placeholder="Somente números"
+                            <input type="text" name="cnpj" value="{{ old('cnpj') }}" maxlength="18"
+                                   placeholder="00.000.000/0000-00" data-mask="cnpj"
                                    class="mt-1 block w-full rounded border-gray-300">
                         </div>
                     </div>
@@ -69,7 +69,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">CPF do Representante</label>
                             <input type="text" name="representante_legal_cpf" value="{{ old('representante_legal_cpf') }}"
-                                   maxlength="11" placeholder="Somente números"
+                                   maxlength="14" placeholder="000.000.000-00" data-mask="cpf"
                                    class="mt-1 block w-full rounded border-gray-300">
                         </div>
                         <div>
@@ -95,4 +95,47 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function maskCPF(value) {
+            value = value.replace(/\D/g, '').slice(0, 11);
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            return value;
+        }
+
+        function maskCNPJ(value) {
+            value = value.replace(/\D/g, '').slice(0, 14);
+            value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+            value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+            value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+            return value;
+        }
+
+        function unmask(value) {
+            return value.replace(/\D/g, '');
+        }
+
+        document.querySelectorAll('[data-mask="cpf"]').forEach((input) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = maskCPF(e.target.value);
+            });
+            input.value = maskCPF(input.value);
+        });
+
+        document.querySelectorAll('[data-mask="cnpj"]').forEach((input) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = maskCNPJ(e.target.value);
+            });
+            input.value = maskCNPJ(input.value);
+        });
+
+        document.getElementById('form-pessoa-juridica').addEventListener('submit', () => {
+            document.querySelectorAll('[data-mask="cpf"], [data-mask="cnpj"]').forEach((input) => {
+                input.value = unmask(input.value);
+            });
+        });
+    </script>
 </x-app-layout>
