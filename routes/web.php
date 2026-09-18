@@ -37,7 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    Route::prefix('contratos')->name('contracts.')->group(function () {
+    Route::prefix('contracts')->name('contracts.')->group(function () {
         Route::get('/', [ContractController::class, 'index'])->name('index');
     
         Route::get('/create', [ContractController::class, 'chooseClientType'])->name('create');
