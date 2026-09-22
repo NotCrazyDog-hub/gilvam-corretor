@@ -11,6 +11,7 @@ import StarterKit from '@tiptap/starter-kit';
 const MAPA_ERRO_PARA_ELEMENTO_VISIVEL = {
     'imovel.outros_dados': '#editor-outros-dados',
     'imovel.condicoes_pagamento': '#editor-condicoes',
+    'clausulas': '#editor-clausulas',
 };
 
 /**
@@ -430,6 +431,13 @@ document.addEventListener('DOMContentLoaded', () => {
         hiddenJsonSelector: '#input-condicoes-json',
         hiddenHtmlSelector: '#input-condicoes',
         initialContent: config.condicoesContent,
+    });
+
+    mountEditor({
+        editorSelector: '#editor-clausulas',
+        hiddenJsonSelector: '#input-clausulas-json',
+        hiddenHtmlSelector: '#input-clausulas',
+        initialContent: config.clausulasContent,
     });
 
     mountClientSearch({

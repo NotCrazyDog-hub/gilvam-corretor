@@ -65,12 +65,6 @@ class ContractGeneratorService
     {
         $imovel = $data['imovel'];
 
-        // Campos de texto livre vêm como HTML do TipTap. setValue() só
-        // substitui texto simples (não interpreta <w:br/> automaticamente),
-        // então por ora achatamos pra texto corrido. Parágrafos viram uma
-        // quebra simples; se precisarem preservar múltiplos parágrafos no
-        // .docx final, o próximo passo é usar Html::addHtml() do PhpWord
-        // pra inserir um bloco rico em vez de um valor de texto.
         foreach (['outros_dados', 'condicoes_pagamento'] as $htmlField) {
             if (!empty($imovel[$htmlField])) {
                 $imovel[$htmlField] = $this->htmlToPlainText($imovel[$htmlField]);
@@ -81,6 +75,7 @@ class ContractGeneratorService
             'contratante' => $data['contratante'],
             'contratado'  => $data['contratado'],
             'imovel'      => $imovel,
+            'clausulas'   => !empty($data['clausulas']) ? $this->htmlToPlainText($data['clausulas']) : '',
         ];
     }
 

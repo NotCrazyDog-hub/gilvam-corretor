@@ -51,6 +51,8 @@ abstract class BaseContractRequest extends FormRequest
 
             'content_json' => 'nullable|array',
             'content_html' => 'nullable|string',
+
+            'clausulas' => 'nullable|string',
         ];
     }
 
