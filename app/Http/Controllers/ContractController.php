@@ -108,6 +108,7 @@ class ContractController extends Controller
         return [
             'group_uuid' => $contract->group->uuid,
             'version' => $contract->version,
+            'file_name' => $contract->fileName(),
             'download_url' => route('contracts.download', [
                 'group' => $contract->group->uuid,
                 'version' => $contract->version,

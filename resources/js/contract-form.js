@@ -192,6 +192,9 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
         for (const [name, value] of Object.entries(campos)) {
             const campo = document.querySelector(`[name="${name}"]`);
             if (campo && value) campo.value = value;
+            // dispara o listener 'input' pra reformatar o valor que acabou
+            // de ser preenchido programaticamente (CPF, telefone, etc.)
+            campo?.dispatchEvent(new Event('input'));
         }
 
         buscaInput.value = item.dataset.nome;
@@ -229,6 +232,13 @@ function nomeInputParaChaveErro(nomeInput) {
 
 /**
  * Insere a mensagem de erro logo abaixo do elemento e marca a borda.
+ *
+ * Importante: a mensagem é inserida DENTRO do wrapper do campo
+ * (.field-wrapper), nunca como sibling direto do input no grid.
+ * Se o erro virasse um item a mais no grid, ele empurraria todos os
+ * campos seguintes uma célula pra frente, quebrando o alinhamento
+ * das colunas. Inserindo dentro do wrapper, só a altura daquela
+ * célula específica cresce.
  */
 function marcarElementoComErro(elemento, mensagem) {
     elemento.classList.add('campo-invalido', 'border-red-400');
@@ -237,7 +247,14 @@ function marcarElementoComErro(elemento, mensagem) {
     texto.className = 'erro-campo-texto text-xs text-brand-red mt-1';
     texto.textContent = mensagem;
 
-    elemento.insertAdjacentElement('afterend', texto);
+    const wrapper = elemento.closest('.field-wrapper');
+    if (wrapper) {
+        wrapper.appendChild(texto);
+    } else {
+        // fallback pra elementos fora de um field-wrapper (ex: containers
+        // dos editores TipTap, que já ficam fora do grid)
+        elemento.insertAdjacentElement('afterend', texto);
+    }
 }
 
 /**
@@ -276,6 +293,128 @@ function exibirErrosDeCampo(form, errors) {
     });
 }
 
+/**
+ * Máscara de moeda (BRL) pro campo de preço de venda. Trata a entrada
+ * como centavos e formata com toLocaleString — o valor enviado no form
+ * já sai formatado (ex: "R$ 1.500,00").
+ */
+function mountCurrencyMask(inputSelector) {
+    const input = document.querySelector(inputSelector);
+    if (!input) return;
+
+    const formatarMoeda = (valor) => {
+        const digits = valor.replace(/\D/g, '');
+        const numero = (Number(digits) / 100) || 0;
+
+        return numero.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        });
+    };
+
+    if (input.value) {
+        input.value = formatarMoeda(input.value);
+    }
+
+    input.addEventListener('input', (e) => {
+        e.target.value = formatarMoeda(e.target.value);
+    });
+}
+
+/**
+ * Formata dígitos puros no padrão de CPF (000.000.000-00), progressivamente
+ * conforme o usuário digita.
+ */
+function formatarCpf(digits) {
+    return digits
+        .slice(0, 11)
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+}
+
+/**
+ * Formata dígitos puros no padrão de CNPJ (00.000.000/0000-00).
+ */
+function formatarCnpj(digits) {
+    return digits
+        .slice(0, 14)
+        .replace(/(\d{2})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1/$2')
+        .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+}
+
+/**
+ * Máscara de CPF pra um campo. Usado no contratante, que é sempre pessoa
+ * física.
+ */
+function mountCpfMask(inputSelector) {
+    const input = document.querySelector(inputSelector);
+    if (!input) return;
+
+    const aplicar = () => {
+        input.value = formatarCpf(input.value.replace(/\D/g, ''));
+    };
+
+    if (input.value) aplicar();
+    input.addEventListener('input', aplicar);
+}
+
+/**
+ * Máscara combinada de CPF/CNPJ. Usada no campo do contratado, que aceita
+ * PF ou PJ: até 11 dígitos formata como CPF, a partir do 12º dígito passa
+ * a formatar como CNPJ automaticamente — sem precisar de um campo separado
+ * pra escolher o tipo.
+ */
+function mountCpfCnpjMask(inputSelector) {
+    const input = document.querySelector(inputSelector);
+    if (!input) return;
+
+    const aplicar = () => {
+        const digits = input.value.replace(/\D/g, '').slice(0, 14);
+        input.value = digits.length > 11 ? formatarCnpj(digits) : formatarCpf(digits);
+    };
+
+    if (input.value) aplicar();
+    input.addEventListener('input', aplicar);
+}
+
+/**
+ * Formata um único telefone: fixo (10 dígitos, "(XX) XXXX-XXXX") ou
+ * celular (11 dígitos, "(XX) XXXXX-XXXX"), progressivamente conforme a
+ * quantidade de dígitos já digitados.
+ */
+function formatarTelefoneUnico(valor) {
+    const digits = valor.replace(/\D/g, '').slice(0, 11);
+
+    if (digits.length <= 2) return digits.replace(/(\d{0,2})/, '($1');
+    if (digits.length <= 6) return digits.replace(/(\d{2})(\d{0,4})/, '($1) $2');
+    if (digits.length <= 10) return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+}
+
+/**
+ * Máscara pro campo "telefones", que aceita mais de um número separado
+ * por "/" (ex: "(88) 99999-9999 / (88) 3333-4444"). Cada trecho entre
+ * barras é formatado de forma independente, preservando a barra como
+ * separador enquanto o usuário ainda está digitando o próximo número.
+ */
+function mountPhoneMask(inputSelector) {
+    const input = document.querySelector(inputSelector);
+    if (!input) return;
+
+    const aplicar = () => {
+        input.value = input.value
+            .split('/')
+            .map((parte) => formatarTelefoneUnico(parte))
+            .join(' / ');
+    };
+
+    if (input.value) aplicar();
+    input.addEventListener('input', aplicar);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const config = window.contractFormConfig || {};
 
@@ -299,6 +438,16 @@ document.addEventListener('DOMContentLoaded', () => {
         clientIdSelector: '#input-client-id',
         searchUrl: '/contracts/pessoas-fisicas/search',
     });
+
+    mountCurrencyMask('#input-preco-venda');
+
+    // Contratante: sempre pessoa física.
+    mountCpfMask('[name="contratante[cpf]"]');
+    mountPhoneMask('[name="contratante[telefones]"]');
+
+    // Contratado: pode ser PF ou PJ, então usa a máscara combinada.
+    mountCpfCnpjMask('[name="contratado[cpf_cnpj]"]');
+    mountPhoneMask('[name="contratado[telefones]"]');
 
     const form = document.getElementById('contract-form');
     if (!form) return;
@@ -338,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     linkDownload.href = data.download_url;
                     linkDownload.onclick = (ev) => {
                         ev.preventDefault();
-                        downloadContract(data.download_url, `contrato-v${data.version}.docx`);
+                        downloadContract(data.download_url, data.file_name);
                     };
                 }
                 resultado?.classList.remove('hidden');
