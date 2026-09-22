@@ -34,6 +34,13 @@
                         </svg>
                         Nova Pessoa Jurídica
                     </a>
+                    <a href="{{ route('imoveis.create') }}"
+                       class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <svg class="w-4 h-4 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7m-9-7v10a1 1 0 001 1h3m6-9l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Novo Imóvel
+                    </a>
                 </div>
             </div>
         </div>
