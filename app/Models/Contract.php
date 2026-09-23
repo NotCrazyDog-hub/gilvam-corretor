@@ -82,7 +82,7 @@ class Contract extends Model
         }
 
         $hoje = \Carbon\Carbon::today();
-        $dias = $hoje->diffInDays($this->data_termino, false); // negativo se já passou
+        $dias = $hoje->diffInDays($this->data_termino, false);
 
         if ($dias < 0) {
             $diasAtraso = abs($dias);
@@ -97,7 +97,7 @@ class Contract extends Model
             return $dias . ($dias === 1 ? ' dia' : ' dias');
         }
 
-        $meses = $hoje->diffInMonths($this->data_termino);
+        $meses = (int) floor($hoje->diffInMonths($this->data_termino));
         return '~' . $meses . ($meses === 1 ? ' mês' : ' meses');
     }
 }

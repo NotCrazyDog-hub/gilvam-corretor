@@ -73,8 +73,9 @@
                             <th class="py-2">Contratante</th>
                             <th class="py-2">Tipo de contrato</th>
                             <th class="py-2">Versão vigente</th>
+                            <th class="py-2">Situação</th>
+                            <th class="py-2">Validade</th>
                             <th class="py-2">Gerado em</th>
-                            <th class="py-2">Data de término</th>
                             <th class="py-2 text-right">Ações</th>
                         </tr>
                     </thead>
@@ -88,7 +89,25 @@
                                     </span>
                                 </td>
                                 <td class="py-2">Versão {{ $group->latestVersion->version ?? '—' }}</td>
-                                <td class="py-2">{{ $group->latestVersion?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}</td>
+                                <td class="py-2">
+                                    @php
+                                        $v = $group->latestVersion;
+                                        
+                                        $cores = [
+                                            'Vigente'       => 'bg-green-100 text-green-700',
+                                            'Vencendo'      => 'bg-orange-100 text-orange-700',
+                                            'Vencido'       => 'bg-red-100 text-red-700',
+                                            'Indeterminado' => 'bg-blue-100 text-blue-700',
+                                        ];
+                                    @endphp
+                                    @if ($v)
+                                        <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full {{ $cores[$v->situacao] ?? 'bg-slate-100 text-slate-600' }}">
+                                            {{ $v->situacao }}
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400">—</span>
+                                    @endif
+                                </td>
                                 <td class="py-2">
                                     @php $v = $group->latestVersion; @endphp
                                     @if ($v?->prazo_indeterminado)
@@ -102,6 +121,7 @@
                                         <span class="text-slate-400">—</span>
                                     @endif
                                 </td>
+                                <td class="py-2">{{ $group->latestVersion?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}</td>
                                 <td class="py-2 text-right space-x-2">
                                     <a href="{{ route('contracts.edit', $group) }}?from=index"
                                        class="text-yellow-600 hover:underline">Editar</a>
