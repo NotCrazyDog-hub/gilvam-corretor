@@ -161,6 +161,56 @@
 
             </div>
 
+            {{-- Seção de Imóveis --}}
+            <div class="mt-8">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7m-9-7v10a1 1 0 001 1h3m6-9l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Imóveis
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg p-4 border-l-4 border-orange-500 flex items-start gap-4">
+                        <div class="bg-orange-50 rounded-lg p-2">
+                            <svg class="w-6 h-6 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7m-9-7v10a1 1 0 001 1h3m6-9l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-medium text-gray-500 uppercase mb-1">Total de Imóveis</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $totalImoveis }}</p>
+                            <a href="{{ route('imoveis.index') }}"
+                               class="text-xs text-blue-600 hover:underline mt-1 inline-block">
+                                Ver todos →
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Últimos Imóveis</h3>
+
+                        @if ($ultimosImoveis->isEmpty())
+                            <p class="text-sm text-gray-400">Nenhum cadastro ainda.</p>
+                        @else
+                            <ul class="divide-y divide-gray-100">
+                                @foreach ($ultimosImoveis as $imovel)
+                                    <li class="py-2 flex justify-between items-center">
+                                        <span class="text-sm text-gray-700">{{ $imovel->tipo_label }} — {{ $imovel->bairro }}</span>
+                                        <a href="{{ route('imoveis.show', $imovel) }}"
+                                           class="text-xs text-blue-600 hover:underline">
+                                            Ver
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 </x-app-layout>
