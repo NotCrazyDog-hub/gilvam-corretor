@@ -390,12 +390,12 @@
 
                 <div class="flex justify-end gap-3 pt-2">
                     <a href="{{ request('from') === 'versions' ? route('contracts.versions', $group) : route('contracts.index') }}"
-                        class="bg-white hover:bg-red-50 text-brand-red border border-brand-red shadow-sm rounded-lg px-5 py-2.5 text-sm font-bold transition">
-                        Cancelar e voltar
+                        class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-lg px-5 py-2.5 text-sm font-bold transition">
+                        Cancelar ou voltar
                     </a>
 
                     <button type="submit" id="submit-btn"
-                            class="bg-brand-red hover:bg-brand-red-hover text-white shadow-sm rounded-lg px-5 py-2.5 text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg px-5 py-2.5 text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed">
                         {{ $group ? 'Salvar nova versão' : 'Gerar contrato' }}
                     </button>
                 </div>
