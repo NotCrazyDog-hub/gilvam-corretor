@@ -78,6 +78,32 @@
                 <input type="hidden" name="client_type" value="{{ $clientType ?? old('client_type') }}">
                 <input type="hidden" name="client_id" id="input-client-id" value="{{ $group->client_id ?? old('client_id') }}">
 
+                <fieldset class="border border-slate-300 p-4">
+                    <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                        Vigência do contrato (uso interno)
+                    </legend>
+
+                    <div class="grid grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label for="data_termino" class="block text-sm font-medium text-slate-700">Data de término</label>
+                            <input type="date" name="data_termino" id="data_termino"
+                                value="{{ old('data_termino', optional($contract?->data_termino)->format('Y-m-d')) }}"
+                                {{ old('prazo_indeterminado', $contract?->prazo_indeterminado ?? false) ? 'disabled' : '' }}
+                                class="mt-1 w-full border border-slate-300 text-sm px-2 py-1.5 focus:border-black focus:ring-0 focus:outline-none">
+                            @error('data_termino')
+                                <span class="text-red-600 text-xs">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="flex items-center gap-2 pb-2">
+                            <input type="checkbox" name="prazo_indeterminado" id="prazo_indeterminado" value="1"
+                                {{ old('prazo_indeterminado', $contract?->prazo_indeterminado) ? 'checked' : '' }}
+                                onchange="document.getElementById('data_termino').disabled = this.checked; if (this.checked) document.getElementById('data_termino').value = '';">
+                            <label for="prazo_indeterminado" class="text-sm text-slate-700">Prazo indeterminado</label>
+                        </div>
+                    </div>
+                </fieldset>
+                
                 @php
                     $contratante = $contract->contratante ?? [];
                     $contratado = $contract->contratado ?? [];

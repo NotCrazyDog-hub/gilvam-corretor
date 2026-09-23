@@ -74,6 +74,7 @@
                             <th class="py-2">Tipo de contrato</th>
                             <th class="py-2">Versão vigente</th>
                             <th class="py-2">Gerado em</th>
+                            <th class="py-2">Data de término</th>
                             <th class="py-2 text-right">Ações</th>
                         </tr>
                     </thead>
@@ -88,6 +89,19 @@
                                 </td>
                                 <td class="py-2">Versão {{ $group->latestVersion->version ?? '—' }}</td>
                                 <td class="py-2">{{ $group->latestVersion?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}</td>
+                                <td class="py-2">
+                                    @php $v = $group->latestVersion; @endphp
+                                    @if ($v?->prazo_indeterminado)
+                                        <span class="text-slate-500">Indeterminado</span>
+                                    @elseif ($v?->data_termino)
+                                        {{ $v->data_termino->format('d/m/Y') }}
+                                        <span class="text-xs {{ str_contains($v->tempo_restante, 'vencido') ? 'text-red-600 font-semibold' : 'text-slate-500' }}">
+                                            ({{ $v->tempo_restante }})
+                                        </span>
+                                    @else
+                                        <span class="text-slate-400">—</span>
+                                    @endif
+                                </td>
                                 <td class="py-2 text-right space-x-2">
                                     <a href="{{ route('contracts.edit', $group) }}?from=index"
                                        class="text-yellow-600 hover:underline">Editar</a>

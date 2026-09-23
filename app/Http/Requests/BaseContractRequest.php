@@ -53,6 +53,9 @@ abstract class BaseContractRequest extends FormRequest
             'content_html' => 'nullable|string',
 
             'clausulas' => 'nullable|string',
+
+            'data_termino'         => 'nullable|required_if:prazo_indeterminado,false|date|after:today',
+            'prazo_indeterminado'  => 'nullable|boolean',
         ];
     }
 
@@ -79,6 +82,9 @@ abstract class BaseContractRequest extends FormRequest
             'imovel.documento_propriedade.required' => 'O documento de propriedade do imóvel é obrigatório.',
             'imovel.matricula.required'        => 'A matrícula do imóvel é obrigatória.',
             'imovel.preco_venda.required'      => 'O preço de venda do imóvel é obrigatório.',
+
+            'data_termino.required_if' => 'Informe a data de término ou marque como prazo indeterminado.',
+            'data_termino.after'       => 'A data de término deve ser posterior a hoje.',
         ];
     }
 
