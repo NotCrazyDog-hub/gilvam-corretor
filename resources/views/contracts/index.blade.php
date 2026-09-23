@@ -17,7 +17,7 @@
                     <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                         <a href="{{ route('contracts.index') }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ request('client_type') ? 'text-slate-500 hover:text-slate-700' : 'bg-white text-brand-red shadow-sm' }}">
+                                  {{ request('client_type') ? 'text-slate-500 hover:text-slate-700' : 'bg-white text-brand-blue shadow-sm' }}">
                             Todos
                         </a>
                         <a href="{{ route('contracts.index', ['client_type' => 'pf']) }}"
@@ -92,7 +92,7 @@
                                 <td class="py-2">
                                     @php
                                         $v = $group->latestVersion;
-                                        
+
                                         $cores = [
                                             'Vigente'       => 'bg-green-100 text-green-700',
                                             'Vencendo'      => 'bg-orange-100 text-orange-700',
