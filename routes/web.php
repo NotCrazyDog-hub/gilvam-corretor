@@ -5,6 +5,7 @@ use App\Http\Controllers\ImovelController;
 use App\Http\Controllers\PessoaFisicaController;
 use App\Http\Controllers\PessoaJuridicaController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Imovel;
 use App\Models\PessoaFisica;
 use App\Models\PessoaJuridica;
 use Illuminate\Support\Facades\Route;
@@ -20,8 +21,10 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard', [
             'totalPessoasFisicas' => PessoaFisica::count(),
             'totalPessoasJuridicas' => PessoaJuridica::count(),
+            'totalImoveis' => Imovel::count(),
             'ultimasPessoasFisicas' => PessoaFisica::latest()->take(5)->get(),
             'ultimasPessoasJuridicas' => PessoaJuridica::latest()->take(5)->get(),
+            'ultimosImoveis' => Imovel::latest()->take(5)->get(),
         ]);
     })->name('dashboard');
 

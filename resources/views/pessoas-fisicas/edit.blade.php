@@ -20,7 +20,8 @@
                     </div>
                 @endif
 
-                <form action="{{ route('pessoas-fisicas.update', $pessoasFisica) }}" method="POST" id="form-pessoa-fisica">
+                <form action="{{ route('pessoas-fisicas.update', $pessoasFisica) }}" method="POST" id="form-pessoa-fisica"
+                      x-data="{ estadoCivil: @js(old('estado_civil', $pessoasFisica->estado_civil ?? '')) }">
                     @csrf
                     @method('PUT')
 
@@ -53,14 +54,32 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Estado Civil</label>
-                            <select name="estado_civil" class="mt-1 block w-full rounded border-gray-300">
+                            <select name="estado_civil" x-model="estadoCivil"
+                                    class="mt-1 block w-full rounded border-gray-300">
                                 <option value="">Selecione</option>
-                                @php $estadoCivil = old('estado_civil', $pessoasFisica->estado_civil); @endphp
-                                <option value="Solteiro(a)" @selected($estadoCivil == 'Solteiro(a)')>Solteiro(a)</option>
-                                <option value="Casado(a)" @selected($estadoCivil == 'Casado(a)')>Casado(a)</option>
-                                <option value="Divorciado(a)" @selected($estadoCivil == 'Divorciado(a)')>Divorciado(a)</option>
-                                <option value="Viúvo(a)" @selected($estadoCivil == 'Viúvo(a)')>Viúvo(a)</option>
+                                <option value="Solteiro(a)">Solteiro(a)</option>
+                                <option value="Casado(a)">Casado(a)</option>
+                                <option value="União estável">União estável</option>
+                                <option value="Divorciado(a)">Divorciado(a)</option>
+                                <option value="Viúvo(a)">Viúvo(a)</option>
                             </select>
+                        </div>
+                    </div>
+
+                    {{-- Dados do cônjuge: só aparecem se casado(a) ou união estável --}}
+                    <div x-show="['Casado(a)', 'União estável'].includes(estadoCivil)" x-cloak
+                         class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nome do Cônjuge</label>
+                            <input type="text" name="conjuge_nome"
+                                   value="{{ old('conjuge_nome', $pessoasFisica->conjuge_nome) }}"
+                                   class="mt-1 block w-full rounded border-gray-300">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Identidade (RG) do Cônjuge</label>
+                            <input type="text" name="conjuge_rg"
+                                   value="{{ old('conjuge_rg', $pessoasFisica->conjuge_rg) }}"
+                                   class="mt-1 block w-full rounded border-gray-300">
                         </div>
                     </div>
 
@@ -85,10 +104,18 @@
                                    class="mt-1 block w-full rounded border-gray-300">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" name="email" value="{{ old('email', $pessoasFisica->email) }}"
+                            <label class="block text-sm font-medium text-gray-700">Telefone Secundário</label>
+                            <input type="text" name="telefone_secundario"
+                                   value="{{ old('telefone_secundario', $pessoasFisica->telefone_secundario) }}"
+                                   maxlength="15" placeholder="(00) 00000-0000" data-mask="telefone"
                                    class="mt-1 block w-full rounded border-gray-300">
                         </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" value="{{ old('email', $pessoasFisica->email) }}"
+                               class="mt-1 block w-full rounded border-gray-300">
                     </div>
 
                     <div class="mb-6">

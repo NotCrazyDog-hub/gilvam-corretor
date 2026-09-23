@@ -12,6 +12,17 @@ class StorePessoaFisicaRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        // Sem cônjuge se não for casado(a) ou em união estável
+        if (!in_array($this->estado_civil, ['Casado(a)', 'União estável'])) {
+            $this->merge([
+                'conjuge_nome' => null,
+                'conjuge_rg'   => null,
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -20,9 +31,12 @@ class StorePessoaFisicaRequest extends FormRequest
             'rg' => ['nullable', 'string', 'max:20'],
             'data_nascimento' => ['required', 'date'],
             'estado_civil' => ['required', 'string', 'max:255'],
+            'conjuge_nome' => ['nullable', 'string', 'max:255'],
+            'conjuge_rg' => ['nullable', 'string', 'max:20'],
             'nacionalidade' => ['nullable', 'string', 'max:255'],
             'profissao' => ['nullable', 'string', 'max:255'],
             'telefone' => ['required', 'string', 'max:20'],
+            'telefone_secundario' => ['nullable', 'string', 'max:20'],
             'email' => ['required', 'email', 'max:255'],
             'endereco' => ['required', 'string', 'max:255'],
         ];
