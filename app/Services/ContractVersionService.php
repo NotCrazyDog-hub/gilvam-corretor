@@ -49,16 +49,18 @@ class ContractVersionService
         ?int $userId,
     ): Contract {
         return $group->versions()->create([
-            'version'      => $version,
-            'content_json' => $data['content_json'] ?? [],
-            'content_html' => $data['content_html'] ?? null,
-            'contratante'  => $data['contratante'],
-            'contratado'   => $data['contratado'],
-            'imovel'       => $data['imovel'],
-            'file_path'    => $filePath,
-            'file_format'  => 'docx',
-            'generated_at' => now(),
-            'created_by'   => $userId,
+            'version'              => $version,
+            'content_json'         => $data['content_json'] ?? [],
+            'content_html'         => $data['content_html'] ?? null,
+            'contratante'          => $data['contratante'],
+            'contratado'           => $data['contratado'],
+            'imovel'               => $data['imovel'],
+            'data_termino'         => $data['data_termino'] ?? null,
+            'prazo_indeterminado'  => $data['prazo_indeterminado'] ?? false,
+            'file_path'            => $filePath,
+            'file_format'          => 'docx',
+            'generated_at'         => now(),
+            'created_by'           => $userId,
         ]);
     }
 }
