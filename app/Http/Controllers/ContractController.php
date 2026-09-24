@@ -123,7 +123,7 @@ class ContractController extends Controller
 
     public function createForPessoaFisica()
     {
-        return view('contracts.form', [
+        return view('contracts.form-pf', [
             'group' => null,
             'contract' => null,
             'clientType' => 'pf',
