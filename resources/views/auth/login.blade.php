@@ -5,7 +5,7 @@
 
             {{-- Logo --}}
             <div class="flex justify-center mb-8">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-16 w-auto">
+                <img src="{{ asset('images/mini-logo.png') }}" alt="Logo" class="h-16 w-auto">
             </div>
 
             <div class="bg-white shadow-md rounded-lg px-8 py-10">
