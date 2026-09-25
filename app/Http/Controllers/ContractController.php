@@ -123,7 +123,7 @@ class ContractController extends Controller
 
     public function createForPessoaFisica()
     {
-        return view('contracts.form-pf', [
+        return view('contracts.form', [
             'group' => null,
             'contract' => null,
             'clientType' => 'pf',
@@ -132,8 +132,11 @@ class ContractController extends Controller
 
     public function createForPessoaJuridica()
     {
-        // Documento de PJ ainda não está pronto — placeholder por enquanto
-        return view('contracts.create-pj-pending');
+        return view('contracts.form', [
+            'group' => null,
+            'contract' => null,
+            'clientType' => 'pj',
+        ]);
     }
 
     public function searchPessoasFisicas(Request $request)
