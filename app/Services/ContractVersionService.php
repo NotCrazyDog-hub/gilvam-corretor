@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Contract;
 use App\Models\ContractGroup;
+use App\Models\PessoaJuridica;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -16,11 +17,31 @@ class ContractVersionService
      */
     public function createGroup(array $data): ContractGroup
     {
-        $baseSlug = Str::slug(($data['contratante']['nome'] ?? 'contrato') . '-' . now()->format('Y-m-d-His'));
+        $baseSlug = Str::slug(
+            ($data['contratante']['razao_social'] ?? $data['contratante']['nome'] ?? 'contrato')
+            . '-' . now()->format('Y-m-d-His')
+        );
+
+        $clientId = $data['client_id'] ?? null;
+
+        // Sem client_id ainda (nenhum cliente existente foi selecionado na busca):
+        // para PJ, cria a PessoaJuridica agora, a partir do bloco "contratante".
+        if (!$clientId && $data['client_type'] === 'pj') {
+            $clientId = PessoaJuridica::create([
+                'razao_social'              => $data['contratante']['razao_social'],
+                'nome_fantasia'             => $data['contratante']['nome_fantasia'] ?? null,
+                'cnpj'                      => $data['contratante']['cnpj'],
+                'inscricao_estadual'        => $data['contratante']['inscricao_estadual'] ?? null,
+                'endereco'                  => $data['contratante']['endereco'] ?? '',
+                'representante_legal_nome'  => $data['contratante']['representante_legal_nome'],
+                'representante_legal_cpf'   => $data['contratante']['representante_legal_cpf'],
+                'representante_legal_cargo' => $data['contratante']['representante_legal_cargo'],
+            ])->id;
+        }
 
         return ContractGroup::create([
             'client_type'   => $data['client_type'],
-            'client_id'     => $data['client_id'],
+            'client_id'     => $clientId,
             'contract_type' => $data['contract_type'] ?? 'Corretagem',
             'slug'          => $baseSlug,
         ]);
