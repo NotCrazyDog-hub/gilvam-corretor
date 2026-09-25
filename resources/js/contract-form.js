@@ -350,6 +350,18 @@ function formatarCnpj(digits) {
  * Máscara de CPF pra um campo. Usado no contratante, que é sempre pessoa
  * física.
  */
+function mountCnpjMask(inputSelector) {
+    const input = document.querySelector(inputSelector);
+    if (!input) return;
+ 
+    const aplicar = () => {
+        input.value = formatarCnpj(input.value.replace(/\D/g, ''));
+    };
+ 
+    if (input.value) aplicar();
+    input.addEventListener('input', aplicar);
+}
+
 function mountCpfMask(inputSelector) {
     const input = document.querySelector(inputSelector);
     if (!input) return;
@@ -452,6 +464,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Contratante: sempre pessoa física.
     mountCpfMask('[name="contratante[cpf]"]');
     mountPhoneMask('[name="contratante[telefones]"]');
+
+    mountCnpjMask('[name="contratante[cnpj]"]');
+    mountCpfMask('[name="contratante[representante_legal_cpf]"]');
 
     // Contratado: pode ser PF ou PJ, então usa a máscara combinada.
     mountCpfCnpjMask('[name="contratado[cpf_cnpj]"]');
