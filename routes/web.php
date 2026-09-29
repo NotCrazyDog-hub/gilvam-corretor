@@ -50,6 +50,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pessoas-fisicas/search', [ContractController::class, 'searchPessoasFisicas'])
             ->name('pessoas-fisicas.search');
 
+        Route::get('/pessoas-juridicas/search', [ContractController::class, 'searchPessoasJuridicas'])
+            ->name('pessoas-juridicas.search');
+
         Route::post('/', [ContractController::class, 'store'])->name('store');
 
         Route::get('/{group:uuid}/edit', [ContractController::class, 'edit'])->name('edit');

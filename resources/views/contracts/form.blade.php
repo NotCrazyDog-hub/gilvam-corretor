@@ -79,6 +79,26 @@
                     </fieldset>
                 @endif
 
+                @if (!$group && ($clientType ?? null) === 'pj')
+                    <fieldset class="border border-slate-300 p-4">
+                        <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">Cliente cadastrado</legend>
+
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="busca-cliente-pj"
+                                placeholder="Buscar por razão social ou CNPJ..."
+                                autocomplete="off"
+                                class="w-full border border-slate-300 text-sm px-2 py-1.5 focus:border-black focus:ring-0 focus:outline-none"
+                            >
+
+                            <div id="resultados-busca-cliente-pj"
+                                class="hidden absolute z-10 mt-1 w-full bg-white border border-slate-300 shadow-lg max-h-56 overflow-y-auto">
+                            </div>
+                        </div>
+                    </fieldset>
+                @endif
+
                 <input type="hidden" name="client_type" value="{{ $clientType ?? old('client_type') }}">
                 <input type="hidden" name="client_id" id="input-client-id" value="{{ $group->client_id ?? old('client_id') }}">
 
