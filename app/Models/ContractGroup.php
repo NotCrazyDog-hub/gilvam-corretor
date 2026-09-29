@@ -51,8 +51,12 @@ class ContractGroup extends Model
 
     public function getClientDisplayNameAttribute(): string
     {
-        return $this->client?->nome
-            ?? $this->latestVersion?->contratante['nome']
-            ?? '—';
+        if ($this->client) {
+            return $this->client->razao_social ?? $this->client->nome ?? '—';
+        }
+
+        $contratante = $this->latestVersion?->contratante ?? [];
+
+        return $contratante['razao_social'] ?? $contratante['nome'] ?? '—';
     }
 }
