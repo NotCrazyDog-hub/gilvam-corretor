@@ -5,13 +5,13 @@
 
             {{-- Logo --}}
             <div class="flex justify-center mb-8">
-                <img src="{{ asset('images/mini-logo.png') }}" alt="Logo" class="h-16 w-auto">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-16 w-auto">
             </div>
 
             <div class="bg-white shadow-md rounded-lg px-8 py-10">
 
                 <h2 class="text-2xl font-semibold text-gray-800 text-center mb-6">
-                    Entrar
+                    Bem-vindo(a) de volta!
                 </h2>
 
                 {{-- Session Status --}}
@@ -29,7 +29,7 @@
                         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                         <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
                                autocomplete="username"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-800 focus:ring-blue-500">
                         @error('email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -41,7 +41,7 @@
                         <div class="relative">
                             <input :type="show ? 'text' : 'password'" id="password" name="password" required
                                    autocomplete="current-password"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10">
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-800 focus:ring-blue-500 pr-10">
                             <button type="button" @click="show = !show"
                                     class="absolute inset-y-0 right-0 top-1 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                 <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -62,26 +62,26 @@
                     <div class="flex items-center justify-between mb-6">
                         <label class="flex items-center">
                             <input type="checkbox" name="remember"
-                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-                            <span class="ml-2 text-sm text-gray-600">Lembrar-me</span>
+                                   class="rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500">
+                            <span class="ml-2 text-sm text-gray-600">Lembre-me</span>
                         </label>
 
                         @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">
+                            <a href="{{ route('password.request') }}" class="text-sm text-green-600 hover:underline font-bold">
                                 Esqueceu a senha?
                             </a>
                         @endif
                     </div>
 
                     <button type="submit"
-                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+                            class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">
                         Entrar
                     </button>
 
                     @if (Route::has('register'))
                         <p class="text-center text-sm text-gray-600 mt-6">
                             Não tem uma conta?
-                            <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Cadastre-se</a>
+                            <a href="{{ route('register') }}" class="text-green-600 hover:underline font-bold">Cadastre-se</a>
                         </p>
                     @endif
 
