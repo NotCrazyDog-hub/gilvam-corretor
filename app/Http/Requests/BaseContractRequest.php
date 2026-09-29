@@ -16,8 +16,8 @@ abstract class BaseContractRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_type'   => 'nullable|string|in:pf,pj',
-            'client_id'     => 'nullable|integer',
+            'client_type'   => 'required|string|in:pf,pj',
+            'client_id'     => 'required|integer',
             'contract_type' => 'nullable|string|max:255',
 
             'contratante'              => 'required|array',
@@ -62,7 +62,13 @@ abstract class BaseContractRequest extends FormRequest
 
             'clausulas' => 'nullable|string',
 
-            'data_termino'         => 'nullable|required_if:prazo_indeterminado,false|date|after:today',
+            'data_termino' => ['nullable', 'date', 'after:today', function ($attribute, $value, $fail) {
+                $prazoIndeterminado = filter_var($this->input('prazo_indeterminado', false), FILTER_VALIDATE_BOOLEAN);
+
+                if (!$prazoIndeterminado && !$value) {
+                    $fail('Informe a data de término ou marque como prazo indeterminado.');
+                }
+            }],
             'prazo_indeterminado'  => 'nullable|boolean',
         ];
     }
@@ -72,7 +78,7 @@ abstract class BaseContractRequest extends FormRequest
         return [
             'client_type.required' => 'Selecione o tipo de cliente.',
             'client_type.in'       => 'Tipo de cliente inválido.',
-            'client_id.required'   => 'Selecione um cliente cadastrado.',
+            'client_id.required' => 'Selecione um cliente cadastrado antes de gerar o contrato.',
             'contratante.nome.required'     => 'O nome do contratante é obrigatório.',
             'contratante.cpf.required'      => 'O CPF do contratante é obrigatório.',
             'contratante.estado_civil.required' => 'O estado civil do contratante é obrigatório.',
@@ -113,15 +119,8 @@ abstract class BaseContractRequest extends FormRequest
             $clientType = $this->input('client_type');
             $clientId = $this->input('client_id');
 
-            // Vínculo com cadastro é opcional — só valida se o usuário de fato
-            // selecionou alguém na busca (client_id preenchido).
-            if (!$clientId) {
-                return;
-            }
-
-            if (!$clientType) {
-                $validator->errors()->add('client_type', 'Informe o tipo de cliente junto com o cliente selecionado.');
-                return;
+            if (!$clientType || !$clientId) {
+                return; // já cobertos pelas regras required acima
             }
 
             $table = $clientType === 'pf' ? 'pessoas_fisicas' : 'pessoas_juridicas';
