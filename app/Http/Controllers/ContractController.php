@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateContractRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PessoaFisica;
+use App\Models\PessoaJuridica;
 use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
@@ -164,6 +165,36 @@ class ContractController extends Controller
             'telefone'     => $p->telefone,
             'profissao'    => $p->profissao,
             'estado_civil' => $p->estado_civil,
+        ]));
+    }
+
+    public function searchPessoasJuridicas(Request $request)
+    {
+        $query = trim((string) $request->query('q', ''));
+        if (mb_strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $cnpjDigits = preg_replace('/\D/', '', $query);
+
+        $pessoas = PessoaJuridica::query()
+            ->where('razao_social', 'like', "%{$query}%")
+            ->when(strlen($cnpjDigits) >= 4, function ($q) use ($cnpjDigits) {
+                $q->orWhere('cnpj', 'like', "%{$cnpjDigits}%");
+            })
+            ->limit(10)
+            ->get();
+
+        return response()->json($pessoas->map(fn (PessoaJuridica $p) => [
+            'id'                         => $p->id,
+            'razao_social'               => $p->razao_social,
+            'nome_fantasia'              => $p->nome_fantasia,
+            'cnpj'                       => $p->cnpj,
+            'inscricao_estadual'         => $p->inscricao_estadual,
+            'endereco'                   => $p->endereco,
+            'representante_legal_nome'   => $p->representante_legal_nome,
+            'representante_legal_cargo'  => $p->representante_legal_cargo,
+            'representante_legal_cpf'    => $p->representante_legal_cpf, // decriptado pelo accessor
         ]));
     }
 }
