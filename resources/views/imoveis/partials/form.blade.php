@@ -1,279 +1,210 @@
 @php
-    $imovel = $imovel ?? null;
-    $old = fn ($campo, $default = null) => old($campo, $imovel?->$campo ?? $default);
-    $checked = fn ($campo) => old($campo, $imovel?->$campo ?? false) ? 'checked' : '';
+    use App\Http\Requests\ImovelRequest;
+    use App\Models\PessoaFisica;
+    use App\Models\PessoaJuridica;
+
+    $imovel  = $imovel ?? null;
+    $papeis  = ImovelRequest::PAPEIS;
+    $tipos   = ['fisica' => PessoaFisica::class, 'juridica' => PessoaJuridica::class];
+
+    // Linhas iniciais: old() tem prioridade; senão, os vínculos já salvos no imóvel.
+    $iniciais = old('pessoas');
+    if ($iniciais === null) {
+        $iniciais = [];
+        if ($imovel) {
+            foreach ($imovel->pessoasFisicas as $p) {
+                $iniciais[] = ['pessoa_id' => $p->id, 'pessoa_type' => PessoaFisica::class,
+                               'papel' => $p->pivot->papel, 'nome' => $p->nome]; // AJUSTE: campo de nome da PF
+            }
+            foreach ($imovel->pessoasJuridicas as $p) {
+                $iniciais[] = ['pessoa_id' => $p->id, 'pessoa_type' => PessoaJuridica::class,
+                               'papel' => $p->pivot->papel, 'nome' => $p->razao_social]; // AJUSTE: campo de nome da PJ
+            }
+        }
+    }
 @endphp
 
-<div class="space-y-8">
+<form method="POST"
+      action="{{ $imovel ? route('imoveis.update', $imovel) : route('imoveis.store') }}"
+      id="form-imovel" novalidate>
+    @csrf
+    @if ($imovel) @method('PUT') @endif
 
-    {{-- Tipo e Endereço --}}
-    <section>
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Tipo e Endereço</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo do imóvel *</label>
-                <select name="tipo" required
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                    <option value="">Selecione...</option>
-                    @foreach ($tipos as $valor => $label)
-                        <option value="{{ $valor }}" @selected($old('tipo') === $valor)>{{ $label }}</option>
+    {{-- AJUSTE: campos do próprio imóvel --}}
+    {{-- <div class="mb-3">
+        <label class="form-label" for="endereco">Endereço</label>
+        <input type="text" id="endereco" name="endereco" class="form-control @error('endereco') is-invalid @enderror"
+               value="{{ old('endereco', $imovel->endereco ?? '') }}">
+        @error('endereco') <div class="invalid-feedback">{{ $message }}</div> @enderror
+    </div> --}}
+
+    <fieldset class="mb-4">
+        <legend class="h5">Pessoas vinculadas</legend>
+
+        <div class="position-relative mb-3">
+            <input type="search" id="busca-pessoa" class="form-control" autocomplete="off"
+                   placeholder="Buscar por nome, razão social ou CNPJ...">
+            <div id="resultados" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index: 10; max-height: 260px; overflow-y: auto;"></div>
+            <div class="form-text">A busca por CPF não está disponível (campo criptografado).</div>
+        </div>
+
+        <div id="lista-pessoas" class="vstack gap-2"></div>
+        <div id="vazio" class="text-muted small d-none">Nenhuma pessoa vinculada ainda.</div>
+
+        @if ($errors->has('pessoas') || collect($errors->keys())->contains(fn ($k) => str_starts_with($k, 'pessoas.')))
+            <div class="alert alert-danger mt-3 mb-0 py-2">
+                <ul class="mb-0">
+                    @foreach ($errors->get('pessoas*') as $mensagens)
+                        @foreach ($mensagens as $m) <li>{{ $m }}</li> @endforeach
                     @endforeach
-                </select>
-                @error('tipo') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                </ul>
             </div>
+        @endif
 
-            <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Rua/Avenida *</label>
-                <input type="text" name="logradouro" value="{{ $old('logradouro') }}" required
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                @error('logradouro') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-            </div>
+        {{-- Os inputs hidden (pessoas[i][...]) são gerados pelo JS aqui --}}
+        <div id="hidden-inputs"></div>
+    </fieldset>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Número</label>
-                <input type="text" name="numero" value="{{ $old('numero') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
+    <button type="submit" class="btn btn-primary">{{ $imovel ? 'Salvar alterações' : 'Cadastrar imóvel' }}</button>
+</form>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
-                <input type="text" name="complemento" value="{{ $old('complemento') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
+<script>
+(function () {
+    const URL_BUSCA = @json(route('pessoas.busca')); // AJUSTE: nome da rota; espera ?q= e retorna [{id, tipo, nome, documento}]
+    const TIPOS     = @json($tipos);                 // 'fisica' | 'juridica' => classe do model
+    const PAPEIS    = @json($papeis);
+    const INICIAIS  = @json($iniciais);
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Bairro *</label>
-                <input type="text" name="bairro" value="{{ $old('bairro') }}" required
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                @error('bairro') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-            </div>
+    const $busca = document.getElementById('busca-pessoa');
+    const $res   = document.getElementById('resultados');
+    const $lista = document.getElementById('lista-pessoas');
+    const $vazio = document.getElementById('vazio');
+    const $hid   = document.getElementById('hidden-inputs');
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
-                <input type="text" name="cep" value="{{ $old('cep') }}" placeholder="00000-000"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
+    // chave "classe|id" => { id, type, nome, papeis:Set }
+    const pessoas = new Map();
+    const chave = (type, id) => type + '|' + id;
+    const label = p => p.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Município *</label>
-                <input type="text" name="municipio" value="{{ $old('municipio') }}" required
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                @error('municipio') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-            </div>
+    function adicionar(type, id, nome, papel) {
+        const k = chave(type, id);
+        if (!pessoas.has(k)) pessoas.set(k, { id: Number(id), type, nome, papeis: new Set() });
+        if (papel) pessoas.get(k).papeis.add(papel);
+    }
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Estado (UF) *</label>
-                <input type="text" name="estado" value="{{ $old('estado') }}" required maxlength="2"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm uppercase">
-                @error('estado') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-            </div>
-        </div>
-    </section>
+    INICIAIS.forEach(r => adicionar(r.pessoa_type, r.pessoa_id, r.nome || ('Pessoa #' + r.pessoa_id), r.papel));
 
-    {{-- Áreas --}}
-    <section>
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Áreas (m²)</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Terreno</label>
-                <input type="number" step="0.01" name="area_terreno" value="{{ $old('area_terreno') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Construída</label>
-                <input type="number" step="0.01" name="area_construida" value="{{ $old('area_construida') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Privativa</label>
-                <input type="number" step="0.01" name="area_privativa" value="{{ $old('area_privativa') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Comum</label>
-                <input type="number" step="0.01" name="area_comum" value="{{ $old('area_comum') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
-                <input type="number" step="0.01" name="area_total" value="{{ $old('area_total') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-        </div>
-    </section>
+    function render() {
+        $lista.replaceChildren();
+        $hid.replaceChildren();
+        $vazio.classList.toggle('d-none', pessoas.size > 0);
 
-    {{-- Registro e identificação --}}
-    <section>
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Registro e Identificação</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nº da matrícula</label>
-                <input type="text" name="numero_matricula" value="{{ $old('numero_matricula') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cartório de Registro de Imóveis</label>
-                <input type="text" name="cartorio_registro" value="{{ $old('cartorio_registro') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Inscrição imobiliária / IPTU</label>
-                <input type="text" name="inscricao_imobiliaria" value="{{ $old('inscricao_imobiliaria') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cadastro municipal</label>
-                <input type="text" name="cadastro_municipal" value="{{ $old('cadastro_municipal') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nº do lote</label>
-                <input type="text" name="numero_lote" value="{{ $old('numero_lote') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nº da quadra</label>
-                <input type="text" name="numero_quadra" value="{{ $old('numero_quadra') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Condomínio (se houver)</label>
-                <input type="text" name="condominio_nome" value="{{ $old('condominio_nome') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Bloco</label>
-                <input type="text" name="bloco" value="{{ $old('bloco') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Andar</label>
-                <input type="text" name="andar" value="{{ $old('andar') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nº da unidade</label>
-                <input type="text" name="numero_unidade" value="{{ $old('numero_unidade') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Vaga(s) de garagem</label>
-                <input type="number" min="0" name="vagas_garagem" value="{{ $old('vagas_garagem') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Fração ideal</label>
-                <input type="text" name="fracao_ideal" value="{{ $old('fracao_ideal') }}" placeholder="ex: 1/20"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div class="sm:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Confrontações</label>
-                <textarea name="confrontacoes" rows="2"
-                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ $old('confrontacoes') }}</textarea>
-            </div>
-            <div class="sm:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Características adicionais</label>
-                <textarea name="caracteristicas_adicionais" rows="2"
-                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ $old('caracteristicas_adicionais') }}</textarea>
-            </div>
-        </div>
-    </section>
+        let i = 0;
+        pessoas.forEach((p, k) => {
+            const card = document.createElement('div');
+            card.className = 'border rounded p-2';
 
-    {{-- Situação jurídica --}}
-    <section>
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Situação Jurídica</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Proprietário</label>
-                <input type="text" name="proprietario_nome" value="{{ $old('proprietario_nome') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Matrícula atualizada em</label>
-                <input type="date" name="matricula_atualizada_em" value="{{ $old('matricula_atualizada_em') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Situação tributária</label>
-                <input type="text" name="situacao_tributaria" value="{{ $old('situacao_tributaria') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div class="sm:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Situação perante o condomínio</label>
-                <input type="text" name="situacao_condominio" value="{{ $old('situacao_condominio') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-        </div>
+            const topo = document.createElement('div');
+            topo.className = 'd-flex justify-content-between align-items-center mb-2';
+            const nome = document.createElement('strong');
+            nome.textContent = p.nome;
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-secondary ms-2';
+            badge.textContent = p.type === TIPOS.juridica ? 'PJ' : 'PF';
+            nome.appendChild(badge);
+            const rm = document.createElement('button');
+            rm.type = 'button'; rm.className = 'btn btn-sm btn-outline-danger'; rm.textContent = 'Remover';
+            rm.onclick = () => { pessoas.delete(k); render(); };
+            topo.append(nome, rm);
 
-        <p class="text-sm font-medium text-gray-700 mb-2">Ônus e direitos reais existentes</p>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-            @foreach ([
-                'onus_hipoteca' => 'Hipoteca',
-                'onus_alienacao_fiduciaria' => 'Alienação fiduciária',
-                'onus_penhora' => 'Penhora',
-                'onus_usufruto' => 'Usufruto',
-                'onus_indisponibilidade' => 'Indisponibilidade',
-                'onus_servidao' => 'Servidão',
-                'onus_promessa_compra_venda' => 'Promessa de compra e venda registrada',
-            ] as $campo => $label)
-                <label class="flex items-center gap-2 text-sm text-gray-700">
-                    <input type="hidden" name="{{ $campo }}" value="0">
-                    <input type="checkbox" name="{{ $campo }}" value="1" {{ $checked($campo) }}
-                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    {{ $label }}
-                </label>
-            @endforeach
-        </div>
+            const papeis = document.createElement('div');
+            papeis.className = 'd-flex flex-wrap gap-3';
+            PAPEIS.forEach(papel => {
+                const wrap = document.createElement('div');
+                wrap.className = 'form-check';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox'; cb.className = 'form-check-input';
+                cb.id = 'p-' + i + '-' + papel;
+                cb.checked = p.papeis.has(papel);
+                cb.onchange = () => { cb.checked ? p.papeis.add(papel) : p.papeis.delete(papel); sincronizarHidden(); };
+                const lb = document.createElement('label');
+                lb.className = 'form-check-label'; lb.htmlFor = cb.id; lb.textContent = label(papel);
+                wrap.append(cb, lb);
+                papeis.appendChild(wrap);
+            });
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Outros direitos reais</label>
-                <input type="text" name="outros_direitos_reais" value="{{ $old('outros_direitos_reais') }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-            </div>
-            <div>
-                <label class="flex items-center gap-2 text-sm text-gray-700 mt-6">
-                    <input type="hidden" name="existe_acoes" value="0">
-                    <input type="checkbox" name="existe_acoes" value="1" {{ $checked('existe_acoes') }}
-                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    Existem ações que possam atingir o imóvel
-                </label>
-            </div>
-            <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Descrição das ações (se houver)</label>
-                <textarea name="descricao_acoes" rows="2"
-                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ $old('descricao_acoes') }}</textarea>
-            </div>
-        </div>
-    </section>
+            card.append(topo, papeis);
+            $lista.appendChild(card);
+            i++;
+        });
+        sincronizarHidden();
+    }
 
-    {{-- Documentação --}}
-    <section>
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Documentação Disponível</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            @foreach ([
-                'doc_certidao_onus_reais' => 'Certidão de ônus reais',
-                'doc_certidao_acoes_reais' => 'Certidão de ações reais/reipersecutórias',
-                'doc_certidao_negativa_debitos' => 'Certidão negativa de débitos municipais/IPTU',
-                'doc_comprovante_inscricao_imobiliaria' => 'Comprovante de inscrição imobiliária',
-                'doc_certidao_quitacao_condominial' => 'Certidão de quitação condominial',
-                'doc_convencao_condominio' => 'Convenção de condomínio',
-                'doc_planta_aprovacao' => 'Planta / aprovação',
-                'doc_habite_se' => 'Habite-se',
-                'doc_ambiental' => 'Documentação ambiental',
-                'doc_rural' => 'Documentação rural',
-                'doc_ccir' => 'CCIR',
-                'doc_car' => 'CAR',
-                'doc_itr' => 'ITR',
-            ] as $campo => $label)
-                <label class="flex items-center gap-2 text-sm text-gray-700">
-                    <input type="hidden" name="{{ $campo }}" value="0">
-                    <input type="checkbox" name="{{ $campo }}" value="1" {{ $checked($campo) }}
-                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    {{ $label }}
-                </label>
-            @endforeach
-        </div>
-    </section>
+    // Um hidden por (pessoa, papel). Pessoa sem papel marcado não é enviada.
+    function sincronizarHidden() {
+        $hid.replaceChildren();
+        let n = 0;
+        pessoas.forEach(p => p.papeis.forEach(papel => {
+            [['pessoa_id', p.id], ['pessoa_type', p.type], ['papel', papel]].forEach(([campo, valor]) => {
+                const inp = document.createElement('input');
+                inp.type = 'hidden'; inp.name = `pessoas[${n}][${campo}]`; inp.value = valor;
+                $hid.appendChild(inp);
+            });
+            n++;
+        }));
+    }
 
-</div>
+    // ---- Busca com debounce ----
+    let timer, controller;
+    $busca.addEventListener('input', () => {
+        clearTimeout(timer);
+        const q = $busca.value.trim();
+        if (q.length < 2) return fecharResultados();
+        timer = setTimeout(() => buscar(q), 300);
+    });
+    document.addEventListener('click', e => { if (!e.target.closest('#busca-pessoa, #resultados')) fecharResultados(); });
+
+    async function buscar(q) {
+        controller?.abort();
+        controller = new AbortController();
+        try {
+            const r = await fetch(URL_BUSCA + '?q=' + encodeURIComponent(q), {
+                headers: { 'Accept': 'application/json' }, signal: controller.signal,
+            });
+            if (!r.ok) throw new Error(r.status);
+            mostrarResultados(await r.json());
+        } catch (e) {
+            if (e.name !== 'AbortError') mostrarMensagem('Erro ao buscar. Tente novamente.');
+        }
+    }
+
+    function mostrarMensagem(texto) {
+        $res.replaceChildren();
+        const d = document.createElement('div');
+        d.className = 'list-group-item text-muted'; d.textContent = texto;
+        $res.appendChild(d); $res.classList.remove('d-none');
+    }
+
+    function mostrarResultados(itens) {
+        const lista = Array.isArray(itens) ? itens : (itens.data || []);
+        if (!lista.length) return mostrarMensagem('Nenhum resultado.');
+        $res.replaceChildren();
+        lista.forEach(it => {
+            const type = String(it.tipo || '').toLowerCase().includes('jur') ? TIPOS.juridica : TIPOS.fisica;
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = 'list-group-item list-group-item-action';
+            b.textContent = it.nome + (it.documento ? ' — ' + it.documento : '') + (type === TIPOS.juridica ? ' (PJ)' : ' (PF)');
+            b.onclick = () => {
+                adicionar(type, it.id, it.nome, null);
+                $busca.value = ''; fecharResultados(); render();
+            };
+            $res.appendChild(b);
+        });
+        $res.classList.remove('d-none');
+    }
+
+    function fecharResultados() { $res.classList.add('d-none'); $res.replaceChildren(); }
+
+    render();
+})();
+</script>

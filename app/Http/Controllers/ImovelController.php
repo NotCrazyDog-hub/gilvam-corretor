@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Imovel;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ImovelController extends Controller
@@ -46,6 +47,9 @@ class ImovelController extends Controller
 
         $imovel = Imovel::create($validated);
 
+        $this->salvarImagens($request, $imovel);
+        $this->sincronizarPessoas($request, $imovel);
+
         return redirect()
             ->route('imoveis.show', $imovel)
             ->with('sucesso', 'Imóvel cadastrado com sucesso.');
@@ -53,11 +57,15 @@ class ImovelController extends Controller
 
     public function show(Imovel $imovel): View
     {
+        $imovel->load('imagens');
+
         return view('imoveis.show', compact('imovel'));
     }
 
     public function edit(Imovel $imovel): View
     {
+        $imovel->load(['imagens', 'pessoasFisicas', 'pessoasJuridicas']);
+
         return view('imoveis.edit', [
             'imovel' => $imovel,
             'tipos' => Imovel::TIPOS,
@@ -70,6 +78,10 @@ class ImovelController extends Controller
 
         $imovel->update($validated);
 
+        $this->removerImagens($request, $imovel);
+        $this->salvarImagens($request, $imovel);
+        $this->sincronizarPessoas($request, $imovel);
+
         return redirect()
             ->route('imoveis.show', $imovel)
             ->with('sucesso', 'Imóvel atualizado com sucesso.');
@@ -77,6 +89,8 @@ class ImovelController extends Controller
 
     public function destroy(Imovel $imovel): RedirectResponse
     {
+        Storage::disk('public')->deleteDirectory("imoveis/{$imovel->id}");
+
         $imovel->delete();
 
         return redirect()
@@ -84,9 +98,107 @@ class ImovelController extends Controller
             ->with('sucesso', 'Imóvel removido com sucesso.');
     }
 
+    /**
+     * Salva as novas imagens enviadas no formulário.
+     * A primeira imagem do imóvel vira a capa (principal).
+     */
+    private function salvarImagens(Request $request, Imovel $imovel): void
+    {
+        if (!$request->hasFile('imagens')) {
+            return;
+        }
+
+        $temPrincipal = $imovel->imagens()->where('principal', true)->exists();
+        $ordem = (int) $imovel->imagens()->max('ordem');
+
+        foreach ($request->file('imagens') as $arquivo) {
+            $caminho = $arquivo->store("imoveis/{$imovel->id}", 'public');
+
+            $imovel->imagens()->create([
+                'caminho' => $caminho,
+                'principal' => !$temPrincipal,
+                'ordem' => ++$ordem,
+            ]);
+
+            $temPrincipal = true;
+        }
+    }
+
+    /**
+     * Remove as imagens marcadas com "Remover" na tela de edição.
+     * Se a capa for removida, a primeira que sobrar assume.
+     */
+    private function removerImagens(Request $request, Imovel $imovel): void
+    {
+        $ids = $request->input('remover_imagens', []);
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $imovel->imagens()->whereIn('id', $ids)->get()->each(function ($imagem) {
+            Storage::disk('public')->delete($imagem->caminho);
+            $imagem->delete();
+        });
+
+        if (!$imovel->imagens()->where('principal', true)->exists()) {
+            $imovel->imagens()->orderBy('ordem')->first()?->update(['principal' => true]);
+        }
+    }
+
+    /**
+     * Recria os vínculos de pessoas (físicas e jurídicas) deste imóvel
+     * a partir do que veio do formulário. Simplesmente apaga tudo e
+     * recria, porque "papel" faz parte da chave única da pivô e o
+     * conjunto de papéis de cada pessoa pode mudar inteiro a cada envio.
+     *
+     * Espera um array assim, vindo do componente Alpine do formulário:
+     * pessoas[0][tipo] = 'fisica'|'juridica'
+     * pessoas[0][id] = 5
+     * pessoas[0][papeis][] = 'proprietario'
+     * pessoas[0][papeis][] = 'intermediador'
+     */
+    private function sincronizarPessoas(Request $request, Imovel $imovel): void
+    {
+        $imovel->pessoasFisicas()->detach();
+        $imovel->pessoasJuridicas()->detach();
+
+        // Agrupa por pessoa (tipo + id) e junta os papéis antes de anexar,
+        // pra nunca tentar inserir a mesma combinação imovel+pessoa+papel
+        // duas vezes (isso violaria a constraint única imoveis_pessoas_unica).
+        $pessoas = collect($request->input('pessoas', []))
+            ->filter(fn ($pessoa) => !empty($pessoa['id']) && !empty($pessoa['tipo']))
+            ->groupBy(fn ($pessoa) => $pessoa['tipo'] . '-' . $pessoa['id'])
+            ->map(function ($grupo) {
+                $primeiro = $grupo->first();
+
+                $papeis = $grupo
+                    ->flatMap(fn ($pessoa) => $pessoa['papeis'] ?? [])
+                    ->unique()
+                    ->intersect(array_keys(Imovel::PAPEIS))
+                    ->values();
+
+                return [
+                    'id' => $primeiro['id'],
+                    'tipo' => $primeiro['tipo'],
+                    'papeis' => $papeis,
+                ];
+            });
+
+        foreach ($pessoas as $pessoa) {
+            foreach ($pessoa['papeis'] as $papel) {
+                if ($pessoa['tipo'] === 'fisica') {
+                    $imovel->pessoasFisicas()->attach($pessoa['id'], ['papel' => $papel]);
+                } elseif ($pessoa['tipo'] === 'juridica') {
+                    $imovel->pessoasJuridicas()->attach($pessoa['id'], ['papel' => $papel]);
+                }
+            }
+        }
+    }
+
     private function validarDados(Request $request, ?int $ignorarId = null): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             // Tipo
             'tipo' => ['required', 'string', 'in:' . implode(',', array_keys(Imovel::TIPOS))],
 
@@ -98,6 +210,36 @@ class ImovelController extends Controller
             'municipio' => ['required', 'string', 'max:255'],
             'estado' => ['required', 'string', 'size:2'],
             'cep' => ['nullable', 'string', 'max:9'],
+
+            // Imagens
+            'imagens' => ['nullable', 'array', 'max:10'],
+            'imagens.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+
+            // Pessoas vinculadas (proprietário, comprador, vendedor, intermediador...)
+            'pessoas' => ['nullable', 'array'],
+            'pessoas.*.tipo' => ['required_with:pessoas', 'in:fisica,juridica'],
+            'pessoas.*.id' => [
+                'required_with:pessoas',
+                'integer',
+                function (string $attribute, $value, \Closure $fail) use ($request) {
+                    // Extrai o índice do item a partir do nome do campo (ex: "pessoas.2.id" -> 2)
+                    preg_match('/^pessoas\.(\d+)\.id$/', $attribute, $partes);
+                    $indice = $partes[1] ?? null;
+                    $tipo = $request->input("pessoas.{$indice}.tipo");
+
+                    $existe = match ($tipo) {
+                        'fisica' => \App\Models\PessoaFisica::whereKey($value)->exists(),
+                        'juridica' => \App\Models\PessoaJuridica::whereKey($value)->exists(),
+                        default => false,
+                    };
+
+                    if (!$existe) {
+                        $fail('Uma das pessoas selecionadas não foi encontrada.');
+                    }
+                },
+            ],
+            'pessoas.*.papeis' => ['nullable', 'array'],
+            'pessoas.*.papeis.*' => ['in:' . implode(',', array_keys(Imovel::PAPEIS))],
 
             // Áreas
             'area_terreno' => ['nullable', 'numeric', 'min:0'],
@@ -153,5 +295,12 @@ class ImovelController extends Controller
             'doc_car' => ['boolean'],
             'doc_itr' => ['boolean'],
         ]);
+
+        // Imagens e pessoas não são colunas da tabela "imoveis": são
+        // salvas à parte em salvarImagens() e sincronizarPessoas().
+        unset($validated['imagens']);
+        unset($validated['pessoas']);
+
+        return $validated;
     }
 }

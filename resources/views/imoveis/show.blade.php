@@ -64,6 +64,26 @@
                 </div>
             @endif
 
+            {{-- Fotos --}}
+            @if ($imovel->imagens->isNotEmpty())
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Fotos</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        @foreach ($imovel->imagens as $imagem)
+                            <a href="{{ $imagem->url }}" target="_blank" class="relative block border border-gray-200 rounded-lg overflow-hidden group">
+                                <img src="{{ $imagem->url }}" alt="Foto do imóvel"
+                                     class="w-full h-56 object-cover group-hover:opacity-90 transition">
+                                @if ($imagem->principal)
+                                    <span class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
+                                        Capa
+                                    </span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- Endereço e áreas --}}
             <div class="bg-white shadow-md rounded-lg p-6">
                 <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Endereço e Áreas</h3>

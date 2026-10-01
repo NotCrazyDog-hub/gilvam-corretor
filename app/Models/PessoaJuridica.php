@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use App\Models\ContractGroup;
 
 class PessoaJuridica extends Model
@@ -66,5 +67,17 @@ class PessoaJuridica extends Model
     public function contractGroups(): MorphMany
     {
         return $this->morphMany(ContractGroup::class, 'client');
+    }
+
+    /**
+     * Imóveis ligados a esta pessoa, em qualquer papel (proprietário,
+     * comprador, vendedor, intermediador...), via imoveis_pessoas.
+     * Use ->wherePivot('papel', 'proprietario') para filtrar por papel.
+     */
+    public function imoveis(): MorphToMany
+    {
+        return $this->morphToMany(Imovel::class, 'pessoa', 'imoveis_pessoas')
+            ->withPivot('papel')
+            ->withTimestamps();
     }
 }

@@ -17,7 +17,7 @@
             </a>
 
             <div class="bg-white shadow-md rounded-lg p-6">
-                <form method="POST" action="{{ route('imoveis.store') }}">
+                <form method="POST" action="{{ route('imoveis.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     @include('imoveis.partials.form')

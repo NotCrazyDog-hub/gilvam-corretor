@@ -59,6 +59,7 @@
                     <table class="w-full text-sm">
                         <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
                             <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Foto</th>
                                 <th class="text-left px-4 py-3">Tipo</th>
                                 <th class="text-left px-4 py-3">Endereço</th>
                                 <th class="text-left px-4 py-3">Matrícula</th>
@@ -69,6 +70,19 @@
                         <tbody class="divide-y divide-gray-100">
                             @foreach ($imoveis as $imovel)
                                 <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3">
+                                        @if ($imovel->imagemPrincipal)
+                                            <img src="{{ $imovel->imagemPrincipal->url }}"
+                                                 alt="Foto do imóvel"
+                                                 class="w-28 h-20 object-cover rounded-lg border border-gray-200">
+                                        @else
+                                            <div class="w-28 h-20 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+                                                <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                                                </svg>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3">
                                         <span class="inline-block px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
                                             {{ $imovel->tipo_label }}

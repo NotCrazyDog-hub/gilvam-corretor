@@ -4,6 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Collection;
+
 
 class Imovel extends Model
 {
@@ -25,6 +30,17 @@ class Imovel extends Model
         'fazenda' => 'Fazenda',
         'chacara' => 'Chácara',
         'outro' => 'Outro',
+    ];
+
+    /**
+     * Papéis que uma pessoa (física ou jurídica) pode ter em relação
+     * a este imóvel. Usado na tabela pivô imoveis_pessoas.
+     */
+    public const PAPEIS = [
+        'proprietario' => 'Proprietário',
+        'comprador' => 'Comprador',
+        'vendedor' => 'Vendedor',
+        'intermediador' => 'Intermediador',
     ];
 
     protected $fillable = [
@@ -131,6 +147,69 @@ class Imovel extends Model
     public function getTipoLabelAttribute(): string
     {
         return self::TIPOS[$this->tipo] ?? $this->tipo;
+    }
+
+    /**
+     * Todas as fotos do imóvel, na ordem de envio.
+     */
+    public function imagens(): HasMany
+    {
+        return $this->hasMany(ImovelImagem::class)->orderBy('ordem');
+    }
+
+    /**
+     * Foto de capa do imóvel (usada na listagem).
+     */
+    public function imagemPrincipal(): HasOne
+    {
+        return $this->hasOne(ImovelImagem::class)->where('principal', true);
+    }
+
+    /**
+     * Pessoas físicas ligadas a este imóvel (qualquer papel), via imoveis_pessoas.
+     */
+    public function pessoasFisicas(): MorphToMany
+    {
+        return $this->morphedByMany(PessoaFisica::class, 'pessoa', 'imoveis_pessoas')
+            ->withPivot('papel')
+            ->withTimestamps();
+    }
+
+    /**
+     * Pessoas jurídicas ligadas a este imóvel (qualquer papel), via imoveis_pessoas.
+     */
+    public function pessoasJuridicas(): MorphToMany
+    {
+        return $this->morphedByMany(PessoaJuridica::class, 'pessoa', 'imoveis_pessoas')
+            ->withPivot('papel')
+            ->withTimestamps();
+    }
+
+    /**
+     * Todas as pessoas (PF + PJ) ligadas a este imóvel, opcionalmente
+     * filtradas por papel (ex: 'proprietario'). Junta as duas relações
+     * porque o Eloquent não tem uma única relação polimórfica que misture
+     * dois models diferentes automaticamente.
+     */
+    public function pessoas(?string $papel = null): Collection
+    {
+        $fisicas = $this->pessoasFisicas();
+        $juridicas = $this->pessoasJuridicas();
+
+        if ($papel) {
+            $fisicas->wherePivot('papel', $papel);
+            $juridicas->wherePivot('papel', $papel);
+        }
+
+        return $fisicas->get()->merge($juridicas->get());
+    }
+
+    /**
+     * Atalho para os proprietários (PF e/ou PJ) cadastrados via imoveis_pessoas.
+     */
+    public function getProprietariosAttribute(): Collection
+    {
+        return $this->pessoas('proprietario');
     }
 
     /**

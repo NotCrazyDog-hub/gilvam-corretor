@@ -17,7 +17,7 @@
             </a>
 
             <div class="bg-white shadow-md rounded-lg p-6">
-                <form method="POST" action="{{ route('imoveis.update', $imovel) }}">
+                <form method="POST" action="{{ route('imoveis.update', $imovel) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
