@@ -1,3 +1,9 @@
+@php
+    $clienteRota = request()->route('client');
+    $tipoAtual = request('tipo') ?? (is_object($clienteRota) ? $clienteRota->tipo : null);
+    $emClientes = request()->routeIs('clients.*');
+@endphp
+
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -10,14 +16,14 @@
                     </a>
                 </div>
 
-                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('pessoas-fisicas.index')" :active="request()->routeIs('pessoas-fisicas.*')">
+                    <x-nav-link :href="route('clients.index', ['tipo' => 'pf'])" :active="$emClientes && $tipoAtual === 'pf'">
                         {{ __('Pessoas Físicas') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('pessoas-juridicas.index')" :active="request()->routeIs('pessoas-juridicas.*')">
+                    <x-nav-link :href="route('clients.index', ['tipo' => 'pj'])" :active="$emClientes && $tipoAtual === 'pj'">
                         {{ __('Pessoas Jurídicas') }}
                     </x-nav-link>
                     <x-nav-link :href="route('imoveis.index')" :active="request()->routeIs('imoveis.*')">
@@ -90,6 +96,18 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('clients.index', ['tipo' => 'pf'])" :active="$emClientes && $tipoAtual === 'pf'">
+                {{ __('Pessoas Físicas') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('clients.index', ['tipo' => 'pj'])" :active="$emClientes && $tipoAtual === 'pj'">
+                {{ __('Pessoas Jurídicas') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('imoveis.index')" :active="request()->routeIs('imoveis.*')">
+                {{ __('Imóveis') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('contracts.index')" :active="request()->routeIs('contracts.*')">
+                {{ __('Geração de Contratos') }}
             </x-responsive-nav-link>
         </div>
 

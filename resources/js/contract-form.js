@@ -100,10 +100,14 @@ async function downloadContract(url, filename) {
 }
 
 /**
- * Busca/autocomplete de pessoa física cadastrada. Ao selecionar um
- * resultado, preenche os campos do contratante automaticamente (mas eles
- * continuam editáveis — o snapshot salvo é o que estiver no form no submit,
- * não o cadastro em si).
+ * Busca/autocomplete de cliente cadastrado (PF ou PJ, conforme o searchUrl).
+ * Ao selecionar um resultado, preenche os campos do contratante automaticamente
+ * (mas eles continuam editáveis — o snapshot salvo é o que estiver no form no
+ * submit, não o cadastro em si).
+ *
+ * Campos mapeados são SEMPRE sobrescritos com o valor do cliente selecionado
+ * (ou limpos, se o cliente não tiver o dado). Assim, trocar de cliente não
+ * deixa dados do anterior (ex: nome do cônjuge) no contrato.
  */
 function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, searchUrl, fieldMap, labelFn }) {
     const buscaInput = document.querySelector(inputSelector);
@@ -177,9 +181,10 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
 
         for (const [prop, inputName] of Object.entries(fieldMap)) {
             const campo = document.querySelector(`[name="${inputName}"]`);
-            const valor = p[prop];
-            if (campo && valor) campo.value = valor;
-            campo?.dispatchEvent(new Event('input'));
+            if (!campo) continue;
+
+            campo.value = p[prop] ?? '';
+            campo.dispatchEvent(new Event('input')); // reaplica a máscara do campo
         }
 
         buscaInput.value = labelFn(p);
@@ -330,21 +335,24 @@ function formatarCnpj(digits) {
 }
 
 /**
- * Máscara de CPF pra um campo. Usado no contratante, que é sempre pessoa
- * física.
+ * Máscara de CNPJ pra um campo (contratante pessoa jurídica).
  */
 function mountCnpjMask(inputSelector) {
     const input = document.querySelector(inputSelector);
     if (!input) return;
- 
+
     const aplicar = () => {
         input.value = formatarCnpj(input.value.replace(/\D/g, ''));
     };
- 
+
     if (input.value) aplicar();
     input.addEventListener('input', aplicar);
 }
 
+/**
+ * Máscara de CPF pra um campo (contratante pessoa física e CPF do
+ * representante legal da pessoa jurídica).
+ */
 function mountCpfMask(inputSelector) {
     const input = document.querySelector(inputSelector);
     if (!input) return;
@@ -435,19 +443,13 @@ document.addEventListener('DOMContentLoaded', () => {
         initialContent: config.clausulasContent,
     });
 
-    mountClientSearch({
-        inputSelector: '#busca-cliente',
-        resultsSelector: '#resultados-busca-cliente',
-        clientIdSelector: '#input-client-id',
-        searchUrl: '/contracts/pessoas-fisicas/search',
-    });
-
     mountCurrencyMask('#input-preco-venda');
 
-    // Contratante: sempre pessoa física.
+    // Contratante pessoa física (os campos só existem na página de PF).
     mountCpfMask('[name="contratante[cpf]"]');
     mountPhoneMask('[name="contratante[telefones]"]');
 
+    // Contratante pessoa jurídica (os campos só existem na página de PJ).
     mountCnpjMask('[name="contratante[cnpj]"]');
     mountCpfMask('[name="contratante[representante_legal_cpf]"]');
 
@@ -531,6 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Busca de cliente pessoa física (só monta se #busca-cliente existir na página).
     mountClientSearch({
         inputSelector: '#busca-cliente',
         resultsSelector: '#resultados-busca-cliente',
@@ -539,14 +542,18 @@ document.addEventListener('DOMContentLoaded', () => {
         fieldMap: {
             nome: 'contratante[nome]',
             cpf: 'contratante[cpf]',
-            endereco: 'contratante[endereco]',
-            profissao: 'contratante[profissao]',
+            rg: 'contratante[identidade]',
             estado_civil: 'contratante[estado_civil]',
+            profissao: 'contratante[profissao]',
+            conjuge_nome: 'contratante[conjuge_nome]',
+            conjuge_rg: 'contratante[conjuge_identidade]',
+            endereco: 'contratante[endereco]',
             telefone: 'contratante[telefones]',
         },
-        labelFn: (p) => `${p.nome} — ${p.cpf}`,
+        labelFn: (p) => `${p.nome} — ${formatarCpf(String(p.cpf ?? '').replace(/\D/g, ''))}`,
     });
 
+    // Busca de cliente pessoa jurídica (só monta se #busca-cliente-pj existir).
     mountClientSearch({
         inputSelector: '#busca-cliente-pj',
         resultsSelector: '#resultados-busca-cliente-pj',
@@ -562,6 +569,6 @@ document.addEventListener('DOMContentLoaded', () => {
             representante_legal_cargo: 'contratante[representante_legal_cargo]',
             representante_legal_cpf: 'contratante[representante_legal_cpf]',
         },
-        labelFn: (p) => `${p.razao_social} — ${p.cnpj}`,
+        labelFn: (p) => `${p.razao_social} — ${formatarCnpj(String(p.cnpj ?? '').replace(/\D/g, ''))}`,
     });
 });

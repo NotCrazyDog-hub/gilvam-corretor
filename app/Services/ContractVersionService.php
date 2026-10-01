@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Contract;
 use App\Models\ContractGroup;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ContractVersionService
@@ -16,10 +15,12 @@ class ContractVersionService
      */
     public function createGroup(array $data): ContractGroup
     {
-           $baseSlug = Str::slug(($data['contratante']['razao_social'] ?? $data['contratante']['nome'] ?? 'contrato') . '-' . now()->format('Y-m-d-His'));
+        $baseSlug = Str::slug(
+            ($data['contratante']['razao_social'] ?? $data['contratante']['nome'] ?? 'contrato')
+            . '-' . now()->format('Y-m-d-His')
+        );
 
         return ContractGroup::create([
-            'client_type'   => $data['client_type'],
             'client_id'     => $data['client_id'],
             'contract_type' => $data['contract_type'] ?? 'Corretagem',
             'slug'          => $baseSlug,
@@ -27,8 +28,7 @@ class ContractVersionService
     }
 
     /**
-     * Próximo número de versão para um grupo, calculado com lock pessimista
-     * pra evitar corrida entre dois requests simultâneos gerando a mesma versão.
+     * Lock pessimista para evitar que dois requests simultâneos gerem a mesma versão.
      */
     public function lockGroupForVersioning(ContractGroup $group): void
     {
@@ -59,7 +59,6 @@ class ContractVersionService
             'prazo_indeterminado'  => $data['prazo_indeterminado'] ?? false,
             'file_path'            => $filePath,
             'file_format'          => 'docx',
-            'generated_at'         => now(),
             'created_by'           => $userId,
         ]);
     }

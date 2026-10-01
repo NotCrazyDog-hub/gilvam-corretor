@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Contract;
 use App\Models\ContractGroup;
-use App\Models\PessoaJuridica;
+use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +50,8 @@ class ContractGeneratorService
             $version = $this->versioner->nextVersionNumber($group);
 
             $relativePath = "contracts/{$group->uuid}/v{$version}.docx";
-            $this->renderDocx($relativePath, $data, $this->isPessoaJuridica($group->client_type));
+            $isPj = $group->client->tipo === Client::TIPO_PJ;
+            $this->renderDocx($relativePath, $data, $isPj);
 
             return $this->versioner->persistVersion($group, $version, $data, $relativePath, $userId);
         });
@@ -60,10 +61,6 @@ class ContractGeneratorService
      * AJUSTE: compare com o valor que você grava em client_type
      * (nome da classe ou alias do morphMap).
      */
-    private function isPessoaJuridica(?string $clientType): bool
-    {
-        return in_array($clientType, ['pj', PessoaJuridica::class], true);
-    }
 
     private function renderDocx(string $relativePath, array $data, bool $isPj): void
     {

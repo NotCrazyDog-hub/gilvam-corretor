@@ -1,3 +1,13 @@
+@php
+    $cores = [
+        'Vigente'       => 'bg-green-100 text-green-700',
+        'Vencendo'      => 'bg-orange-100 text-orange-700',
+        'Vencido'       => 'bg-red-100 text-red-700',
+        'Indeterminado' => 'bg-blue-100 text-blue-700',
+    ];
+    $filtroAtivo = in_array($clientType ?? null, ['pf', 'pj'], true) ? $clientType : null;
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -23,17 +33,17 @@
                     <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                         <a href="{{ route('contracts.index') }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ request('client_type') ? 'text-slate-500 hover:text-slate-700' : 'bg-white text-brand-blue shadow-sm' }}">
+                                  {{ $filtroAtivo ? 'text-slate-500 hover:text-slate-700' : 'bg-white text-brand-blue shadow-sm' }}">
                             Todos
                         </a>
                         <a href="{{ route('contracts.index', ['client_type' => 'pf']) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ request('client_type') === 'pf' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                             Pessoa física
                         </a>
                         <a href="{{ route('contracts.index', ['client_type' => 'pj']) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ request('client_type') === 'pj' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                             Pessoa jurídica
                         </a>
                     </div>
@@ -73,77 +83,6 @@
                 </div>
 
                 {{-- Tabela --}}
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="py-2">Contratante</th>
-                            <th class="py-2">Tipo de contrato</th>
-                            <th class="py-2">Versão vigente</th>
-                            <th class="py-2">Situação</th>
-                            <th class="py-2">Validade</th>
-                            <th class="py-2">Gerado em</th>
-                            <th class="py-2 text-right">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($groups as $group)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="py-2">{{ $group->client_display_name }}</td>
-                                <td class="py-2">
-                                    <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-slate-100 text-slate-600">
-                                        {{ \Illuminate\Support\Str::of($group->contract_type)->replace('_', ' ')->title() }}
-                                    </span>
-                                </td>
-                                <td class="py-2">Versão {{ $group->latestVersion->version ?? '—' }}</td>
-                                <td class="py-2">
-                                    @php
-                                        $v = $group->latestVersion;
-
-                                        $cores = [
-                                            'Vigente'       => 'bg-green-100 text-green-700',
-                                            'Vencendo'      => 'bg-orange-100 text-orange-700',
-                                            'Vencido'       => 'bg-red-100 text-red-700',
-                                            'Indeterminado' => 'bg-blue-100 text-blue-700',
-                                        ];
-                                    @endphp
-                                    @if ($v)
-                                        <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full {{ $cores[$v->situacao] ?? 'bg-slate-100 text-slate-600' }}">
-                                            {{ $v->situacao }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-400">—</span>
-                                    @endif
-                                </td>
-                                <td class="py-2">
-                                    @php $v = $group->latestVersion; @endphp
-                                    @if ($v?->prazo_indeterminado)
-                                        <span class="text-slate-500">Indeterminado</span>
-                                    @elseif ($v?->data_termino)
-                                        {{ $v->data_termino->format('d/m/Y') }}
-                                        <span class="text-xs {{ str_contains($v->tempo_restante, 'vencido') ? 'text-red-600 font-semibold' : 'text-slate-500' }}">
-                                            ({{ $v->tempo_restante }})
-                                        </span>
-                                    @else
-                                        <span class="text-slate-400">—</span>
-                                    @endif
-                                </td>
-                                <td class="py-2">{{ $group->latestVersion?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}</td>
-                                <td class="py-2 text-right space-x-2">
-                                    <a href="{{ route('contracts.edit', $group) }}?from=index"
-                                       class="text-yellow-600 hover:underline">Editar</a>
-                                    <a href="{{ route('contracts.versions', $group) }}"
-                                       class="text-blue-600 hover:underline">Histórico</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="py-4 text-center text-gray-500">
-                                    Nenhum contrato encontrado.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
                 <div class="border border-gray-200 rounded-lg overflow-hidden">
                     <table class="w-full text-center border-collapse">
                         <thead>
@@ -159,15 +98,7 @@
                         </thead>
                         <tbody>
                             @forelse ($groups as $index => $group)
-                                @php
-                                    $v = $group->latestVersion;
-                                    $cores = [
-                                        'Vigente'       => 'bg-green-100 text-green-700',
-                                        'Vencendo'      => 'bg-orange-100 text-orange-700',
-                                        'Vencido'       => 'bg-red-100 text-red-700',
-                                        'Indeterminado' => 'bg-blue-100 text-blue-700',
-                                    ];
-                                @endphp
+                                @php $v = $group->latestVersion; @endphp
                                 <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 hover:bg-blue-50/40 transition
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $group->client_display_name }}">
@@ -177,7 +108,7 @@
                                         {{ \Illuminate\Support\Str::of($group->contract_type)->replace('_', ' ')->title() }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
-                                        Versão {{ $v->version ?? '—' }}
+                                        Versão {{ $v?->version ?? '—' }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
                                         @if ($v)

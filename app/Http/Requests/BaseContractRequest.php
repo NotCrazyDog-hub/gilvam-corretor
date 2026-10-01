@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\DB;
+use App\Models\Client;
 use Illuminate\Validation\Validator;
 
 abstract class BaseContractRequest extends FormRequest
@@ -123,10 +123,12 @@ abstract class BaseContractRequest extends FormRequest
                 return; // já cobertos pelas regras required acima
             }
 
-            $table = $clientType === 'pf' ? 'pessoas_fisicas' : 'pessoas_juridicas';
+            $client = Client::find($clientId);
 
-            if (!DB::table($table)->where('id', $clientId)->exists()) {
+            if (!$client) {
                 $validator->errors()->add('client_id', 'Cliente selecionado não foi encontrado.');
+            } elseif ($client->tipo !== $clientType) {
+                $validator->errors()->add('client_id', 'O cliente selecionado não é do tipo informado.');
             }
         });
     }

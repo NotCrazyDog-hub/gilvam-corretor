@@ -22,10 +22,8 @@
     @php
         $clausulasPadrao = '';
 
-        // Tipo de cliente: PF ou PJ. Decide qual bloco do CONTRATANTE
-        // aparece e qual rótulo a segunda assinatura usa.
-        $tipoCliente = $clientType ?? $group->client_type ?? old('client_type');
-        $isPj = in_array($tipoCliente, ['pj', \App\Models\PessoaJuridica::class], true);
+        $tipoCliente = $clientType ?? $group?->client?->tipo ?? old('client_type');
+        $isPj = $tipoCliente === 'pj';
     @endphp
 
     <div class="py-12 bg-gray-50 min-h-screen">
