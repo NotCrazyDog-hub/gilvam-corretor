@@ -11,7 +11,7 @@
             <div class="bg-white shadow-md rounded-lg px-8 py-10">
 
                 <h2 class="text-2xl font-semibold text-gray-800 text-center mb-6">
-                    Entrar
+                    Bem-vindo(a) de volta!
                 </h2>
 
                 {{-- Session Status --}}
@@ -63,25 +63,25 @@
                         <label class="flex items-center">
                             <input type="checkbox" name="remember"
                                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-                            <span class="ml-2 text-sm text-gray-600">Lembrar-me</span>
+                            <span class="ml-2 text-sm text-gray-600">Lembre-me</span>
                         </label>
 
                         @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">
+                            <a href="{{ route('password.request') }}" class="text-sm text-green-600 hover:underline font-bold">
                                 Esqueceu a senha?
                             </a>
                         @endif
                     </div>
 
                     <button type="submit"
-                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+                            class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">
                         Entrar
                     </button>
 
                     @if (Route::has('register'))
                         <p class="text-center text-sm text-gray-600 mt-6">
                             Não tem uma conta?
-                            <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Cadastre-se</a>
+                            <a href="{{ route('register') }}" class="text-green-600 hover:underline font-bold">Cadastre-se</a>
                         </p>
                     @endif
 

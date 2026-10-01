@@ -100,12 +100,16 @@ async function downloadContract(url, filename) {
 }
 
 /**
- * Busca/autocomplete de pessoa física cadastrada. Ao selecionar um
- * resultado, preenche os campos do contratante automaticamente (mas eles
- * continuam editáveis — o snapshot salvo é o que estiver no form no submit,
- * não o cadastro em si).
+ * Busca/autocomplete de cliente cadastrado (PF ou PJ, conforme o searchUrl).
+ * Ao selecionar um resultado, preenche os campos do contratante automaticamente
+ * (mas eles continuam editáveis — o snapshot salvo é o que estiver no form no
+ * submit, não o cadastro em si).
+ *
+ * Campos mapeados são SEMPRE sobrescritos com o valor do cliente selecionado
+ * (ou limpos, se o cliente não tiver o dado). Assim, trocar de cliente não
+ * deixa dados do anterior (ex: nome do cônjuge) no contrato.
  */
-function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, searchUrl }) {
+function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, searchUrl, fieldMap, labelFn }) {
     const buscaInput = document.querySelector(inputSelector);
     const resultadosDiv = document.querySelector(resultsSelector);
     const clientIdInput = document.querySelector(clientIdSelector);
@@ -131,15 +135,8 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
             const item = document.createElement('div');
             item.className = 'resultado-item';
             item.dataset.id = p.id;
-            item.dataset.nome = p.nome ?? '';
-            item.dataset.cpf = p.cpf ?? '';
-            item.dataset.endereco = p.endereco ?? '';
-            item.dataset.profissao = p.profissao ?? '';
-            item.dataset.estadoCivil = p.estado_civil ?? '';
-            item.dataset.telefone = p.telefone ?? '';
-
-            // textContent em vez de innerHTML: dado vem do cadastro, evita XSS.
-            item.textContent = `${p.nome} — ${p.cpf}`;
+            item.dataset.payload = JSON.stringify(p);
+            item.textContent = labelFn(p);
             resultadosDiv.appendChild(item);
         });
 
@@ -148,7 +145,7 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
 
     buscaInput.addEventListener('input', () => {
         clearTimeout(timeoutId);
-        limparSelecao(); // se o usuário editar a busca, invalida a seleção anterior
+        limparSelecao();
 
         const q = buscaInput.value.trim();
         if (q.length < 2) {
@@ -169,7 +166,7 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
                 renderResultados(await res.json());
             } catch (err) {
                 if (err.name !== 'AbortError') {
-                    console.error('Erro ao buscar pessoa física:', err);
+                    console.error('Erro ao buscar cliente:', err);
                 }
             }
         }, 300);
@@ -180,29 +177,20 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
         if (!item) return;
 
         clientIdInput.value = item.dataset.id;
+        const p = JSON.parse(item.dataset.payload);
 
-        const campos = {
-            'contratante[nome]': item.dataset.nome,
-            'contratante[cpf]': item.dataset.cpf,
-            'contratante[endereco]': item.dataset.endereco,
-            'contratante[profissao]': item.dataset.profissao,
-            'contratante[estado_civil]': item.dataset.estadoCivil,
-            'contratante[telefones]': item.dataset.telefone,
-        };
+        for (const [prop, inputName] of Object.entries(fieldMap)) {
+            const campo = document.querySelector(`[name="${inputName}"]`);
+            if (!campo) continue;
 
-        for (const [name, value] of Object.entries(campos)) {
-            const campo = document.querySelector(`[name="${name}"]`);
-            if (campo && value) campo.value = value;
-            // dispara o listener 'input' pra reformatar o valor que acabou
-            // de ser preenchido programaticamente (CPF, telefone, etc.)
-            campo?.dispatchEvent(new Event('input'));
+            campo.value = p[prop] ?? '';
+            campo.dispatchEvent(new Event('input')); // reaplica a máscara do campo
         }
 
-        buscaInput.value = item.dataset.nome;
+        buscaInput.value = labelFn(p);
         resultadosDiv.classList.add('hidden');
     });
 
-    // Fecha a lista de resultados ao clicar fora
     document.addEventListener('click', (e) => {
         if (!resultadosDiv.contains(e.target) && e.target !== buscaInput) {
             resultadosDiv.classList.add('hidden');
@@ -347,8 +335,23 @@ function formatarCnpj(digits) {
 }
 
 /**
- * Máscara de CPF pra um campo. Usado no contratante, que é sempre pessoa
- * física.
+ * Máscara de CNPJ pra um campo (contratante pessoa jurídica).
+ */
+function mountCnpjMask(inputSelector) {
+    const input = document.querySelector(inputSelector);
+    if (!input) return;
+
+    const aplicar = () => {
+        input.value = formatarCnpj(input.value.replace(/\D/g, ''));
+    };
+
+    if (input.value) aplicar();
+    input.addEventListener('input', aplicar);
+}
+
+/**
+ * Máscara de CPF pra um campo (contratante pessoa física e CPF do
+ * representante legal da pessoa jurídica).
  */
 function mountCpfMask(inputSelector) {
     const input = document.querySelector(inputSelector);
@@ -440,18 +443,15 @@ document.addEventListener('DOMContentLoaded', () => {
         initialContent: config.clausulasContent,
     });
 
-    mountClientSearch({
-        inputSelector: '#busca-cliente',
-        resultsSelector: '#resultados-busca-cliente',
-        clientIdSelector: '#input-client-id',
-        searchUrl: '/contracts/pessoas-fisicas/search',
-    });
-
     mountCurrencyMask('#input-preco-venda');
 
-    // Contratante: sempre pessoa física.
+    // Contratante pessoa física (os campos só existem na página de PF).
     mountCpfMask('[name="contratante[cpf]"]');
     mountPhoneMask('[name="contratante[telefones]"]');
+
+    // Contratante pessoa jurídica (os campos só existem na página de PJ).
+    mountCnpjMask('[name="contratante[cnpj]"]');
+    mountCpfMask('[name="contratante[representante_legal_cpf]"]');
 
     // Contratado: pode ser PF ou PJ, então usa a máscara combinada.
     mountCpfCnpjMask('[name="contratado[cpf_cnpj]"]');
@@ -531,5 +531,44 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Gerar contrato';
         }
+    });
+
+    // Busca de cliente pessoa física (só monta se #busca-cliente existir na página).
+    mountClientSearch({
+        inputSelector: '#busca-cliente',
+        resultsSelector: '#resultados-busca-cliente',
+        clientIdSelector: '#input-client-id',
+        searchUrl: '/contracts/pessoas-fisicas/search',
+        fieldMap: {
+            nome: 'contratante[nome]',
+            cpf: 'contratante[cpf]',
+            rg: 'contratante[identidade]',
+            estado_civil: 'contratante[estado_civil]',
+            profissao: 'contratante[profissao]',
+            conjuge_nome: 'contratante[conjuge_nome]',
+            conjuge_rg: 'contratante[conjuge_identidade]',
+            endereco: 'contratante[endereco]',
+            telefone: 'contratante[telefones]',
+        },
+        labelFn: (p) => `${p.nome} — ${formatarCpf(String(p.cpf ?? '').replace(/\D/g, ''))}`,
+    });
+
+    // Busca de cliente pessoa jurídica (só monta se #busca-cliente-pj existir).
+    mountClientSearch({
+        inputSelector: '#busca-cliente-pj',
+        resultsSelector: '#resultados-busca-cliente-pj',
+        clientIdSelector: '#input-client-id',
+        searchUrl: '/contracts/pessoas-juridicas/search',
+        fieldMap: {
+            razao_social: 'contratante[razao_social]',
+            nome_fantasia: 'contratante[nome_fantasia]',
+            cnpj: 'contratante[cnpj]',
+            inscricao_estadual: 'contratante[inscricao_estadual]',
+            endereco: 'contratante[endereco]',
+            representante_legal_nome: 'contratante[representante_legal_nome]',
+            representante_legal_cargo: 'contratante[representante_legal_cargo]',
+            representante_legal_cpf: 'contratante[representante_legal_cpf]',
+        },
+        labelFn: (p) => `${p.razao_social} — ${formatarCnpj(String(p.cnpj ?? '').replace(/\D/g, ''))}`,
     });
 });

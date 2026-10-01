@@ -1,3 +1,13 @@
+@php
+    $cores = [
+        'Vigente'       => 'bg-green-100 text-green-700',
+        'Vencendo'      => 'bg-orange-100 text-orange-700',
+        'Vencido'       => 'bg-red-100 text-red-700',
+        'Indeterminado' => 'bg-blue-100 text-blue-700',
+    ];
+    $filtroAtivo = in_array($clientType ?? null, ['pf', 'pj'], true) ? $clientType : null;
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -23,17 +33,17 @@
                     <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                         <a href="{{ route('contracts.index') }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ request('client_type') ? 'text-slate-500 hover:text-slate-700' : 'bg-white text-brand-blue shadow-sm' }}">
+                                  {{ $filtroAtivo ? 'text-slate-500 hover:text-slate-700' : 'bg-white text-brand-blue shadow-sm' }}">
                             Todos
                         </a>
                         <a href="{{ route('contracts.index', ['client_type' => 'pf']) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ request('client_type') === 'pf' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                             Pessoa física
                         </a>
                         <a href="{{ route('contracts.index', ['client_type' => 'pj']) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ request('client_type') === 'pj' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                             Pessoa jurídica
                         </a>
                     </div>
@@ -88,15 +98,7 @@
                         </thead>
                         <tbody>
                             @forelse ($groups as $index => $group)
-                                @php
-                                    $v = $group->latestVersion;
-                                    $cores = [
-                                        'Vigente'       => 'bg-green-100 text-green-700',
-                                        'Vencendo'      => 'bg-orange-100 text-orange-700',
-                                        'Vencido'       => 'bg-red-100 text-red-700',
-                                        'Indeterminado' => 'bg-blue-100 text-blue-700',
-                                    ];
-                                @endphp
+                                @php $v = $group->latestVersion; @endphp
                                 <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 hover:bg-blue-50/40 transition
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $group->client_display_name }}">
@@ -106,7 +108,7 @@
                                         {{ \Illuminate\Support\Str::of($group->contract_type)->replace('_', ' ')->title() }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
-                                        Versão {{ $v->version ?? '—' }}
+                                        Versão {{ $v?->version ?? '—' }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
                                         @if ($v)

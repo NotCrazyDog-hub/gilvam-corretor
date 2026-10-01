@@ -6,30 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('contract_groups', function (Blueprint $table) {
             $table->id();
-             $table->uuid('uuid')->unique();
- 
-            $table->string('client_type', 2)->nullable(); 
-            $table->unsignedBigInteger('client_id')->nullable();
- 
-            $table->string('contract_type'); 
+            $table->uuid('uuid')->unique();
+
+            $table->foreignId('client_id')->constrained('clients')->restrictOnDelete();
+
+            $table->string('contract_type');
             $table->string('slug')->unique();
-            $table->string('status')->default('draft'); 
- 
-            $table->index(['client_type', 'client_id']);
+            $table->string('status')->default('draft');
+
             $table->timestamps();
+
+            // O Postgres não cria índice automático para FK.
+            $table->index('client_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('contract_groups');

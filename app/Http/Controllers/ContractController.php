@@ -2,30 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreContractRequest;
+use App\Http\Requests\UpdateContractRequest;
+use App\Models\Client;
 use App\Models\Contract;
 use App\Models\ContractGroup;
 use App\Services\ContractGeneratorService;
-use App\Http\Requests\StoreContractRequest;
-use App\Http\Requests\UpdateContractRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Models\PessoaFisica;
-use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
 {
     public function __construct(private ContractGeneratorService $generator) {}
 
     /**
-     * Listagem separada por tipo de cliente (pf/pj), mostrando a versão vigente.
+     * Listagem com filtro por tipo de cliente (pf/pj), mostrando a versão vigente.
      */
     public function index(Request $request)
     {
         $clientType = $request->query('client_type'); // 'pf' | 'pj' | null
 
         $groups = ContractGroup::query()
-            ->when($clientType, fn ($q) => $q->where('client_type', $clientType))
-            ->with('latestVersion')
+            ->when(in_array($clientType, [Client::TIPO_PF, Client::TIPO_PJ], true), fn ($q) =>
+                $q->whereHas('client', fn ($c) => $c->where('tipo', $clientType))
+            )
+            ->with(['latestVersion', 'client'])
             ->latest()
             ->paginate(20)
             ->withQueryString();
@@ -60,11 +61,12 @@ class ContractController extends Controller
     public function edit(ContractGroup $group)
     {
         $contract = $group->latestVersion()->firstOrFail();
+        $group->loadMissing('client');
 
         return view('contracts.form', [
             'group' => $group,
             'contract' => $contract,
-            'clientType' => $group->client_type,
+            'clientType' => $group->client->tipo,
         ]);
     }
 
@@ -103,6 +105,54 @@ class ContractController extends Controller
         return Storage::download($contract->file_path, $contract->fileName());
     }
 
+    public function createForPessoaFisica()
+    {
+        return view('contracts.form', [
+            'group' => null,
+            'contract' => null,
+            'clientType' => Client::TIPO_PF,
+        ]);
+    }
+
+    public function createForPessoaJuridica()
+    {
+        return view('contracts.form', [
+            'group' => null,
+            'contract' => null,
+            'clientType' => Client::TIPO_PJ,
+        ]);
+    }
+
+    /**
+     * Buscas usadas pelo autocomplete do formulário (contract-form.js).
+     * Mantive os dois endpoints/URLs para não precisar mexer no JS.
+     */
+    public function searchPessoasFisicas(Request $request)
+    {
+        return $this->searchClients($request, Client::TIPO_PF);
+    }
+
+    public function searchPessoasJuridicas(Request $request)
+    {
+        return $this->searchClients($request, Client::TIPO_PJ);
+    }
+
+    private function searchClients(Request $request, string $tipo)
+    {
+        $query = trim((string) $request->query('q', ''));
+
+        if (mb_strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $clients = Client::ofType($tipo)
+            ->search($query)
+            ->limit(10)
+            ->get();
+
+        return response()->json($clients->map->toSearchResult()->values());
+    }
+
     private function contractPayload(Contract $contract): array
     {
         return [
@@ -114,53 +164,5 @@ class ContractController extends Controller
                 'version' => $contract->version,
             ]),
         ];
-    }
-
-    public function chooseClientType()
-    {
-        return view('contracts.create-choice');
-    }
-
-    public function createForPessoaFisica()
-    {
-        return view('contracts.form', [
-            'group' => null,
-            'contract' => null,
-            'clientType' => 'pf',
-        ]);
-    }
-
-    public function createForPessoaJuridica()
-    {
-        // Documento de PJ ainda não está pronto — placeholder por enquanto
-        return view('contracts.create-pj-pending');
-    }
-
-    public function searchPessoasFisicas(Request $request)
-    {
-        $query = trim((string) $request->query('q', ''));
-        if (mb_strlen($query) < 2) {
-            return response()->json([]);
-        }
-
-        $cpfDigits = preg_replace('/\D/', '', $query);
-
-        $pessoas = PessoaFisica::query()
-            ->where('nome', 'like', "%{$query}%")
-            ->when(strlen($cpfDigits) >= 11, function ($q) use ($cpfDigits) {
-                $q->orWhere('cpf_hash', hash('sha256', $cpfDigits));
-            })
-            ->limit(10)
-            ->get();
-
-        return response()->json($pessoas->map(fn (PessoaFisica $p) => [
-            'id'           => $p->id,
-            'nome'         => $p->nome,
-            'cpf'          => $p->cpf, // decriptado pelo accessor do model
-            'endereco'     => $p->endereco,
-            'telefone'     => $p->telefone,
-            'profissao'    => $p->profissao,
-            'estado_civil' => $p->estado_civil,
-        ]));
     }
 }

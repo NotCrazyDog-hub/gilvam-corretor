@@ -11,7 +11,7 @@
             <div class="bg-white shadow-md rounded-lg px-8 py-10">
 
                 <h2 class="text-2xl font-semibold text-gray-800 text-center mb-6">
-                    Criar conta
+                    Crie sua conta
                 </h2>
 
                 <form method="POST" action="{{ route('register') }}">
@@ -86,13 +86,13 @@
                     </div>
 
                     <button type="submit"
-                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+                            class="w-full bg-green-600 font-bold text-white py-2 rounded-md hover:bg-green-700 transition">
                         Cadastrar
                     </button>
 
                     <p class="text-center text-sm text-gray-600 mt-6">
                         Já tem uma conta?
-                        <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Entrar</a>
+                        <a href="{{ route('login') }}" class="text-green-600 hover:underline font-bold">Entre</a>
                     </p>
 
                 </form>

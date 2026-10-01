@@ -6,19 +6,16 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('images/logo.png') }}" alt="Gilvan Vieira Corretora" class="h-11 w-auto">
+                        <img src="{{ asset('images/mini-logo.png') }}" alt="Gilvan Vieira Corretora" class="h-10 w-auto">
                     </a>
                 </div>
 
-                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('pessoas-fisicas.index')" :active="request()->routeIs('pessoas-fisicas.*')">
-                        {{ __('Pessoas Físicas') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('pessoas-juridicas.index')" :active="request()->routeIs('pessoas-juridicas.*')">
-                        {{ __('Pessoas Jurídicas') }}
+                    <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')">
+                        {{ __('Meus clientes') }}
                     </x-nav-link>
                     <x-nav-link :href="route('imoveis.index')" :active="request()->routeIs('imoveis.*')">
                         {{ __('Imóveis') }}
@@ -90,6 +87,15 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')">
+                {{ __('Meus clientes') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('imoveis.index')" :active="request()->routeIs('imoveis.*')">
+                {{ __('Imóveis') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('contracts.index')" :active="request()->routeIs('contracts.*')">
+                {{ __('Geração de Contratos') }}
             </x-responsive-nav-link>
         </div>
 

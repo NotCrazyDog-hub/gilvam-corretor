@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Contract;
 use App\Models\ContractGroup;
+use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +12,26 @@ use RuntimeException;
 
 class ContractGeneratorService
 {
-    private const TEMPLATE_PATH = 'templates/contrato-de-corretagem-pf.docx';
+    // Template único para PF e PJ (troque o nome do arquivo em storage).
+    private const TEMPLATE_PATH = 'templates/contrato-de-corretagem.docx';
+
+    // Linhas do bloco do contratante que só existem para um tipo de pessoa.
+    // Cada chave é um placeholder que aparece em UMA linha da tabela.
+    private const LINHAS_SO_PF = [
+        'contratante.nome',
+        'contratante.estado_civil',
+        'contratante.cpf',
+        'contratante.conjuge_nome',
+        'contratante.conjuge_identidade',
+    ];
+
+    private const LINHAS_SO_PJ = [
+        'contratante.razao_social',
+        'contratante.nome_fantasia',
+        'contratante.cnpj',
+        'contratante.representante_legal_nome',
+        'contratante.representante_legal_cargo',
+    ];
 
     public function __construct(private ContractVersionService $versioner) {}
 
@@ -30,13 +50,19 @@ class ContractGeneratorService
             $version = $this->versioner->nextVersionNumber($group);
 
             $relativePath = "contracts/{$group->uuid}/v{$version}.docx";
-            $this->renderDocx($relativePath, $data);
+            $isPj = $group->client->tipo === Client::TIPO_PJ;
+            $this->renderDocx($relativePath, $data, $isPj);
 
             return $this->versioner->persistVersion($group, $version, $data, $relativePath, $userId);
         });
     }
 
-    private function renderDocx(string $relativePath, array $data): void
+    /**
+     * AJUSTE: compare com o valor que você grava em client_type
+     * (nome da classe ou alias do morphMap).
+     */
+
+    private function renderDocx(string $relativePath, array $data, bool $isPj): void
     {
         if (!Storage::exists(self::TEMPLATE_PATH)) {
             throw new RuntimeException('Template de contrato não encontrado: ' . self::TEMPLATE_PATH);
@@ -48,7 +74,13 @@ class ContractGeneratorService
         // usar esse formato (ex: ${contratante.nome}), não {{contratante.nome}}.
         $processor = new TemplateProcessor(Storage::path(self::TEMPLATE_PATH));
 
-        foreach ($this->flatten($this->contentForTemplate($data)) as $key => $value) {
+        // Remove primeiro as linhas do tipo de pessoa que NÃO se aplica.
+        // Precisa vir antes do setValue, porque a busca é pelo placeholder.
+        foreach ($isPj ? self::LINHAS_SO_PF : self::LINHAS_SO_PJ as $placeholder) {
+            $processor->deleteRow($placeholder);
+        }
+
+        foreach ($this->flatten($this->contentForTemplate($data, $isPj)) as $key => $value) {
             $processor->setValue($key, $value);
         }
 
@@ -61,7 +93,7 @@ class ContractGeneratorService
      * + o texto livre do TipTap (content_html) já convertido pra texto puro,
      * já que TemplateProcessor::setValue só substitui texto simples.
      */
-    private function contentForTemplate(array $data): array
+    private function contentForTemplate(array $data, bool $isPj): array
     {
         $imovel = $data['imovel'];
 
@@ -76,6 +108,8 @@ class ContractGeneratorService
             'contratado'  => $data['contratado'],
             'imovel'      => $imovel,
             'clausulas'   => !empty($data['clausulas']) ? $this->htmlToPlainText($data['clausulas']) : '',
+            // Rótulo da segunda assinatura: cônjuge (PF) ou representante legal (PJ).
+            'assinatura_segunda_parte' => $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE',
         ];
     }
 

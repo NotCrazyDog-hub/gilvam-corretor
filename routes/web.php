@@ -1,13 +1,15 @@
 <?php
 
-use App\Http\Controllers\ContractController;
-use App\Http\Controllers\ImovelController;
-use App\Http\Controllers\PessoaFisicaController;
-use App\Http\Controllers\PessoaJuridicaController;
-use App\Http\Controllers\ProfileController;
-use App\Models\Imovel;
-use App\Models\PessoaFisica;
-use App\Models\PessoaJuridica;
+use App\Http\Controllers\{
+    ClientController,
+    ContractController,
+    ImovelController,
+    ProfileController
+};
+use App\Models\{
+    Client,
+    Imovel
+};
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,18 +21,17 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
         return view('dashboard', [
-            'totalPessoasFisicas' => PessoaFisica::count(),
-            'totalPessoasJuridicas' => PessoaJuridica::count(),
+            'totalPessoasFisicas' => Client::ofType(Client::TIPO_PF)->count(),
+            'totalPessoasJuridicas' => Client::ofType(Client::TIPO_PJ)->count(),
             'totalImoveis' => Imovel::count(),
-            'ultimasPessoasFisicas' => PessoaFisica::latest()->take(5)->get(),
-            'ultimasPessoasJuridicas' => PessoaJuridica::latest()->take(5)->get(),
+            'ultimasPessoasFisicas' => Client::ofType(Client::TIPO_PF)->latest()->take(5)->get(),
+            'ultimasPessoasJuridicas' => Client::ofType(Client::TIPO_PJ)->latest()->take(5)->get(),
             'ultimosImoveis' => Imovel::latest()->take(5)->get(),
         ]);
     })->name('dashboard');
 
     // Cadastros
-    Route::resource('pessoas-fisicas', PessoaFisicaController::class);
-    Route::resource('pessoas-juridicas', PessoaJuridicaController::class);
+    Route::resource('clients', ClientController::class);
     Route::resource('imoveis', ImovelController::class)
         ->parameters(['imoveis' => 'imovel']);
 
@@ -43,12 +44,14 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('contracts')->name('contracts.')->group(function () {
         Route::get('/', [ContractController::class, 'index'])->name('index');
 
-        Route::get('/create', [ContractController::class, 'chooseClientType'])->name('create');
         Route::get('/create/pf', [ContractController::class, 'createForPessoaFisica'])->name('create.pf');
         Route::get('/create/pj', [ContractController::class, 'createForPessoaJuridica'])->name('create.pj');
 
+        // Mesmas URLs/nomes de antes, para não mexer no JS do formulário
         Route::get('/pessoas-fisicas/search', [ContractController::class, 'searchPessoasFisicas'])
             ->name('pessoas-fisicas.search');
+        Route::get('/pessoas-juridicas/search', [ContractController::class, 'searchPessoasJuridicas'])
+            ->name('pessoas-juridicas.search');
 
         Route::post('/', [ContractController::class, 'store'])->name('store');
 

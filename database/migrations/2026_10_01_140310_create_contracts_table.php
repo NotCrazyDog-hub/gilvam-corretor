@@ -27,6 +27,9 @@ return new class extends Migration
             $table->string('file_format')->default('docx');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
 
+            $table->date('data_termino')->nullable();
+            $table->boolean('prazo_indeterminado')->default(false);
+
             $table->timestamps();
 
             $table->unique(['contract_group_id', 'version']);

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Contract extends Model
 {
@@ -76,28 +77,28 @@ class Contract extends Model
     }
 
     public function getTempoRestanteAttribute(): ?string
-    {
-        if ($this->prazo_indeterminado || !$this->data_termino) {
-            return null;
-        }
-
-        $hoje = \Carbon\Carbon::today();
-        $dias = $hoje->diffInDays($this->data_termino, false);
-
-        if ($dias < 0) {
-            $diasAtraso = abs($dias);
-            return 'vencido há ' . $diasAtraso . ($diasAtraso === 1 ? ' dia' : ' dias');
-        }
-
-        if ($dias === 0) {
-            return 'vence hoje';
-        }
-
-        if ($dias <= 30) {
-            return $dias . ($dias === 1 ? ' dia' : ' dias');
-        }
-
-        $meses = (int) floor($hoje->diffInMonths($this->data_termino));
-        return '~' . $meses . ($meses === 1 ? ' mês' : ' meses');
+{
+    if ($this->prazo_indeterminado || !$this->data_termino) {
+        return null;
     }
+
+    $hoje = \Carbon\Carbon::today();
+    $dias = (int) $hoje->diffInDays($this->data_termino, false);
+
+    if ($dias < 0) {
+        $diasAtraso = abs($dias);
+        return 'vencido há ' . $diasAtraso . ' ' . Str::plural('dia', $diasAtraso);
+    }
+
+    if ($dias === 0) {
+        return 'vence hoje';
+    }
+
+    if ($dias <= 30) {
+        return $dias . ' ' . Str::plural('dia', $dias);
+    }
+
+    $meses = (int) floor($hoje->diffInMonths($this->data_termino));
+    return '~' . $meses . ' ' . ($meses === 1 ? 'mês' : 'meses');
+}
 }
