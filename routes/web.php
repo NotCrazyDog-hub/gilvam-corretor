@@ -1,11 +1,15 @@
 <?php
 
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\ContractController;
-use App\Http\Controllers\ImovelController;
-use App\Http\Controllers\ProfileController;
-use App\Models\Client;
-use App\Models\Imovel;
+use App\Http\Controllers\{
+    ClientController,
+    ContractController,
+    ImovelController,
+    ProfileController
+};
+use App\Models\{
+    Client,
+    Imovel
+};
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
