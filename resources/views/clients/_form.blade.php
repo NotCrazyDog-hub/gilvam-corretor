@@ -9,20 +9,7 @@
     @if ($client)
         @method('PUT')
     @else
-        <input type="hidden" name="tipo" :value="tipo">
-
-        <div class="inline-flex items-center gap-1 bg-slate-100 rounded-lg p-1 mb-6">
-            <button type="button" @click="tipo = 'pf'"
-                    :class="tipo === 'pf' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                    class="px-4 py-2 text-sm font-medium rounded-md transition">
-                Pessoa física
-            </button>
-            <button type="button" @click="tipo = 'pj'"
-                    :class="tipo === 'pj' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                    class="px-4 py-2 text-sm font-medium rounded-md transition">
-                Pessoa jurídica
-            </button>
-        </div>
+        <input type="hidden" name="tipo" value="{{ $tipoInicial }}">
     @endif
 
     {{-- Nome / Razão social --}}
