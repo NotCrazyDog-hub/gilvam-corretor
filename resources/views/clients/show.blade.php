@@ -45,18 +45,7 @@
                             <dt class="text-sm font-medium text-gray-500">Profissão</dt>
                             <dd class="text-gray-800">{{ $client->profissao ?? '—' }}</dd>
                         </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Telefone</dt>
-                            <dd class="text-gray-800">{{ $client->telefone_formatado ?? '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Telefone Secundário</dt>
-                            <dd class="text-gray-800">{{ $client->telefone_secundario_formatado ?? '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Email</dt>
-                            <dd class="text-gray-800">{{ $client->email ?? '—' }}</dd>
-                        </div>
+                        {{-- REMOVIDO daqui: Telefone, Telefone Secundário e Email (agora ficam no bloco comum abaixo) --}}
                     @else
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Razão Social</dt>
@@ -79,6 +68,20 @@
                     <div class="col-span-2">
                         <dt class="text-sm font-medium text-gray-500">Endereço</dt>
                         <dd class="text-gray-800">{{ $client->endereco }}</dd>
+                    </div>
+
+                    {{-- NOVO: contato comum a PF e PJ --}}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Telefone</dt>
+                        <dd class="text-gray-800">{{ $client->telefone_formatado ?? '—' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Telefone Secundário</dt>
+                        <dd class="text-gray-800">{{ $client->telefone_secundario_formatado ?? '—' }}</dd>
+                    </div>
+                    <div class="col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Email</dt>
+                        <dd class="text-gray-800">{{ $client->email ?? '—' }}</dd>
                     </div>
 
                     @if ($client->isPj())

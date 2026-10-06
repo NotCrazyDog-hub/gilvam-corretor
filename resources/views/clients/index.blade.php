@@ -1,8 +1,4 @@
 @php
-    $coresTipo = [
-        'pf' => 'bg-blue-100 text-blue-700',
-        'pj' => 'bg-green-100 text-green-700',
-    ];
     $filtroAtivo = in_array($tipo ?? null, ['pf', 'pj'], true) ? $tipo : null;
 @endphp
 
@@ -100,9 +96,9 @@
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200 divide-x divide-gray-200">
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Nome / Razão Social</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo de pessoa</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Documento</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Contato</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Contatos</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center whitespace-nowrap">Ações</th>
                             </tr>
                         </thead>
@@ -113,17 +109,24 @@
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $client->nome }}">
                                         {{ $client->nome }}
                                     </td>
-                                    <td class="py-3 px-4 text-sm text-center">
-                                        <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full {{ $coresTipo[$client->tipo] ?? 'bg-slate-100 text-slate-600' }}">
-                                            {{ $client->isPj() ? 'PJ' : 'PF' }}
-                                        </span>
+
+                                    {{-- ALTERADO: agora mostra "Físico" / "Jurídico" (via accessor tipo_label no Client.php) --}}
+                                    <td class="py-3 px-4 text-sm text-gray-700 text-center">
+                                        {{ $client->tipo_label }}
                                     </td>
+
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
                                         {{ $client->documento_formatado ?? '—' }}
                                     </td>
+
+                                    {{-- ALTERADO: PF e PJ mostram telefone formatado + e-mail (antes PJ mostrava o representante legal) --}}
                                     <td class="py-3 px-4 text-sm text-center">
-                                        {{ $client->isPj() ? ($client->representante_legal_nome ?? '—') : ($client->telefone_formatado ?? '—') }}
+                                        <div class="text-gray-700">{{ $client->telefone_formatado ?? '—' }}</div>
+                                        @if ($client->email)
+                                            <div class="text-xs text-gray-500">{{ $client->email }}</div>
+                                        @endif
                                     </td>
+
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
                                         <span class="inline-flex items-center divide-x divide-gray-300">
                                             <a href="{{ route('clients.show', $client) }}"
