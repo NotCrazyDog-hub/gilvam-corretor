@@ -102,7 +102,7 @@
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200 divide-x divide-gray-200">
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Nome / Razão Social</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo de pessoa</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Documento</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Telefone</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">E-mail</th>
