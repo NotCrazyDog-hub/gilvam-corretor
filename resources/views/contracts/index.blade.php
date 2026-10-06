@@ -3,7 +3,7 @@
         'Vigente'       => 'bg-green-100 text-green-700',
         'Vencendo'      => 'bg-orange-100 text-orange-700',
         'Vencido'       => 'bg-red-100 text-red-700',
-        'Indeterminado' => 'bg-blue-100 text-blue-700',
+        'Indeterminado' => 'bg-gray-100 text-gray-700',
     ];
     $filtroAtivo = in_array($clientType ?? null, ['pf', 'pj'], true) ? $clientType : null;
 @endphp
@@ -33,17 +33,17 @@
                     <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                         <a href="{{ route('contracts.index') }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo ? 'text-slate-500 hover:text-slate-700' : 'bg-white text-brand-blue shadow-sm' }}">
+                                  {{ $filtroAtivo ? 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' : 'bg-white text-green-600 shadow-sm' }}">
                             Todos
                         </a>
                         <a href="{{ route('contracts.index', ['client_type' => 'pf']) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-blue-100 hover:text-blue-700' }}">
+                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
                             Pessoa física
                         </a>
                         <a href="{{ route('contracts.index', ['client_type' => 'pj']) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-green-100 hover:text-green-700' }}">
+                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
                             Pessoa jurídica
                         </a>
                     </div>
@@ -51,7 +51,7 @@
                     {{-- Botão Novo Contrato --}}
                     <div x-data="{ open: false }" @click.outside="open = false" class="relative py-1">
                         <button @click="open = !open"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2 transition">
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2 transition">
                             <svg class="w-4 h-4 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
@@ -64,14 +64,14 @@
                         <div x-show="open" x-cloak x-transition
                             class="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
                             <a href="{{ route('contracts.create.pf') }}"
-                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700">
-                                <svg class="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
+                                <svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                                 </svg>
                                 Contrato Pessoa física
                             </a>
                             <a href="{{ route('contracts.create.pj') }}"
-                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-green-50 hover:text-green-700">
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
                                 <svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9h1m-1 4h1m-1 4h1" />
                                 </svg>
@@ -99,8 +99,7 @@
                         <tbody>
                             @forelse ($groups as $index => $group)
                                 @php $v = $group->latestVersion; @endphp
-                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition
-                                           {{ $group->client_type === 'pj' ? 'hover:bg-green-50' : 'hover:bg-blue-50' }}
+                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-gray-100
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $group->client_display_name }}">
                                         {{ $group->client_display_name }}
@@ -136,11 +135,25 @@
                                         {{ $v?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
-                                        <span class="inline-flex items-center divide-x divide-gray-300">
+                                        <span class="inline-flex items-center gap-1.5">
+                                            {{-- Editar (papel com lápis) --}}
                                             <a href="{{ route('contracts.edit', $group) }}?from=index"
-                                               class="text-yellow-600 hover:underline px-2">Editar</a>
+                                            title="Editar" aria-label="Editar"
+                                            class="p-1.5 rounded-lg text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-gray-700 transition">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                </svg>
+                                            </a>
+
+                                            {{-- Histórico (folha com relógio) --}}
                                             <a href="{{ route('contracts.versions', $group) }}"
-                                               class="text-blue-600 hover:underline px-2">Histórico</a>
+                                            title="Histórico" aria-label="Histórico"
+                                            class="p-1.5 rounded-lg text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 transition">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 3H7a2 2 0 00-2 2v14a2 2 0 002 2h3M13 3l5 5v2M13 3v5h5" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 13a4 4 0 100 8 4 4 0 000-8zM17 15v2l1.5 1" />
+                                                </svg>
+                                            </a>
                                         </span>
                                     </td>
                                 </tr>
