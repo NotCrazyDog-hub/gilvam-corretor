@@ -96,9 +96,10 @@
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200 divide-x divide-gray-200">
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Nome / Razão Social</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo de pessoa</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Documento</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Contatos</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Telefone</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">E-mail</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center whitespace-nowrap">Ações</th>
                             </tr>
                         </thead>
@@ -119,12 +120,12 @@
                                         {{ $client->documento_formatado ?? '—' }}
                                     </td>
 
-                                    {{-- ALTERADO: PF e PJ mostram telefone formatado + e-mail (antes PJ mostrava o representante legal) --}}
-                                    <td class="py-3 px-4 text-sm text-center">
-                                        <div class="text-gray-700">{{ $client->telefone_formatado ?? '—' }}</div>
-                                        @if ($client->email)
-                                            <div class="text-xs text-gray-500">{{ $client->email }}</div>
-                                        @endif
+                                    {{-- ALTERADO: Telefone e E-mail em colunas separadas (PF e PJ) --}}
+                                    <td class="py-3 px-4 text-sm text-gray-700 text-center whitespace-nowrap">
+                                        {{ $client->telefone_formatado ?? '—' }}
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-gray-700 text-center truncate max-w-xs" title="{{ $client->email }}">
+                                        {{ $client->email ?? '—' }}
                                     </td>
 
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
@@ -144,7 +145,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-6 text-center text-gray-500">
+                                    <td colspan="6" class="py-6 text-center text-gray-500">
                                         Nenhum cliente encontrado.
                                     </td>
                                 </tr>
