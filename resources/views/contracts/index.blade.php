@@ -135,7 +135,7 @@
                                         {{ $v?->created_at?->format('d/m/Y\, à\s H:i') ?? '—' }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
-                                        <span class="inline-flex items-center gap-1.5">
+                                        <span class="inline-flex items-center gap-3">
                                             {{-- Editar (papel com lápis) --}}
                                             <a href="{{ route('contracts.edit', $group) }}?from=index"
                                             title="Editar" aria-label="Editar"

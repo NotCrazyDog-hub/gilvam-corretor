@@ -135,7 +135,7 @@
                                     </td>
 
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
-                                        <span class="inline-flex items-center gap-1.5">
+                                        <span class="inline-flex items-center gap-3">
                                             {{-- Ver --}}
                                             <a href="{{ route('clients.show', $client) }}"
                                             title="Ver" aria-label="Ver"
