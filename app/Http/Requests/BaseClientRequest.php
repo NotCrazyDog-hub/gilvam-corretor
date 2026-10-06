@@ -68,6 +68,10 @@ abstract class BaseClientRequest extends FormRequest
                 'representante_legal_nome'  => ['required', 'string', 'max:255'],
                 'representante_legal_cpf'   => ['required', 'string', 'size:11'],
                 'representante_legal_cargo' => ['required', 'string', 'max:255'],
+
+                'telefone'                  => ['nullable', 'string', 'max:20'],
+                'telefone_secundario'       => ['nullable', 'string', 'max:20'],
+                'email'                     => ['nullable', 'email', 'max:255'],
             ],
             default => [],
         };

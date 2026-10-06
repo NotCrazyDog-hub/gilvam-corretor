@@ -1,31 +1,40 @@
 {{-- Variáveis: $client (Client|null), $action, $tipo (só no create) --}}
 @php
-    // No edit o tipo vem do cliente; no create, do ?tipo= (ou do old() após erro de validação).
-    $tipoForm = $client?->tipo ?? old('tipo', $tipo ?? 'pf');
-    $tipoForm = in_array($tipoForm, ['pf', 'pj'], true) ? $tipoForm : 'pf';
-    $isPj = $tipoForm === 'pj';
+    $tipoInicial = $client?->tipo ?? old('tipo', $tipo ?? 'pf');
 @endphp
 
 <form action="{{ $action }}" method="POST" id="form-client"
-      x-data="{ estadoCivil: @js(old('estado_civil', $client?->estado_civil ?? '')) }">
+      x-data="{ tipo: @js($tipoInicial), estadoCivil: @js(old('estado_civil', $client?->estado_civil ?? '')) }">
     @csrf
     @if ($client)
         @method('PUT')
     @else
-        <input type="hidden" name="tipo" value="{{ $tipoForm }}">
+        <input type="hidden" name="tipo" :value="tipo">
+
+        <div class="inline-flex items-center gap-1 bg-slate-100 rounded-lg p-1 mb-6">
+            <button type="button" @click="tipo = 'pf'"
+                    :class="tipo === 'pf' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                    class="px-4 py-2 text-sm font-medium rounded-md transition">
+                Pessoa física
+            </button>
+            <button type="button" @click="tipo = 'pj'"
+                    :class="tipo === 'pj' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                    class="px-4 py-2 text-sm font-medium rounded-md transition">
+                Pessoa jurídica
+            </button>
+        </div>
     @endif
 
     {{-- Nome / Razão social --}}
     <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">
-            {{ $isPj ? 'Razão Social' : 'Nome' }}
-        </label>
+        <label class="block text-sm font-medium text-gray-700"
+               x-text="tipo === 'pf' ? 'Nome' : 'Razão Social'"></label>
         <input type="text" name="nome" value="{{ old('nome', $client?->nome) }}"
                class="mt-1 block w-full rounded border-gray-300">
     </div>
 
-    @if (! $isPj)
-        {{-- ===================== PESSOA FÍSICA ===================== --}}
+    {{-- ===================== PESSOA FÍSICA ===================== --}}
+    <div x-show="tipo === 'pf'" x-cloak>
         <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">CPF</label>
@@ -87,30 +96,10 @@
                        class="mt-1 block w-full rounded border-gray-300">
             </div>
         </div>
+    </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Telefone</label>
-                <input type="text" name="telefone" value="{{ old('telefone', $client?->telefone) }}" maxlength="15"
-                       placeholder="(00) 00000-0000" data-mask="telefone"
-                       class="mt-1 block w-full rounded border-gray-300">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Telefone Secundário</label>
-                <input type="text" name="telefone_secundario"
-                       value="{{ old('telefone_secundario', $client?->telefone_secundario) }}"
-                       maxlength="15" placeholder="(00) 00000-0000" data-mask="telefone"
-                       class="mt-1 block w-full rounded border-gray-300">
-            </div>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Email</label>
-            <input type="email" name="email" value="{{ old('email', $client?->email) }}"
-                   class="mt-1 block w-full rounded border-gray-300">
-        </div>
-    @else
-        {{-- ===================== PESSOA JURÍDICA ===================== --}}
+    {{-- ===================== PESSOA JURÍDICA ===================== --}}
+    <div x-show="tipo === 'pj'" x-cloak>
         <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Nome Fantasia</label>
@@ -131,7 +120,30 @@
                    value="{{ old('inscricao_estadual', $client?->inscricao_estadual) }}"
                    class="mt-1 block w-full rounded border-gray-300">
         </div>
-    @endif
+    </div>
+
+    {{-- ===================== CONTATO (comum a PF e PJ) ===================== --}}
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Telefone</label>
+            <input type="text" name="telefone" value="{{ old('telefone', $client?->telefone) }}" maxlength="15"
+                   placeholder="(00) 00000-0000" data-mask="telefone"
+                   class="mt-1 block w-full rounded border-gray-300">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Telefone Secundário</label>
+            <input type="text" name="telefone_secundario"
+                   value="{{ old('telefone_secundario', $client?->telefone_secundario) }}"
+                   maxlength="15" placeholder="(00) 00000-0000" data-mask="telefone"
+                   class="mt-1 block w-full rounded border-gray-300">
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" name="email" value="{{ old('email', $client?->email) }}"
+               class="mt-1 block w-full rounded border-gray-300">
+    </div>
 
     {{-- Endereço (comum) --}}
     <div class="mb-6">
@@ -140,8 +152,8 @@
                class="mt-1 block w-full rounded border-gray-300">
     </div>
 
-    @if ($isPj)
-        {{-- Representante legal (PJ) --}}
+    {{-- Representante legal (PJ) --}}
+    <div x-show="tipo === 'pj'" x-cloak>
         <hr class="mb-6">
         <h3 class="text-sm font-semibold text-gray-600 uppercase mb-4">Representante Legal</h3>
 
@@ -167,7 +179,7 @@
                        class="mt-1 block w-full rounded border-gray-300">
             </div>
         </div>
-    @endif
+    </div>
 
     <div class="flex justify-end space-x-2">
         <a href="{{ route('clients.index') }}"

@@ -1,8 +1,4 @@
 @php
-    $coresTipo = [
-        'pf' => 'bg-blue-100 text-blue-700',
-        'pj' => 'bg-green-100 text-green-700',
-    ];
     $filtroAtivo = in_array($tipo ?? null, ['pf', 'pj'], true) ? $tipo : null;
 @endphp
 
@@ -108,7 +104,8 @@
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Nome / Razão Social</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Documento</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Contato</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Telefone</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">E-mail</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center whitespace-nowrap">Ações</th>
                             </tr>
                         </thead>
@@ -120,17 +117,24 @@
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $client->nome }}">
                                         {{ $client->nome }}
                                     </td>
-                                    <td class="py-3 px-4 text-sm text-center">
-                                        <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full {{ $coresTipo[$client->tipo] ?? 'bg-slate-100 text-slate-600' }}">
-                                            {{ $client->isPj() ? 'PJ' : 'PF' }}
-                                        </span>
+
+                                    {{-- ALTERADO: agora mostra "Físico" / "Jurídico" (via accessor tipo_label no Client.php) --}}
+                                    <td class="py-3 px-4 text-sm text-gray-700 text-center">
+                                        {{ $client->tipo_label }}
                                     </td>
+
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
                                         {{ $client->documento_formatado ?? '—' }}
                                     </td>
-                                    <td class="py-3 px-4 text-sm text-center">
-                                        {{ $client->isPj() ? ($client->representante_legal_nome ?? '—') : ($client->telefone_formatado ?? '—') }}
+
+                                    {{-- ALTERADO: Telefone e E-mail em colunas separadas (PF e PJ) --}}
+                                    <td class="py-3 px-4 text-sm text-gray-700 text-center whitespace-nowrap">
+                                        {{ $client->telefone_formatado ?? '—' }}
                                     </td>
+                                    <td class="py-3 px-4 text-sm text-gray-700 text-center truncate max-w-xs" title="{{ $client->email }}">
+                                        {{ $client->email ?? '—' }}
+                                    </td>
+
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
                                         <span class="inline-flex items-center gap-1.5">
                                             {{-- Ver --}}
@@ -170,7 +174,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-6 text-center text-gray-500">
+                                    <td colspan="6" class="py-6 text-center text-gray-500">
                                         Nenhum cliente encontrado.
                                     </td>
                                 </tr>

@@ -198,4 +198,9 @@ class Client extends Model
     {
         return $this->isPj() ? $this->cnpj_formatado : $this->cpf_formatado;
     }
+
+    protected function getTipoLabelAttribute(): string
+    {
+        return $this->isPj() ? 'Jurídica' : 'Física';
+    }
 }
