@@ -41,25 +41,31 @@
                         </a>
                         <a href="{{ route('clients.index', array_filter(['tipo' => 'pf', 'q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-blue-100 hover:text-blue-700' }}">
                             Pessoa física
                         </a>
                         <a href="{{ route('clients.index', array_filter(['tipo' => 'pj', 'q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-brand-red shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-green-100 hover:text-green-700' }}">
                             Pessoa jurídica
                         </a>
                     </div>
 
                     {{-- Busca --}}
-                    <form method="GET" action="{{ route('clients.index') }}" class="flex-1 max-w-sm">
+                    <form method="GET" action="{{ route('clients.index') }}" class="flex-1 max-w-2xl">
                         @if ($filtroAtivo)
                             <input type="hidden" name="tipo" value="{{ $filtroAtivo }}">
                         @endif
-                        <input type="search" name="q" value="{{ $busca }}" placeholder="Buscar por nome, CPF ou CNPJ"
-                               class="w-full rounded border-gray-300 text-sm">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+                                </svg>
+                            </span>
+                            <input type="search" name="q" value="{{ $busca }}" placeholder="Buscar por nome, CPF ou CNPJ"
+                                class="w-full rounded-full border-gray-300 text-sm pl-12 pr-5 py-2.5 focus:border-blue-500 focus:ring-blue-500">
+                        </div>
                     </form>
-
                     {{-- Botão Novo Cliente --}}
                     <div x-data="{ open: false }" @click.outside="open = false" class="relative py-1">
                         <button @click="open = !open"
@@ -76,14 +82,14 @@
                         <div x-show="open" x-cloak x-transition
                             class="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
                             <a href="{{ route('clients.create', ['tipo' => 'pf']) }}"
-                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700">
                                 <svg class="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                                 </svg>
                                 Cliente Pessoa física
                             </a>
                             <a href="{{ route('clients.create', ['tipo' => 'pj']) }}"
-                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-green-50 hover:text-green-700">
                                 <svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9h1m-1 4h1m-1 4h1" />
                                 </svg>
@@ -108,7 +114,8 @@
                         </thead>
                         <tbody>
                             @forelse ($clients as $index => $client)
-                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 hover:bg-blue-50/40 transition
+                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition
+                                           {{ $client->isPj() ? 'hover:bg-green-50' : 'hover:bg-blue-50' }}
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $client->nome }}">
                                         {{ $client->nome }}
@@ -125,16 +132,38 @@
                                         {{ $client->isPj() ? ($client->representante_legal_nome ?? '—') : ($client->telefone_formatado ?? '—') }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
-                                        <span class="inline-flex items-center divide-x divide-gray-300">
+                                        <span class="inline-flex items-center gap-1.5">
+                                            {{-- Ver --}}
                                             <a href="{{ route('clients.show', $client) }}"
-                                               class="text-blue-600 hover:underline px-2">Ver</a>
+                                            title="Ver" aria-label="Ver"
+                                            class="p-1.5 rounded-lg text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 transition">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </a>
+
+                                            {{-- Editar (papel com lápis) --}}
                                             <a href="{{ route('clients.edit', $client) }}"
-                                               class="text-yellow-600 hover:underline px-2">Editar</a>
-                                            <form action="{{ route('clients.destroy', $client) }}" method="POST" class="inline-flex px-2"
-                                                  onsubmit="return confirm('Tem certeza que deseja remover?');">
+                                            title="Editar" aria-label="Editar"
+                                            class="p-1.5 rounded-lg text-amber-600 bg-amber-50 hover:bg-amber-100 hover:text-amber-700 transition">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                </svg>
+                                            </a>
+
+                                            {{-- Excluir --}}
+                                            <form action="{{ route('clients.destroy', $client) }}" method="POST" class="inline-flex"
+                                                onsubmit="return confirm('Tem certeza que deseja remover?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:underline">Excluir</button>
+                                                <button type="submit"
+                                                        title="Excluir" aria-label="Excluir"
+                                                        class="p-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 transition">
+                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
                                             </form>
                                         </span>
                                     </td>
