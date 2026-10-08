@@ -99,7 +99,7 @@
                         <tbody>
                             @forelse ($groups as $index => $group)
                                 @php $v = $group->latestVersion; @endphp
-                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-gray-100
+                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-blue-50
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-left truncate max-w-xs" title="{{ $group->client_display_name }}">
                                         {{ $group->client_display_name }}
