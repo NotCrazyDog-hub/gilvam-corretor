@@ -32,8 +32,11 @@ Route::middleware(['auth'])->group(function () {
 
     // Cadastros
     Route::resource('clients', ClientController::class);
+    Route::get('imoveis/clientes/busca', [ImovelController::class, 'buscarClientes'])
+       ->name('imoveis.clientes.busca');
     Route::resource('imoveis', ImovelController::class)
         ->parameters(['imoveis' => 'imovel']);
+
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
