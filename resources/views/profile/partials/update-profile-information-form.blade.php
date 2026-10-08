@@ -35,7 +35,7 @@
 
                 <div class="space-y-2">
                     <input id="avatar" name="avatar" type="file" accept="image/png,image/jpeg,image/webp"
-                           class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:uppercase file:tracking-widest file:bg-gray-800 file:text-white hover:file:bg-gray-700"
+                           class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:uppercase file:tracking-widest file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                            @change="
                                const file = $event.target.files[0];
                                if (file) { preview = URL.createObjectURL(file); remove = false; }
@@ -95,7 +95,7 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
+                    class="text-sm text-blue-600"
                 >{{ __('Saved.') }}</p>
             @endif
         </div>
