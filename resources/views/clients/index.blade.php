@@ -101,9 +101,9 @@
                     <table class="w-full text-center border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200 divide-x divide-gray-200">
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Nome / Razão Social</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-left">Nome / Razão Social</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo de pessoa</th>
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Documento</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-left">Documento</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Telefone</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">E-mail</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center whitespace-nowrap">Ações</th>
@@ -113,7 +113,7 @@
                             @forelse ($clients as $index => $client)
                                 <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-gray-100
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
-                                    <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $client->nome }}">
+                                    <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-left truncate max-w-xs" title="{{ $client->nome }}">
                                         {{ $client->nome }}
                                     </td>
 
@@ -122,7 +122,7 @@
                                         {{ $client->tipo_label }}
                                     </td>
 
-                                    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+                                    <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
                                         {{ $client->documento_formatado ?? '—' }}
                                     </td>
 

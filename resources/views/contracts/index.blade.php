@@ -87,7 +87,7 @@
                     <table class="w-full text-center border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-200 divide-x divide-gray-200">
-                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Contratante</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-left">Contratante</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Tipo de contrato</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Versão vigente</th>
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-center">Situação</th>
@@ -101,7 +101,7 @@
                                 @php $v = $group->latestVersion; @endphp
                                 <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-gray-100
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
-                                    <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center truncate max-w-xs" title="{{ $group->client_display_name }}">
+                                    <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-left truncate max-w-xs" title="{{ $group->client_display_name }}">
                                         {{ $group->client_display_name }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
