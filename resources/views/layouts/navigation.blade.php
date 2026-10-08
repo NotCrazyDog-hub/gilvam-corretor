@@ -71,7 +71,7 @@
                             </a>
                         </div>
 
-                        <a href="#" class="block px-4 py-2 text-center text-sm text-indigo-600 hover:bg-gray-50 border-t border-gray-100">
+                        <a href="#" class="block px-4 py-2 text-center text-sm text-blue-600 hover:bg-gray-50 border-t border-gray-100">
                             Ver todas
                         </a>
                     </x-slot>
@@ -81,11 +81,15 @@
                 <a href="{{ route('profile.edit') }}"
                    class="inline-flex items-center gap-2 px-3 py-2 text-sm leading-4 font-medium rounded-md transition ease-in-out duration-150 focus:outline-none
                           {{ request()->routeIs('profile.*') ? 'text-gray-900 bg-gray-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50' }}">
-                    {{-- Avatar padrão --}}
-                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-200 text-gray-500 overflow-hidden">
-                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.418 0-8 2.239-8 5v1a1 1 0 001 1h14a1 1 0 001-1v-1c0-2.761-3.582-5-8-5z" />
-                        </svg>
+                    {{-- Avatar --}}
+                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-200 text-gray-500 overflow-hidden shrink-0">
+                        @if (Auth::user()->avatar_url)
+                            <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" class="h-full w-full object-cover">
+                        @else
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.418 0-8 2.239-8 5v1a1 1 0 001 1h14a1 1 0 001-1v-1c0-2.761-3.582-5-8-5z" />
+                            </svg>
+                        @endif
                     </span>
 
                     <span>{{ Auth::user()->name }}</span>
@@ -132,12 +136,12 @@
         <div class="pt-4 pb-3 border-t border-gray-200">
             <a href="{{ route('profile.edit') }}"
                class="px-4 py-2 flex items-center gap-3 hover:bg-gray-50 transition duration-150 ease-in-out {{ request()->routeIs('profile.*') ? 'bg-gray-50' : '' }}">
-                {{-- Avatar padrão --}}
-                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-200 text-gray-500 overflow-hidden">
+                {{-- Avatar --}}
+                <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-200 text-gray-500 overflow-hidden shrink-0">
                     @if (Auth::user()->avatar_url)
                         <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" class="h-full w-full object-cover">
                     @else
-                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.418 0-8 2.239-8 5v1a1 1 0 001 1h14a1 1 0 001-1v-1c0-2.761-3.582-5-8-5z" />
                         </svg>
                     @endif
