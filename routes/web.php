@@ -19,7 +19,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
-    Route::get('/dashboard', function () {
+    Route::get('/painel', function () {
         return view('dashboard', [
             'totalPessoasFisicas' => Client::ofType(Client::TIPO_PF)->count(),
             'totalPessoasJuridicas' => Client::ofType(Client::TIPO_PJ)->count(),
@@ -31,35 +31,39 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     // Cadastros
-    Route::resource('clients', ClientController::class);
+    // URL em português, mas nomes (clients.*) e parâmetro ({client}) preservados
+    Route::resource('clientes', ClientController::class)
+        ->names('clients')
+        ->parameters(['clientes' => 'client']);
+
     Route::resource('imoveis', ImovelController::class)
         ->parameters(['imoveis' => 'imovel']);
 
     // Perfil
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/perfil', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/perfil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/perfil', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Contratos
-    Route::prefix('contracts')->name('contracts.')->group(function () {
+    Route::prefix('contratos')->name('contracts.')->group(function () {
         Route::get('/', [ContractController::class, 'index'])->name('index');
 
-        Route::get('/create/pf', [ContractController::class, 'createForPessoaFisica'])->name('create.pf');
-        Route::get('/create/pj', [ContractController::class, 'createForPessoaJuridica'])->name('create.pj');
+        Route::get('/novo/pf', [ContractController::class, 'createForPessoaFisica'])->name('create.pf');
+        Route::get('/novo/pj', [ContractController::class, 'createForPessoaJuridica'])->name('create.pj');
 
-        // Mesmas URLs/nomes de antes, para não mexer no JS do formulário
-        Route::get('/pessoas-fisicas/search', [ContractController::class, 'searchPessoasFisicas'])
+        // Mesmos nomes de antes; só a URL mudou
+        Route::get('/pessoas-fisicas/busca', [ContractController::class, 'searchPessoasFisicas'])
             ->name('pessoas-fisicas.search');
-        Route::get('/pessoas-juridicas/search', [ContractController::class, 'searchPessoasJuridicas'])
+        Route::get('/pessoas-juridicas/busca', [ContractController::class, 'searchPessoasJuridicas'])
             ->name('pessoas-juridicas.search');
 
         Route::post('/', [ContractController::class, 'store'])->name('store');
 
-        Route::get('/{group:uuid}/edit', [ContractController::class, 'edit'])->name('edit');
+        Route::get('/{group:uuid}/editar', [ContractController::class, 'edit'])->name('edit');
         Route::put('/{group:uuid}', [ContractController::class, 'update'])->name('update');
 
-        Route::get('/{group:uuid}/versions', [ContractController::class, 'versions'])->name('versions');
-        Route::get('/{group:uuid}/versions/{version}/download', [ContractController::class, 'download'])
+        Route::get('/{group:uuid}/versoes', [ContractController::class, 'versions'])->name('versions');
+        Route::get('/{group:uuid}/versoes/{version}/download', [ContractController::class, 'download'])
             ->whereNumber('version')->name('download');
     });
 });

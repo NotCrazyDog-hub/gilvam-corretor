@@ -538,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inputSelector: '#busca-cliente',
         resultsSelector: '#resultados-busca-cliente',
         clientIdSelector: '#input-client-id',
-        searchUrl: '/contracts/pessoas-fisicas/search',
+        searchUrl: '/contratos/pessoas-fisicas/busca',
         fieldMap: {
             nome: 'contratante[nome]',
             cpf: 'contratante[cpf]',
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inputSelector: '#busca-cliente-pj',
         resultsSelector: '#resultados-busca-cliente-pj',
         clientIdSelector: '#input-client-id',
-        searchUrl: '/contracts/pessoas-juridicas/search',
+        searchUrl: '/contratos/pessoas-juridicas/busca',
         fieldMap: {
             razao_social: 'contratante[razao_social]',
             nome_fantasia: 'contratante[nome_fantasia]',
