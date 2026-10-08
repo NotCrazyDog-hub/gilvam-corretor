@@ -59,7 +59,7 @@
                                 </svg>
                             </span>
                             <input type="search" name="q" value="{{ $busca }}" placeholder="Buscar por nome, CPF ou CNPJ"
-                                class="w-full rounded-full border-gray-300 text-sm pl-12 pr-5 py-2.5 focus:border-green-500 focus:ring-green-500">
+                                class="w-full rounded-full border-gray-300 text-sm pl-12 pr-5 py-2.5 focus:border-blue-500 focus:ring-blue-500">
                         </div>
                     </form>
                     {{-- Botão Novo Cliente --}}
