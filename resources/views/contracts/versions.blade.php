@@ -42,7 +42,7 @@
                         </thead>
                         <tbody>
                             @forelse ($versions->sortByDesc('version')->values() as $index => $version)
-                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-gray-100
+                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-blue-50
                                            {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
                                     <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-center whitespace-nowrap">
                                         Versão {{ $version->version }}
