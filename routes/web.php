@@ -36,8 +36,14 @@ Route::middleware(['auth'])->group(function () {
         ->names('clients')
         ->parameters(['clientes' => 'client']);
 
+    // Busca de clientes usada no cadastro de imóveis (vem da branch map).
+    // Precisa ficar ANTES do resource de imoveis para não ser capturada por imoveis/{imovel}
+    Route::get('imoveis/clientes/busca', [ImovelController::class, 'buscarClientes'])
+        ->name('imoveis.clientes.busca');
+
     Route::resource('imoveis', ImovelController::class)
         ->parameters(['imoveis' => 'imovel']);
+
 
     // Perfil
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
 
 
@@ -33,8 +33,8 @@ class Imovel extends Model
     ];
 
     /**
-     * Papéis que uma pessoa (física ou jurídica) pode ter em relação
-     * a este imóvel. Usado na tabela pivô imoveis_pessoas.
+     * Papéis que um cliente (PF ou PJ) pode ter em relação a este imóvel.
+     * Usado na tabela pivô client_imovel.
      */
     public const PAPEIS = [
         'proprietario' => 'Proprietário',
@@ -166,46 +166,34 @@ class Imovel extends Model
     }
 
     /**
-     * Pessoas físicas ligadas a este imóvel (qualquer papel), via imoveis_pessoas.
+     * Clientes (PF ou PJ) ligados a este imóvel, via client_imovel.
+     * Se o mesmo cliente tiver vários papéis, ele aparece uma vez por papel
+     * (o papel fica em $cliente->pivot->papel).
      */
-    public function pessoasFisicas(): MorphToMany
+    public function clients(): BelongsToMany
     {
-        return $this->morphedByMany(PessoaFisica::class, 'pessoa', 'imoveis_pessoas')
+        return $this->belongsToMany(Client::class, 'client_imovel')
             ->withPivot('papel')
             ->withTimestamps();
     }
 
     /**
-     * Pessoas jurídicas ligadas a este imóvel (qualquer papel), via imoveis_pessoas.
-     */
-    public function pessoasJuridicas(): MorphToMany
-    {
-        return $this->morphedByMany(PessoaJuridica::class, 'pessoa', 'imoveis_pessoas')
-            ->withPivot('papel')
-            ->withTimestamps();
-    }
-
-    /**
-     * Todas as pessoas (PF + PJ) ligadas a este imóvel, opcionalmente
-     * filtradas por papel (ex: 'proprietario'). Junta as duas relações
-     * porque o Eloquent não tem uma única relação polimórfica que misture
-     * dois models diferentes automaticamente.
+     * Clientes ligados a este imóvel, opcionalmente filtrados por papel
+     * (ex: 'proprietario'). Sem repetir o mesmo cliente.
      */
     public function pessoas(?string $papel = null): Collection
     {
-        $fisicas = $this->pessoasFisicas();
-        $juridicas = $this->pessoasJuridicas();
+        $query = $this->clients();
 
         if ($papel) {
-            $fisicas->wherePivot('papel', $papel);
-            $juridicas->wherePivot('papel', $papel);
+            $query->wherePivot('papel', $papel);
         }
 
-        return $fisicas->get()->merge($juridicas->get());
+        return $query->get()->unique('id')->values();
     }
 
     /**
-     * Atalho para os proprietários (PF e/ou PJ) cadastrados via imoveis_pessoas.
+     * Atalho para os proprietários cadastrados via client_imovel.
      */
     public function getProprietariosAttribute(): Collection
     {

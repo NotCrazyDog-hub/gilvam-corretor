@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Imovel;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -51,20 +53,20 @@ class ImovelController extends Controller
         $this->sincronizarPessoas($request, $imovel);
 
         return redirect()
-            ->route('imoveis.show', $imovel)
+            ->route('imoveis.index')
             ->with('sucesso', 'Imóvel cadastrado com sucesso.');
     }
 
     public function show(Imovel $imovel): View
     {
-        $imovel->load('imagens');
+        $imovel->load(['imagens', 'clients']);
 
         return view('imoveis.show', compact('imovel'));
     }
 
     public function edit(Imovel $imovel): View
     {
-        $imovel->load(['imagens', 'pessoasFisicas', 'pessoasJuridicas']);
+        $imovel->load(['imagens', 'clients']);
 
         return view('imoveis.edit', [
             'imovel' => $imovel,
@@ -83,7 +85,7 @@ class ImovelController extends Controller
         $this->sincronizarPessoas($request, $imovel);
 
         return redirect()
-            ->route('imoveis.show', $imovel)
+            ->route('imoveis.index')
             ->with('sucesso', 'Imóvel atualizado com sucesso.');
     }
 
@@ -96,6 +98,32 @@ class ImovelController extends Controller
         return redirect()
             ->route('imoveis.index')
             ->with('sucesso', 'Imóvel removido com sucesso.');
+    }
+
+    /**
+     * Busca de clientes (PF e PJ) para o campo "Pessoas vinculadas" do formulário.
+     * Retorna JSON: [{id, tipo, nome, documento}]
+     */
+    public function buscarClientes(Request $request): JsonResponse
+    {
+        $termo = trim((string) $request->query('q', ''));
+
+        if (mb_strlen($termo) < 2) {
+            return response()->json([]);
+        }
+
+        $clientes = Client::search($termo)
+            ->orderBy('nome')
+            ->limit(10)
+            ->get()
+            ->map(fn (Client $c) => [
+                'id' => $c->id,
+                'tipo' => $c->tipo,
+                'nome' => $c->nome,
+                'documento' => $c->documento_formatado,
+            ]);
+
+        return response()->json($clientes);
     }
 
     /**
@@ -147,51 +175,34 @@ class ImovelController extends Controller
     }
 
     /**
-     * Recria os vínculos de pessoas (físicas e jurídicas) deste imóvel
-     * a partir do que veio do formulário. Simplesmente apaga tudo e
-     * recria, porque "papel" faz parte da chave única da pivô e o
-     * conjunto de papéis de cada pessoa pode mudar inteiro a cada envio.
+     * Recria os vínculos de clientes deste imóvel a partir do formulário.
+     * Apaga tudo e recria, porque o conjunto de papéis de cada cliente
+     * pode mudar inteiro a cada envio.
      *
-     * Espera um array assim, vindo do componente Alpine do formulário:
-     * pessoas[0][tipo] = 'fisica'|'juridica'
+     * Espera um array assim:
      * pessoas[0][id] = 5
      * pessoas[0][papeis][] = 'proprietario'
      * pessoas[0][papeis][] = 'intermediador'
      */
     private function sincronizarPessoas(Request $request, Imovel $imovel): void
     {
-        $imovel->pessoasFisicas()->detach();
-        $imovel->pessoasJuridicas()->detach();
+        $imovel->clients()->detach();
 
-        // Agrupa por pessoa (tipo + id) e junta os papéis antes de anexar,
-        // pra nunca tentar inserir a mesma combinação imovel+pessoa+papel
-        // duas vezes (isso violaria a constraint única imoveis_pessoas_unica).
-        $pessoas = collect($request->input('pessoas', []))
-            ->filter(fn ($pessoa) => !empty($pessoa['id']) && !empty($pessoa['tipo']))
-            ->groupBy(fn ($pessoa) => $pessoa['tipo'] . '-' . $pessoa['id'])
-            ->map(function ($grupo) {
-                $primeiro = $grupo->first();
+        // Agrupa por cliente e junta os papéis antes de anexar, pra nunca
+        // tentar inserir a mesma combinação imóvel+cliente+papel duas vezes
+        // (isso violaria a constraint única client_imovel_unica).
+        $porCliente = collect($request->input('pessoas', []))
+            ->filter(fn ($pessoa) => !empty($pessoa['id']))
+            ->groupBy('id')
+            ->map(fn ($grupo) => $grupo
+                ->flatMap(fn ($pessoa) => $pessoa['papeis'] ?? [])
+                ->unique()
+                ->intersect(array_keys(Imovel::PAPEIS))
+                ->values());
 
-                $papeis = $grupo
-                    ->flatMap(fn ($pessoa) => $pessoa['papeis'] ?? [])
-                    ->unique()
-                    ->intersect(array_keys(Imovel::PAPEIS))
-                    ->values();
-
-                return [
-                    'id' => $primeiro['id'],
-                    'tipo' => $primeiro['tipo'],
-                    'papeis' => $papeis,
-                ];
-            });
-
-        foreach ($pessoas as $pessoa) {
-            foreach ($pessoa['papeis'] as $papel) {
-                if ($pessoa['tipo'] === 'fisica') {
-                    $imovel->pessoasFisicas()->attach($pessoa['id'], ['papel' => $papel]);
-                } elseif ($pessoa['tipo'] === 'juridica') {
-                    $imovel->pessoasJuridicas()->attach($pessoa['id'], ['papel' => $papel]);
-                }
+        foreach ($porCliente as $clientId => $papeis) {
+            foreach ($papeis as $papel) {
+                $imovel->clients()->attach($clientId, ['papel' => $papel]);
             }
         }
     }
@@ -215,29 +226,9 @@ class ImovelController extends Controller
             'imagens' => ['nullable', 'array', 'max:10'],
             'imagens.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
 
-            // Pessoas vinculadas (proprietário, comprador, vendedor, intermediador...)
+            // Clientes vinculados (proprietário, comprador, vendedor, intermediador...)
             'pessoas' => ['nullable', 'array'],
-            'pessoas.*.tipo' => ['required_with:pessoas', 'in:fisica,juridica'],
-            'pessoas.*.id' => [
-                'required_with:pessoas',
-                'integer',
-                function (string $attribute, $value, \Closure $fail) use ($request) {
-                    // Extrai o índice do item a partir do nome do campo (ex: "pessoas.2.id" -> 2)
-                    preg_match('/^pessoas\.(\d+)\.id$/', $attribute, $partes);
-                    $indice = $partes[1] ?? null;
-                    $tipo = $request->input("pessoas.{$indice}.tipo");
-
-                    $existe = match ($tipo) {
-                        'fisica' => \App\Models\PessoaFisica::whereKey($value)->exists(),
-                        'juridica' => \App\Models\PessoaJuridica::whereKey($value)->exists(),
-                        default => false,
-                    };
-
-                    if (!$existe) {
-                        $fail('Uma das pessoas selecionadas não foi encontrada.');
-                    }
-                },
-            ],
+            'pessoas.*.id' => ['required', 'integer', 'exists:clients,id'],
             'pessoas.*.papeis' => ['nullable', 'array'],
             'pessoas.*.papeis.*' => ['in:' . implode(',', array_keys(Imovel::PAPEIS))],
 

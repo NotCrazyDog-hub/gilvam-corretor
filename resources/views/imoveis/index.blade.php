@@ -26,11 +26,21 @@
             {{-- Busca e filtro --}}
             <div class="bg-white shadow-sm rounded-lg p-4">
                 <form method="GET" action="{{ route('imoveis.index') }}" class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" name="busca" value="{{ request('busca') }}"
-                           placeholder="Buscar por endereço, bairro, matrícula, proprietário..."
-                           class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
 
-                    <select name="tipo" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    {{-- Busca com lupa --}}
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+                            </svg>
+                        </span>
+                        <input type="text" name="busca" value="{{ request('busca') }}"
+                               placeholder="Buscar por endereço, bairro, matrícula, proprietário..."
+                               class="w-full rounded-full border-gray-300 text-sm pl-12 pr-5 py-2.5 focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <select name="tipo"
+                            class="rounded-full border-gray-300 text-sm pl-5 pr-10 py-2.5 focus:border-blue-500 focus:ring-blue-500">
                         <option value="">Todos os tipos</option>
                         @foreach ($tipos as $valor => $label)
                             <option value="{{ $valor }}" @selected(request('tipo') === $valor)>{{ $label }}</option>
@@ -38,7 +48,7 @@
                     </select>
 
                     <button type="submit"
-                            class="bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-900 transition">
+                            class="bg-gray-800 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-gray-900 transition">
                         Filtrar
                     </button>
 
@@ -69,7 +79,9 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach ($imoveis as $imovel)
-                                <tr class="hover:bg-gray-50">
+                                {{-- Linha inteira clicável: leva ao show do imóvel --}}
+                                <tr class="hover:bg-gray-50 cursor-pointer"
+                                    onclick="window.location='{{ route('imoveis.show', $imovel) }}'">
                                     <td class="px-4 py-3">
                                         @if ($imovel->imagemPrincipal)
                                             <img src="{{ $imovel->imagemPrincipal->url }}"
@@ -84,24 +96,54 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">
-                                        <span class="inline-block px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
+                                        <span class="inline-block px-2 py-1 rounded-full  text-gray-700 text-xs font-medium hover:underline">
                                             {{ $imovel->tipo_label }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-gray-700">{{ $imovel->endereco_completo }}</td>
+                                    {{-- Link real no endereço: teclado, leitor de tela e Ctrl+clique --}}
+                                    <td class="px-4 py-3 text-gray-700">
+                                        <a href="{{ route('imoveis.show', $imovel) }}" class="hover:underline">
+                                            {{ $imovel->endereco_completo }}
+                                        </a>
+                                    </td>
                                     <td class="px-4 py-3 text-gray-500">{{ $imovel->numero_matricula ?: '—' }}</td>
                                     <td class="px-4 py-3 text-gray-500">{{ $imovel->proprietario_nome ?: '—' }}</td>
-                                    <td class="px-4 py-3 text-right whitespace-nowrap">
-                                        <a href="{{ route('imoveis.show', $imovel) }}"
-                                           class="text-xs text-blue-600 hover:underline mr-3">Ver</a>
-                                        <a href="{{ route('imoveis.edit', $imovel) }}"
-                                           class="text-xs text-gray-600 hover:underline mr-3">Editar</a>
-                                        <form action="{{ route('imoveis.destroy', $imovel) }}" method="POST" class="inline"
-                                              onsubmit="return confirm('Tem certeza que deseja remover este imóvel?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-xs text-red-600 hover:underline">Excluir</button>
-                                        </form>
+                                    {{-- stopPropagation: cliques nos botões não disparam o clique da linha --}}
+                                    <td class="px-4 py-3 text-right whitespace-nowrap" onclick="event.stopPropagation()">
+                                        <span class="inline-flex items-center gap-1.5">
+                                            {{-- Ver --}}
+                                            <a href="{{ route('imoveis.show', $imovel) }}"
+                                               title="Ver" aria-label="Ver"
+                                               class="p-1.5 rounded-lg text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 transition">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </a>
+
+                                            {{-- Editar (papel com lápis) --}}
+                                            <a href="{{ route('imoveis.edit', $imovel) }}"
+                                               title="Editar" aria-label="Editar"
+                                               class="p-1.5 rounded-lg text-amber-600 bg-amber-50 hover:bg-amber-100 hover:text-amber-700 transition">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                </svg>
+                                            </a>
+
+                                            {{-- Excluir --}}
+                                            <form action="{{ route('imoveis.destroy', $imovel) }}" method="POST" class="inline-flex"
+                                                  onsubmit="return confirm('Tem certeza que deseja remover este imóvel?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        title="Excluir" aria-label="Excluir"
+                                                        class="p-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 transition">
+                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </span>
                                     </td>
                                 </tr>
                             @endforeach
