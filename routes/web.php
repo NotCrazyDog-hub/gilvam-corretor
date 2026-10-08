@@ -19,7 +19,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
-    Route::get('/painel', function () {
+    Route::get('/dashboard', function () {
         return view('dashboard', [
             'totalPessoasFisicas' => Client::ofType(Client::TIPO_PF)->count(),
             'totalPessoasJuridicas' => Client::ofType(Client::TIPO_PJ)->count(),
