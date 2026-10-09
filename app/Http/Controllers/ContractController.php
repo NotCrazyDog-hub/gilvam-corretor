@@ -6,6 +6,7 @@ use App\Http\Requests\StoreContractRequest;
 use App\Http\Requests\UpdateContractRequest;
 use App\Models\Client;
 use App\Models\Contract;
+use App\Models\Imovel;
 use App\Models\ContractGroup;
 use App\Services\ContractGeneratorService;
 use Illuminate\Http\Request;
@@ -163,6 +164,56 @@ class ContractController extends Controller
                 'group' => $contract->group->uuid,
                 'version' => $contract->version,
             ]),
+        ];
+    }
+
+    public function searchImoveis(Request $request)
+    {
+        $termo = trim((string) $request->query('q', ''));
+        if (mb_strlen($termo) < 2) {
+            return response()->json([]);
+        }
+
+        $like = '%' . mb_strtolower($termo) . '%';
+
+        $imoveis = Imovel::query()
+            ->where(function ($q) use ($like) {
+                foreach (['logradouro', 'bairro', 'municipio', 'numero_matricula', 'inscricao_imobiliaria', 'condominio_nome'] as $coluna) {
+                    $q->orWhereRaw("LOWER({$coluna}) LIKE ?", [$like]);
+                }
+            })
+            ->with(['clients' => fn ($q) => $q->wherePivotIn('papel', Imovel::PAPEIS_CONTRATANTE)])
+            ->orderBy('logradouro')
+            ->limit(10)
+            ->get();
+
+        return response()->json($imoveis->map(fn (Imovel $i) => $this->imovelParaContrato($i))->values());
+    }
+
+    private function imovelParaContrato(Imovel $imovel): array
+    {
+        return [
+            'id'    => $imovel->id,
+            'label' => $imovel->endereco_completo
+                . ($imovel->numero_matricula ? " — Mat. {$imovel->numero_matricula}" : ''),
+            'proprietario_nome' => $imovel->proprietario_nome,
+            'dados' => [
+                'tipo'                  => $imovel->tipo_label,
+                'localizacao'           => $imovel->endereco_completo,
+                'documento_propriedade' => $imovel->cartorio_registro
+                    ? "Matrícula — {$imovel->cartorio_registro}" : 'Matrícula',
+                'matricula'             => $imovel->numero_matricula,
+                'inscricao_prefeitura'  => $imovel->inscricao_imobiliaria ?: $imovel->cadastro_municipal,
+            ],
+            'candidatos' => $imovel->candidatosContratante()->map(fn (array $c) => [
+                'id'           => $c['client']->id,
+                'tipo'         => $c['client']->tipo,
+                'nome'         => $c['client']->nome,
+                'documento'    => $c['client']->documento_formatado,
+                'papeis'       => $c['papeis'],
+                'papeis_label' => collect($c['papeis'])->map(fn ($p) => Imovel::PAPEIS[$p])->join(' e '),
+                'dados'        => $c['client']->toSearchResult(),
+            ])->values(),
         ];
     }
 }

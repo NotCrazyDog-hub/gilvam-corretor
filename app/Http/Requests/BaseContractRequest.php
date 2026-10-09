@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Client;
 use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\DB;
 
 abstract class BaseContractRequest extends FormRequest
 {
@@ -19,6 +20,7 @@ abstract class BaseContractRequest extends FormRequest
             'client_type'   => 'required|string|in:pf,pj',
             'client_id'     => 'required|integer',
             'contract_type' => 'nullable|string|max:255',
+            'imovel_id' => 'nullable|integer|exists:imoveis,id',
 
             'contratante'              => 'required|array',
             'contratante.nome'         => 'required_if:client_type,pf|string|max:255',
@@ -130,6 +132,19 @@ abstract class BaseContractRequest extends FormRequest
             } elseif ($client->tipo !== $clientType) {
                 $validator->errors()->add('client_id', 'O cliente selecionado não é do tipo informado.');
             }
+
+            $imovelId = $this->input('imovel_id');
+            if ($imovelId && $clientId) {
+                $vinculado = DB::table('client_imovel')
+                    ->where('imovel_id', $imovelId)
+                    ->where('client_id', $clientId)
+                    ->whereIn('papel', \App\Models\Imovel::PAPEIS_CONTRATANTE)
+                    ->exists();
+
+                if (!$vinculado) {
+                    $validator->errors()->add('client_id', 'Este cliente não é proprietário nem vendedor do imóvel selecionado.');
+                }
+}
         });
     }
 }

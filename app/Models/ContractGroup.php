@@ -14,6 +14,7 @@ class ContractGroup extends Model
         'contract_type',
         'slug',
         'status',
+        'imovel_id',
     ];
 
     protected static function booted()

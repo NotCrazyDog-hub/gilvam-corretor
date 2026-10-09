@@ -100,52 +100,163 @@ async function downloadContract(url, filename) {
 }
 
 /**
- * Busca/autocomplete de cliente cadastrado (PF ou PJ, conforme o searchUrl).
- * Ao selecionar um resultado, preenche os campos do contratante automaticamente
- * (mas eles continuam editáveis — o snapshot salvo é o que estiver no form no
- * submit, não o cadastro em si).
- *
- * Campos mapeados são SEMPRE sobrescritos com o valor do cliente selecionado
- * (ou limpos, se o cliente não tiver o dado). Assim, trocar de cliente não
- * deixa dados do anterior (ex: nome do cônjuge) no contrato.
+ * Preenche (ou limpa, se o dado não existir) os campos do form a partir
+ * de um mapa { propriedade: 'name-do-input' }. Dispara 'input' em cada
+ * campo para reaplicar as máscaras.
  */
-function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, searchUrl, fieldMap, labelFn }) {
-    const buscaInput = document.querySelector(inputSelector);
-    const resultadosDiv = document.querySelector(resultsSelector);
-    const clientIdInput = document.querySelector(clientIdSelector);
+function preencherCampos(mapa, dados) {
+    for (const [prop, inputName] of Object.entries(mapa)) {
+        const campo = document.querySelector(`[name="${inputName}"]`);
+        if (!campo) continue;
+        campo.value = dados?.[prop] ?? '';
+        campo.dispatchEvent(new Event('input'));
+    }
+}
 
-    if (!buscaInput || !resultadosDiv || !clientIdInput) return;
+const CAMPOS_IMOVEL = {
+    tipo: 'imovel[tipo]',
+    localizacao: 'imovel[localizacao]',
+    documento_propriedade: 'imovel[documento_propriedade]',
+    matricula: 'imovel[matricula]',
+    inscricao_prefeitura: 'imovel[inscricao_prefeitura]',
+};
+
+const CAMPOS_CONTRATANTE = {
+    pf: {
+        nome: 'contratante[nome]', cpf: 'contratante[cpf]', rg: 'contratante[identidade]',
+        estado_civil: 'contratante[estado_civil]', profissao: 'contratante[profissao]',
+        conjuge_nome: 'contratante[conjuge_nome]', conjuge_rg: 'contratante[conjuge_identidade]',
+        endereco: 'contratante[endereco]', telefone: 'contratante[telefones]',
+    },
+    pj: {
+        razao_social: 'contratante[razao_social]', nome_fantasia: 'contratante[nome_fantasia]',
+        cnpj: 'contratante[cnpj]', inscricao_estadual: 'contratante[inscricao_estadual]',
+        endereco: 'contratante[endereco]',
+        representante_legal_nome: 'contratante[representante_legal_nome]',
+        representante_legal_cargo: 'contratante[representante_legal_cargo]',
+        representante_legal_cpf: 'contratante[representante_legal_cpf]',
+    },
+};
+
+/**
+ * Busca de imóvel. Ao escolher um imóvel, preenche os dados do imóvel e
+ * lista as pessoas vinculadas a ele como proprietário/vendedor para o
+ * usuário escolher quem será o contratante. Só seleciona sozinho quando
+ * há exatamente uma pessoa (e do tipo PF/PJ do contrato em andamento).
+ */
+function mountImovelSearch() {
+    const bloco = document.querySelector('#bloco-busca-imovel');
+    if (!bloco) return;
+
+    const tipoContrato = bloco.dataset.tipo; // 'pf' | 'pj'
+    const buscaInput = bloco.querySelector('#busca-imovel');
+    const resultadosDiv = bloco.querySelector('#resultados-busca-imovel');
+    const blocoContratante = bloco.querySelector('#bloco-contratante');
+    const lista = bloco.querySelector('#lista-candidatos');
+    const aviso = bloco.querySelector('#aviso-candidatos');
+    const imovelIdInput = document.querySelector('#input-imovel-id');
+    const clientIdInput = document.querySelector('#input-client-id');
 
     let timeoutId;
     let currentController;
 
-    const limparSelecao = () => {
-        clientIdInput.value = '';
+    const escolherContratante = (c) => {
+        clientIdInput.value = c.id;
+        preencherCampos(CAMPOS_CONTRATANTE[tipoContrato], c.dados);
     };
 
-    const renderResultados = (pessoas) => {
-        resultadosDiv.innerHTML = '';
+    const limparContratante = () => {
+        clientIdInput.value = '';
+        preencherCampos(CAMPOS_CONTRATANTE[tipoContrato], {});
+    };
 
-        if (pessoas.length === 0) {
-            resultadosDiv.classList.add('hidden');
+    const mostrarAviso = (texto) => {
+        aviso.textContent = texto;
+        aviso.classList.toggle('hidden', !texto);
+    };
+
+    const renderCandidatos = (imovel) => {
+        lista.innerHTML = '';
+        const candidatos = imovel.candidatos;
+
+        blocoContratante.classList.remove('hidden');
+
+        if (candidatos.length === 0) {
+            mostrarAviso(
+                'Este imóvel não tem proprietário nem vendedor vinculado.'
+                + (imovel.proprietario_nome ? ` (Proprietário informado como texto: ${imovel.proprietario_nome}.)` : '')
+                + ' Vincule o cliente no cadastro do imóvel.'
+            );
             return;
         }
 
-        pessoas.forEach((p) => {
-            const item = document.createElement('div');
-            item.className = 'resultado-item';
-            item.dataset.id = p.id;
-            item.dataset.payload = JSON.stringify(p);
-            item.textContent = labelFn(p);
-            resultadosDiv.appendChild(item);
+        candidatos.forEach((c) => {
+            const compativel = c.tipo === tipoContrato;
+            const label = document.createElement('label');
+            label.className = 'flex items-center gap-2 text-sm px-2 py-1.5 border border-slate-200 '
+                + (compativel ? 'cursor-pointer hover:bg-slate-50' : 'opacity-50 cursor-not-allowed');
+
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'candidato_contratante';
+            radio.disabled = !compativel;
+            radio.addEventListener('change', () => escolherContratante(c));
+
+            const texto = document.createElement('span');
+            texto.textContent = `${c.nome} — ${c.documento ?? ''}`;
+
+            const papeis = document.createElement('span');
+            papeis.className = 'ml-auto text-xs text-slate-500';
+            papeis.textContent = c.papeis_label + (compativel ? '' : ` (pessoa ${c.tipo === 'pj' ? 'jurídica' : 'física'} — use o contrato de outro tipo)`);
+
+            label.append(radio, texto, papeis);
+            lista.appendChild(label);
+
+            // Só marca sozinho quando não há dúvida: exatamente uma pessoa vinculada e do tipo certo.
+            if (candidatos.length === 1 && compativel) {
+                radio.checked = true;
+                escolherContratante(c);
+            }
         });
 
+        mostrarAviso(
+            candidatos.length > 1
+                ? 'Este imóvel tem mais de uma pessoa vinculada. Escolha quem será o contratante.'
+                : ''
+        );
+    };
+
+    const escolherImovel = (imovel) => {
+        imovelIdInput.value = imovel.id;
+        buscaInput.value = imovel.label;
+        resultadosDiv.classList.add('hidden');
+
+        preencherCampos(CAMPOS_IMOVEL, imovel.dados);
+        limparContratante(); // não deixa dados do contratante anterior no contrato
+        renderCandidatos(imovel);
+    };
+
+    const renderResultados = (imoveis) => {
+        resultadosDiv.innerHTML = '';
+        if (imoveis.length === 0) {
+            resultadosDiv.classList.add('hidden');
+            return;
+        }
+        imoveis.forEach((imovel) => {
+            const item = document.createElement('div');
+            item.className = 'resultado-item';
+            item.textContent = imovel.label;
+            item.addEventListener('click', () => escolherImovel(imovel));
+            resultadosDiv.appendChild(item);
+        });
         resultadosDiv.classList.remove('hidden');
     };
 
     buscaInput.addEventListener('input', () => {
         clearTimeout(timeoutId);
-        limparSelecao();
+        imovelIdInput.value = '';
+        clientIdInput.value = '';
+        blocoContratante.classList.add('hidden');
 
         const q = buscaInput.value.trim();
         if (q.length < 2) {
@@ -156,39 +267,17 @@ function mountClientSearch({ inputSelector, resultsSelector, clientIdSelector, s
         timeoutId = setTimeout(async () => {
             currentController?.abort();
             currentController = new AbortController();
-
             try {
-                const res = await fetch(`${searchUrl}?q=${encodeURIComponent(q)}`, {
+                const res = await fetch(`/contratos/imoveis/busca?q=${encodeURIComponent(q)}`, {
                     signal: currentController.signal,
                     credentials: 'same-origin',
                 });
                 if (!res.ok) throw new Error('Falha na busca.');
                 renderResultados(await res.json());
             } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error('Erro ao buscar cliente:', err);
-                }
+                if (err.name !== 'AbortError') console.error('Erro ao buscar imóvel:', err);
             }
         }, 300);
-    });
-
-    resultadosDiv.addEventListener('click', (e) => {
-        const item = e.target.closest('.resultado-item');
-        if (!item) return;
-
-        clientIdInput.value = item.dataset.id;
-        const p = JSON.parse(item.dataset.payload);
-
-        for (const [prop, inputName] of Object.entries(fieldMap)) {
-            const campo = document.querySelector(`[name="${inputName}"]`);
-            if (!campo) continue;
-
-            campo.value = p[prop] ?? '';
-            campo.dispatchEvent(new Event('input')); // reaplica a máscara do campo
-        }
-
-        buscaInput.value = labelFn(p);
-        resultadosDiv.classList.add('hidden');
     });
 
     document.addEventListener('click', (e) => {
@@ -533,42 +622,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Busca de cliente pessoa física (só monta se #busca-cliente existir na página).
-    mountClientSearch({
-        inputSelector: '#busca-cliente',
-        resultsSelector: '#resultados-busca-cliente',
-        clientIdSelector: '#input-client-id',
-        searchUrl: '/contratos/pessoas-fisicas/busca',
-        fieldMap: {
-            nome: 'contratante[nome]',
-            cpf: 'contratante[cpf]',
-            rg: 'contratante[identidade]',
-            estado_civil: 'contratante[estado_civil]',
-            profissao: 'contratante[profissao]',
-            conjuge_nome: 'contratante[conjuge_nome]',
-            conjuge_rg: 'contratante[conjuge_identidade]',
-            endereco: 'contratante[endereco]',
-            telefone: 'contratante[telefones]',
-        },
-        labelFn: (p) => `${p.nome} — ${formatarCpf(String(p.cpf ?? '').replace(/\D/g, ''))}`,
-    });
-
-    // Busca de cliente pessoa jurídica (só monta se #busca-cliente-pj existir).
-    mountClientSearch({
-        inputSelector: '#busca-cliente-pj',
-        resultsSelector: '#resultados-busca-cliente-pj',
-        clientIdSelector: '#input-client-id',
-        searchUrl: '/contratos/pessoas-juridicas/busca',
-        fieldMap: {
-            razao_social: 'contratante[razao_social]',
-            nome_fantasia: 'contratante[nome_fantasia]',
-            cnpj: 'contratante[cnpj]',
-            inscricao_estadual: 'contratante[inscricao_estadual]',
-            endereco: 'contratante[endereco]',
-            representante_legal_nome: 'contratante[representante_legal_nome]',
-            representante_legal_cargo: 'contratante[representante_legal_cargo]',
-            representante_legal_cpf: 'contratante[representante_legal_cpf]',
-        },
-        labelFn: (p) => `${p.razao_social} — ${formatarCnpj(String(p.cnpj ?? '').replace(/\D/g, ''))}`,
-    });
+    // Busca de imóvel (só monta se #bloco-busca-imovel existir na página).
+    mountImovelSearch();
 });

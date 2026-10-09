@@ -57,46 +57,27 @@
                 @endif
 
                 {{-- Dados do cliente --}}
-                @if (!$group && ($clientType ?? null) === 'pf')
-                    <fieldset class="border border-slate-300 p-4">
-                        <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">Cliente cadastrado</legend>
+                @if (!$group)
+                    <fieldset id="bloco-busca-imovel" data-tipo="{{ $clientType ?? '' }}" class="border border-slate-300 p-4">
+                        <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">Imóvel</legend>
 
                         <div class="relative">
-                            <input
-                                type="text"
-                                id="busca-cliente"
-                                placeholder="Buscar por nome ou CPF..."
-                                autocomplete="off"
-                                class="w-full border border-slate-300 text-sm px-2 py-1.5 focus:border-black focus:ring-0 focus:outline-none"
-                            >
+                            <input type="text" id="busca-imovel" autocomplete="off"
+                                placeholder="Buscar por endereço, bairro, matrícula ou inscrição..."
+                                class="w-full border border-slate-300 text-sm px-2 py-1.5 focus:border-black focus:ring-0 focus:outline-none">
+                            <div id="resultados-busca-imovel"
+                                class="hidden absolute z-10 mt-1 w-full bg-white border border-slate-300 shadow-lg max-h-56 overflow-y-auto"></div>
+                        </div>
 
-                            <div id="resultados-busca-cliente"
-                                 class="hidden absolute z-10 mt-1 w-full bg-white border border-slate-300 shadow-lg max-h-56 overflow-y-auto">
-                            </div>
+                        <div id="bloco-contratante" class="hidden mt-4 space-y-2">
+                            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Quem será o contratante?</p>
+                            <div id="lista-candidatos" class="space-y-1"></div>
+                            <p id="aviso-candidatos" class="hidden text-sm text-amber-700 bg-amber-50 border border-amber-200 p-2"></p>
                         </div>
                     </fieldset>
                 @endif
 
-                @if (!$group && ($clientType ?? null) === 'pj')
-                    <fieldset class="border border-slate-300 p-4">
-                        <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">Cliente cadastrado</legend>
-
-                        <div class="relative">
-                            <input
-                                type="text"
-                                id="busca-cliente-pj"
-                                placeholder="Buscar por razão social ou CNPJ..."
-                                autocomplete="off"
-                                class="w-full border border-slate-300 text-sm px-2 py-1.5 focus:border-black focus:ring-0 focus:outline-none"
-                            >
-
-                            <div id="resultados-busca-cliente-pj"
-                                class="hidden absolute z-10 mt-1 w-full bg-white border border-slate-300 shadow-lg max-h-56 overflow-y-auto">
-                            </div>
-                        </div>
-                    </fieldset>
-                @endif
-
+                <input type="hidden" name="imovel_id" id="input-imovel-id" value="{{ $group->imovel_id ?? old('imovel_id') }}">
                 <input type="hidden" name="client_type" value="{{ $clientType ?? old('client_type') }}">
                 <input type="hidden" name="client_id" id="input-client-id" value="{{ $group->client_id ?? old('client_id') }}">
 

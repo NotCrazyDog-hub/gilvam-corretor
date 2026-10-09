@@ -231,4 +231,19 @@ class Imovel extends Model
             || $this->onus_servidao
             || $this->onus_promessa_compra_venda;
     }
+
+    public const PAPEIS_CONTRATANTE = ['proprietario', 'vendedor'];
+
+    /** Pessoas que podem ser contratantes; quem tem os dois papéis aparece uma vez só. */
+    public function candidatosContratante(): Collection
+    {
+        return $this->clients
+            ->filter(fn (Client $c) => in_array($c->pivot->papel, self::PAPEIS_CONTRATANTE, true))
+            ->groupBy('id')
+            ->map(fn (Collection $linhas) => [
+                'client' => $linhas->first(),
+                'papeis' => $linhas->pluck('pivot.papel')->unique()->values()->all(),
+            ])
+            ->values();
+    }
 }

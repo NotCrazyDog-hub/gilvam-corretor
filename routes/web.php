@@ -44,7 +44,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('imoveis', ImovelController::class)
         ->parameters(['imoveis' => 'imovel']);
 
-
     // Perfil
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/perfil', [ProfileController::class, 'update'])->name('profile.update');
@@ -71,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{group:uuid}/versoes', [ContractController::class, 'versions'])->name('versions');
         Route::get('/{group:uuid}/versoes/{version}/download', [ContractController::class, 'download'])
             ->whereNumber('version')->name('download');
+
+        Route::get('/imoveis/busca', [ContractController::class, 'searchImoveis'])->name('imoveis.search');
     });
 });
 

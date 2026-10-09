@@ -24,6 +24,7 @@ class ContractVersionService
             'client_id'     => $data['client_id'],
             'contract_type' => $data['contract_type'] ?? 'Corretagem',
             'slug'          => $baseSlug,
+            'imovel_id' => $data['imovel_id'] ?? null,
         ]);
     }
 
