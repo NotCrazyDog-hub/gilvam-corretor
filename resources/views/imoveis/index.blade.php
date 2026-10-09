@@ -1,17 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Imóveis
-            </h2>
-            <a href="{{ route('imoveis.create') }}"
-               class="bg-blue-600 text-white shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-blue-700 transition">
-                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Novo Imóvel
-            </a>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Imóveis
+        </h2>
     </x-slot>
 
     <div class="py-12 bg-gray-50 min-h-screen">
@@ -58,6 +49,15 @@
                             Limpar
                         </a>
                     @endif
+
+                    {{-- Novo Imóvel --}}
+                    <a href="{{ route('imoveis.create') }}"
+                       class="bg-blue-600 text-white shadow-sm rounded-lg px-5 py-2.5 flex items-center justify-center gap-2 text-sm font-medium whitespace-nowrap hover:bg-blue-700 transition">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Novo Imóvel
+                    </a>
                 </form>
             </div>
 
