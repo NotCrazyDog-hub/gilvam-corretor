@@ -1,7 +1,7 @@
 @php
     $cores = [
         'Vigente'       => 'bg-green-100 text-green-700',
-        'Vencendo'      => 'bg-orange-100 text-orange-700',
+        'Vencendo'      => 'bg-yellow-100 text-yellow-700',
         'Vencido'       => 'bg-red-100 text-red-700',
         'Indeterminado' => 'bg-gray-100 text-gray-700',
     ];
