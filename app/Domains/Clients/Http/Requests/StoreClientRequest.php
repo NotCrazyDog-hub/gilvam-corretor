@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Domains\Clients\Http\Requests;
 
-use App\Models\Client;
+use App\Domains\Clients\Models\Client;
 use Illuminate\Validation\Rule;
 
 class StoreClientRequest extends BaseClientRequest

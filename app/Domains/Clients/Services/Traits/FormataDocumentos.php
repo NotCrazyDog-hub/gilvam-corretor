@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace App\Domains\Clients\Services\Traits;
 
 trait FormataDocumentos
 {

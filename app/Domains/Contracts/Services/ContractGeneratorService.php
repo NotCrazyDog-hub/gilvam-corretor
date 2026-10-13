@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace App\Domains\Contracts\Services;
 
-use App\Models\Contract;
-use App\Models\ContractGroup;
-use App\Models\Client;
+use App\Domains\Contracts\Models\Contract;
+use App\Domains\Contracts\Models\ContractGroup;
+use App\Domains\Clients\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\DB;

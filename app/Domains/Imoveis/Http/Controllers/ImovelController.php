@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Imoveis\Http\Controllers;
 
-use App\Models\Client;
-use App\Models\Imovel;
+use App\Http\Controllers\Controller;
+use App\Domains\Clients\Models\Client;
+use App\Domains\Imoveis\Models\Imovel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;

@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Contracts\Models;
 
+use App\Domains\Contracts\Models\Contract;
+use App\Domains\Clients\Models\Client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;

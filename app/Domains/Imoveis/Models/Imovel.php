@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Imoveis\Models;
 
+use App\Domains\Clients\Models\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;

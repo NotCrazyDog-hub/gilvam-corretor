@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Domains\Contracts\Services;
 
-use App\Models\Contract;
-use App\Models\ContractGroup;
+use App\Domains\Contracts\Models\Contract;
+use App\Domains\Contracts\Models\ContractGroup;
 use Illuminate\Support\Str;
 
 class ContractVersionService

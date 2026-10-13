@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Clients\Models;
 
-use App\Support\DocumentHash;
-use App\Traits\FormataDocumentos;
+use App\Domains\Clients\Services\Support\DocumentHash;
+use App\Domains\Clients\Services\Traits\FormataDocumentos;
+use App\Domains\Contracts\Models\ContractGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

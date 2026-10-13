@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Clients\Http\Controllers;
 
-use App\Http\Requests\StoreClientRequest;
-use App\Http\Requests\UpdateClientRequest;
-use App\Models\Client;
+use App\Http\Controllers\Controller;
+use App\Domains\Clients\Http\Requests\StoreClientRequest;
+use App\Domains\Clients\Http\Requests\UpdateClientRequest;
+use App\Domains\Clients\Models\Client;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller

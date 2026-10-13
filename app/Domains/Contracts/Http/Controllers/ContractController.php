@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Contracts\Http\Controllers;
 
-use App\Http\Requests\StoreContractRequest;
-use App\Http\Requests\UpdateContractRequest;
-use App\Models\Client;
-use App\Models\Contract;
-use App\Models\Imovel;
-use App\Models\ContractGroup;
-use App\Services\ContractGeneratorService;
+use App\Http\Controllers\Controller;
+use App\Domains\Contracts\Http\Requests\StoreContractRequest;
+use App\Domains\Contracts\Http\Requests\UpdateContractRequest;
+use App\Domains\Clients\Models\Client;
+use App\Domains\Contracts\Models\Contract;
+use App\Domains\Imoveis\Models\Imovel;
+use App\Domains\Contracts\Models\ContractGroup;
+use App\Domains\Contracts\Services\ContractGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

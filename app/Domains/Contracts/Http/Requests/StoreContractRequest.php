@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Domains\Contracts\Http\Requests;
 
 class StoreContractRequest extends BaseContractRequest
 {

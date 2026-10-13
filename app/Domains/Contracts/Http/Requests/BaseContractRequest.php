@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Domains\Contracts\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Client;
+use App\Domains\Clients\Models\Client;
+use App\Domains\Imoveis\Models\Imovel;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\DB;
 
@@ -138,7 +139,7 @@ abstract class BaseContractRequest extends FormRequest
                 $vinculado = DB::table('client_imovel')
                     ->where('imovel_id', $imovelId)
                     ->where('client_id', $clientId)
-                    ->whereIn('papel', \App\Models\Imovel::PAPEIS_CONTRATANTE)
+                    ->whereIn('papel', Imovel::PAPEIS_CONTRATANTE)
                     ->exists();
 
                 if (!$vinculado) {

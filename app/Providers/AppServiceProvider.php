@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Contract;
+use App\Domains\Contracts\Models\Contract;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
             'edit'   => 'editar',
         ]);
         View::composer('layouts.navigation', function ($view) {
-            if (! auth()->check()) {
+            if (! Auth::check()) {
                 $view->with('notificacoes', collect());
                 return;
             }

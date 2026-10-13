@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Domains\Clients\Http\Requests;
 
-use App\Models\Client;
-use App\Support\DocumentHash;
+use App\Domains\Clients\Models\Client;
+use App\Domains\Clients\Services\Support\DocumentHash;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
