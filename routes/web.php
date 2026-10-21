@@ -3,7 +3,7 @@
 use App\Domains\Contracts\Http\Controllers\ContractController;
 use App\Domains\Clients\Http\Controllers\ClientController;
 use App\Domains\Imoveis\Http\Controllers\ImovelController;
-use App\Http\Controllers\ProfileController;
+use App\Domains\Profile\Http\Controllers\ProfileController;
 use App\Domains\Clients\Models\Client;
 use App\Domains\Imoveis\Models\Imovel;
 use Illuminate\Support\Facades\Route;
