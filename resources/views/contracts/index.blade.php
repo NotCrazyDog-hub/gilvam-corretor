@@ -48,23 +48,12 @@
                         </a>
                     </div>
 
-                    {{-- Tipo de contrato + Botão Novo Contrato --}}
-                    <div x-data="{ open: false, tipo: '{{ config('contracts.default') }}' }"
+                    {{-- Botão Novo Contrato: o menu lista os tipos de contrato. --}}
+                    <div x-data="{ open: false }"
                          @click.outside="open = false"
-                         class="flex items-center gap-2 py-1">
-
-                        {{-- Escolha do tipo (some se só existir um tipo cadastrado) --}}
-                        @if (count(config('contracts.types')) > 1)
-                            <select x-model="tipo"
-                                    class="border-gray-300 rounded text-sm text-slate-700 focus:border-green-500 focus:ring-green-500 py-2">
-                                @foreach (config('contracts.types') as $key => $tipoContrato)
-                                    <option value="{{ $key }}">{{ $tipoContrato['titulo'] }}</option>
-                                @endforeach
-                            </select>
-                        @endif
-
-                        <div class="relative">
+                         class="relative py-1">
                             <button @click="open = !open"
+                                    aria-haspopup="true" :aria-expanded="open"
                                     class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2 transition">
                                 <svg class="w-4 h-4 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -76,23 +65,17 @@
                             </button>
 
                             <div x-show="open" x-cloak x-transition
-                                class="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
-                                <a :href="'{{ route('contracts.create.pf') }}?contract_type=' + tipo"
-                                   class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
-                                    <svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                                    </svg>
-                                    Contrato Pessoa física
-                                </a>
-                                <a :href="'{{ route('contracts.create.pj') }}?contract_type=' + tipo"
-                                   class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
-                                    <svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9h1m-1 4h1m-1 4h1" />
-                                    </svg>
-                                    Contrato Pessoa jurídica
-                                </a>
+                                class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
+                                @foreach (config('contracts.types') as $key => $tipoContrato)
+                                    <a href="{{ route('contracts.create', ['contractType' => $key]) }}"
+                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
+                                        {{ $tipoContrato['titulo'] }}
+                                        @if (empty($tipoContrato['form_supported']) || !\Illuminate\Support\Facades\Storage::disk(config('contracts.templates_disk'))->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']))
+                                            <span class="block mt-0.5 text-xs text-amber-700">Modelo .docx ou formulário pendente</span>
+                                        @endif
+                                    </a>
+                                @endforeach
                             </div>
-                        </div>
                     </div>
 
                 </div>

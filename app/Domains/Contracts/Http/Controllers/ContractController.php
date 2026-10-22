@@ -36,11 +36,19 @@ class ContractController extends Controller
         return view('contracts.index', compact('groups', 'clientType'));
     }
 
-    public function create()
+    public function create(Request $request, string $contractType)
     {
+        abort_unless(in_array($contractType, \App\Domains\Contracts\Services\ContractTypes::keys(), true), 404);
+        $contractType = \App\Domains\Contracts\Services\ContractTypes::resolve($contractType);
+        $tipo = config("contracts.types.$contractType");
+
         return view('contracts.form', [
             'group' => null,
             'contract' => null,
+            'clientType' => null,
+            'contractType' => $contractType,
+            'templateAvailable' => !empty($tipo['form_supported']) && Storage::disk(config('contracts.templates_disk'))
+                ->exists(config('contracts.templates_dir') . '/' . $tipo['template']),
         ]);
     }
 
@@ -69,6 +77,10 @@ class ContractController extends Controller
             'group' => $group,
             'contract' => $contract,
             'clientType' => $group->client->tipo,
+            'contractType' => $group->contract_type,
+            'templateAvailable' => !empty(\App\Domains\Contracts\Services\ContractTypes::get($group->contract_type)['form_supported'])
+                && Storage::disk(config('contracts.templates_disk'))
+                    ->exists(config('contracts.templates_dir') . '/' . \App\Domains\Contracts\Services\ContractTypes::get($group->contract_type)['template']),
         ]);
     }
 

@@ -104,11 +104,14 @@ async function downloadContract(url, filename) {
  * de um mapa { propriedade: 'name-do-input' }. Dispara 'input' em cada
  * campo para reaplicar as máscaras.
  */
-function preencherCampos(mapa, dados) {
+function preencherCampos(mapa, dados, container = null) {
     for (const [prop, inputName] of Object.entries(mapa)) {
-        const campo = document.querySelector(`[name="${inputName}"]`);
+        const campo = (container ?? document).querySelector(`[name="${inputName}"]`);
         if (!campo) continue;
         campo.value = dados?.[prop] ?? '';
+        if (inputName === 'contratante[telefones]' || inputName === 'contratado[telefones]') {
+            campo.value = formatarListaTelefones(campo.value);
+        }
         campo.dispatchEvent(new Event('input'));
     }
 }
@@ -135,8 +138,22 @@ const CAMPOS_CONTRATANTE = {
         representante_legal_nome: 'contratante[representante_legal_nome]',
         representante_legal_cargo: 'contratante[representante_legal_cargo]',
         representante_legal_cpf: 'contratante[representante_legal_cpf]',
+        telefones: 'contratante[telefones]',
     },
 };
+
+function atualizarCamposPessoa(tipo) {
+    document.querySelectorAll('[data-person-fields]').forEach((bloco) => {
+        const ativo = bloco.dataset.personFields === tipo;
+        bloco.hidden = !ativo;
+        bloco.querySelectorAll('input').forEach((input) => { input.disabled = !ativo; });
+    });
+
+    const rotuloAssinatura = document.querySelector('[data-assinatura-segundo]');
+    if (rotuloAssinatura) {
+        rotuloAssinatura.textContent = tipo === 'pj' ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE';
+    }
+}
 
 /**
  * Busca de imóvel. Ao escolher um imóvel, preenche os dados do imóvel e
@@ -148,7 +165,7 @@ function mountImovelSearch() {
     const bloco = document.querySelector('#bloco-busca-imovel');
     if (!bloco) return;
 
-    const tipoContrato = bloco.dataset.tipo; // 'pf' | 'pj'
+    const clientTypeInput = document.querySelector('#input-client-type');
     const buscaInput = bloco.querySelector('#busca-imovel');
     const resultadosDiv = bloco.querySelector('#resultados-busca-imovel');
     const blocoContratante = bloco.querySelector('#bloco-contratante');
@@ -162,12 +179,18 @@ function mountImovelSearch() {
 
     const escolherContratante = (c) => {
         clientIdInput.value = c.id;
-        preencherCampos(CAMPOS_CONTRATANTE[tipoContrato], c.dados);
+        clientTypeInput.value = c.tipo;
+        atualizarCamposPessoa(c.tipo);
+        const camposPessoa = document.querySelector(`[data-person-fields="${c.tipo}"]`);
+        preencherCampos(CAMPOS_CONTRATANTE[c.tipo], c.dados, camposPessoa);
     };
 
     const limparContratante = () => {
         clientIdInput.value = '';
-        preencherCampos(CAMPOS_CONTRATANTE[tipoContrato], {});
+        clientTypeInput.value = '';
+        preencherCampos(CAMPOS_CONTRATANTE.pf, {}, document.querySelector('[data-person-fields="pf"]'));
+        preencherCampos(CAMPOS_CONTRATANTE.pj, {}, document.querySelector('[data-person-fields="pj"]'));
+        atualizarCamposPessoa('');
     };
 
     const mostrarAviso = (texto) => {
@@ -191,7 +214,7 @@ function mountImovelSearch() {
         }
 
         candidatos.forEach((c) => {
-            const compativel = c.tipo === tipoContrato;
+            const compativel = true;
             const label = document.createElement('label');
             label.className = 'flex items-center gap-2 text-sm px-2 py-1.5 border border-slate-200 '
                 + (compativel ? 'cursor-pointer hover:bg-slate-50' : 'opacity-50 cursor-not-allowed');
@@ -207,23 +230,21 @@ function mountImovelSearch() {
 
             const papeis = document.createElement('span');
             papeis.className = 'ml-auto text-xs text-slate-500';
-            papeis.textContent = c.papeis_label + (compativel ? '' : ` (pessoa ${c.tipo === 'pj' ? 'jurídica' : 'física'} — use o contrato de outro tipo)`);
+            papeis.textContent = c.papeis_label + ` — pessoa ${c.tipo === 'pj' ? 'jurídica (CNPJ)' : 'física (CPF)'}`;
 
             label.append(radio, texto, papeis);
             lista.appendChild(label);
 
-            // Só marca sozinho quando não há dúvida: exatamente uma pessoa vinculada e do tipo certo.
-            if (candidatos.length === 1 && compativel) {
+            // A escolha do contratante define PF/PJ a partir do documento cadastrado.
+            if (candidatos.length === 1) {
                 radio.checked = true;
                 escolherContratante(c);
             }
         });
 
-        mostrarAviso(
-            candidatos.length > 1
-                ? 'Este imóvel tem mais de uma pessoa vinculada. Escolha quem será o contratante.'
-                : ''
-        );
+        mostrarAviso(candidatos.length > 1
+            ? 'Este imóvel tem mais de uma pessoa vinculada. Escolha quem será o contratante.'
+            : 'O CPF/CNPJ do cadastro define automaticamente se o contratante é pessoa física ou jurídica.');
     };
 
     const escolherImovel = (imovel) => {
@@ -481,10 +502,18 @@ function mountCpfCnpjMask(inputSelector) {
 function formatarTelefoneUnico(valor) {
     const digits = valor.replace(/\D/g, '').slice(0, 11);
 
+    if (digits.length === 0) return '';
     if (digits.length <= 2) return digits.replace(/(\d{0,2})/, '($1');
     if (digits.length <= 6) return digits.replace(/(\d{2})(\d{0,4})/, '($1) $2');
     if (digits.length <= 10) return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
     return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+}
+
+function formatarListaTelefones(valor) {
+    return String(valor ?? '')
+        .split('/')
+        .map((parte) => formatarTelefoneUnico(parte))
+        .join(' / ');
 }
 
 /**
@@ -494,18 +523,14 @@ function formatarTelefoneUnico(valor) {
  * separador enquanto o usuário ainda está digitando o próximo número.
  */
 function mountPhoneMask(inputSelector) {
-    const input = document.querySelector(inputSelector);
-    if (!input) return;
+    document.querySelectorAll(inputSelector).forEach((input) => {
+        const aplicar = () => {
+            input.value = formatarListaTelefones(input.value);
+        };
 
-    const aplicar = () => {
-        input.value = input.value
-            .split('/')
-            .map((parte) => formatarTelefoneUnico(parte))
-            .join(' / ');
-    };
-
-    if (input.value) aplicar();
-    input.addEventListener('input', aplicar);
+        if (input.value) aplicar();
+        input.addEventListener('input', aplicar);
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -534,11 +559,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mountCurrencyMask('#input-preco-venda');
 
-    // Contratante pessoa física (os campos só existem na página de PF).
+    // Campos de PF/PJ existem na mesma página; o documento selecionado define qual bloco usar.
     mountCpfMask('[name="contratante[cpf]"]');
     mountPhoneMask('[name="contratante[telefones]"]');
 
-    // Contratante pessoa jurídica (os campos só existem na página de PJ).
     mountCnpjMask('[name="contratante[cnpj]"]');
     mountCpfMask('[name="contratante[representante_legal_cpf]"]');
 
@@ -548,6 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const form = document.getElementById('contract-form');
     if (!form) return;
+
+    const initialClientType = document.querySelector('#input-client-type')?.value || '';
+    atualizarCamposPessoa(initialClientType);
 
     const submitBtn = document.getElementById('submit-btn');
     const resultado = document.getElementById('resultado');

@@ -49,8 +49,10 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('contratos')->name('contracts.')->group(function () {
         Route::get('/', [ContractController::class, 'index'])->name('index');
 
+        // URLs antigas continuam válidas para links salvos.
         Route::get('/novo/pf', [ContractController::class, 'createForPessoaFisica'])->name('create.pf');
         Route::get('/novo/pj', [ContractController::class, 'createForPessoaJuridica'])->name('create.pj');
+        Route::get('/novo/{contractType}', [ContractController::class, 'create'])->name('create');
 
         // Mesmos nomes de antes; só a URL mudou
         Route::get('/pessoas-fisicas/busca', [ContractController::class, 'searchPessoasFisicas'])

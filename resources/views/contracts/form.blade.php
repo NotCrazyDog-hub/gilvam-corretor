@@ -7,9 +7,12 @@
     // Tipo de contrato: do grupo (edição), do old() ou da query string (?contract_type=).
     // Fica aqui no topo porque o cabeçalho da página também usa.
     $tipoContratoKey = \App\Domains\Contracts\Services\ContractTypes::resolve(
-        $group?->contract_type ?? old('contract_type', request('contract_type'))
+        $group?->contract_type ?? $contractType ?? old('contract_type', request('contract_type'))
     );
     $tipoContrato = config("contracts.types.$tipoContratoKey");
+    $templateAvailable = $templateAvailable ?? (!empty($tipoContrato['form_supported'])
+        && \Illuminate\Support\Facades\Storage::disk(config('contracts.templates_disk'))
+            ->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']));
 @endphp
 
 <x-app-layout>
@@ -54,6 +57,14 @@
                 </p>
             @endif
 
+            @unless ($templateAvailable)
+                <p class="mb-6 text-sm text-amber-800 bg-amber-50 border border-amber-300 p-4">
+                    Este tipo ainda não está pronto para gerar. Adicione o modelo
+                    <strong>{{ $tipoContrato['template'] }}</strong> em
+                    <code>storage/app/public/templates</code> e implemente o formulário correspondente.
+                </p>
+            @endunless
+
             <form
                 id="contract-form"
                 method="POST"
@@ -90,7 +101,7 @@
 
                 <input type="hidden" name="contract_type" value="{{ $tipoContratoKey }}">
                 <input type="hidden" name="imovel_id" id="input-imovel-id" value="{{ $group->imovel_id ?? old('imovel_id') }}">
-                <input type="hidden" name="client_type" value="{{ $clientType ?? old('client_type') }}">
+                <input type="hidden" name="client_type" id="input-client-type" value="{{ $clientType ?? old('client_type') }}">
                 <input type="hidden" name="client_id" id="input-client-id" value="{{ $group->client_id ?? old('client_id') }}">
 
                 <fieldset class="border border-slate-300 p-4">
@@ -130,10 +141,11 @@
                 <div>
                     <p class="font-bold text-sm uppercase mb-1">I. Contratante:</p>
 
-                    <div class="border border-black divide-y divide-black text-sm">
-                        @if ($isPj)
+                    <div class="border border-black text-sm">
+                        <div data-person-fields="pj" class="divide-y divide-black" @if (!$isPj) hidden @endif>
                             @include('contracts._contratante-pj')
-                        @else
+                        </div>
+                        <div data-person-fields="pf" class="divide-y divide-black" @if ($isPj) hidden @endif>
                             {{-- linha 1: NOME --}}
                             <div class="field-wrapper px-2 py-1.5">
                                 <div class="flex items-baseline gap-1">
@@ -214,7 +226,7 @@
                                            class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
                                 </div>
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
 
@@ -387,7 +399,7 @@
                             <p class="font-bold">CONTRATANTE</p>
                         </div>
                         <div class="border-t border-black pt-1">
-                            <p class="font-bold">{{ $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE' }}</p>
+                            <p class="font-bold" data-assinatura-segundo>{{ $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE' }}</p>
                         </div>
                         <div class="border-t border-black pt-1">
                             <p class="font-bold">CONTRATADO</p>
@@ -409,7 +421,7 @@
 
                 {{-- Botões: centralizados, um sobre o outro (principal em cima, cancelar embaixo) --}}
                 <div class="flex flex-col items-center gap-3 pt-4">
-                    <button type="submit" id="submit-btn"
+                    <button type="submit" id="submit-btn" {{ !$templateAvailable ? 'disabled' : '' }}
                             class="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white shadow-sm rounded-lg px-8 py-3.5 text-base font-bold transition disabled:opacity-50 disabled:cursor-not-allowed">
                         {{ $group ? 'Salvar nova versão' : 'Gerar contrato' }}
                     </button>
