@@ -4,6 +4,7 @@ namespace App\Domains\Contracts\Services;
 
 use App\Domains\Contracts\Models\Contract;
 use App\Domains\Contracts\Models\ContractGroup;
+use App\Domains\Contracts\Services\ContractTypes;
 use App\Domains\Clients\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -12,9 +13,6 @@ use RuntimeException;
 
 class ContractGeneratorService
 {
-    // Template único para PF e PJ (troque o nome do arquivo em storage).
-    private const TEMPLATE_PATH = 'templates/contrato-de-corretagem.docx';
-
     // Linhas do bloco do contratante que só existem para um tipo de pessoa.
     // Cada chave é um placeholder que aparece em UMA linha da tabela.
     private const LINHAS_SO_PF = [
@@ -40,6 +38,9 @@ class ContractGeneratorService
      * - Se $group for null: cria um ContractGroup novo (contrato novo).
      * - Se $group for informado: cria a próxima versão dentro do mesmo grupo
      *   (isso é o "editar" — nunca sobrescreve nem apaga a versão anterior).
+     *
+     * O tipo de contrato (e, portanto, o template) é definido na criação do
+     * grupo e fica fixo nas versões seguintes.
      */
     public function generate(?ContractGroup $group, array $data, ?int $userId = null): Contract
     {
@@ -51,28 +52,31 @@ class ContractGeneratorService
 
             $relativePath = "contracts/{$group->uuid}/v{$version}.docx";
             $isPj = $group->client->tipo === Client::TIPO_PJ;
-            $this->renderDocx($relativePath, $data, $isPj);
+            $this->renderDocx($relativePath, $data, $isPj, $group->contract_type);
 
             return $this->versioner->persistVersion($group, $version, $data, $relativePath, $userId);
         });
     }
 
-    /**
-     * AJUSTE: compare com o valor que você grava em client_type
-     * (nome da classe ou alias do morphMap).
-     */
-
-    private function renderDocx(string $relativePath, array $data, bool $isPj): void
+    private function renderDocx(string $relativePath, array $data, bool $isPj, string $contractType): void
     {
-        if (!Storage::exists(self::TEMPLATE_PATH)) {
-            throw new RuntimeException('Template de contrato não encontrado: ' . self::TEMPLATE_PATH);
+        $tipo = ContractTypes::get($contractType);
+
+        // Templates ficam em storage/app/public/templates (disco 'public').
+        // Os contratos gerados continuam no disco padrão (privado).
+        $templates    = Storage::disk(config('contracts.templates_disk'));
+        $templatePath = config('contracts.templates_dir') . '/' . $tipo['template'];
+
+        if (!$templates->exists($templatePath)) {
+            throw new RuntimeException('Template de contrato não encontrado: ' . $templatePath);
         }
 
         // TemplateProcessor lida com placeholders quebrados em múltiplos
         // <w:r> pelo Word (o problema que tínhamos com str_replace no XML cru).
-        // OBS: usa o delimitador padrão ${variavel} — o template .docx precisa
-        // usar esse formato (ex: ${contratante.nome}), não {{contratante.nome}}.
-        $processor = new TemplateProcessor(Storage::path(self::TEMPLATE_PATH));
+        // OBS: o delimitador padrão é ${variavel}. Se o seu .docx usa
+        // {{variavel}}, descomente a linha do setMacroChars abaixo.
+        $processor = new TemplateProcessor($templates->path($templatePath));
+        // $processor->setMacroChars('{{', '}}');
 
         // Remove primeiro as linhas do tipo de pessoa que NÃO se aplica.
         // Precisa vir antes do setValue, porque a busca é pelo placeholder.
@@ -80,7 +84,7 @@ class ContractGeneratorService
             $processor->deleteRow($placeholder);
         }
 
-        foreach ($this->flatten($this->contentForTemplate($data, $isPj)) as $key => $value) {
+        foreach ($this->flatten($this->contentForTemplate($data, $isPj, $tipo)) as $key => $value) {
             $processor->setValue($key, $value);
         }
 
@@ -93,7 +97,7 @@ class ContractGeneratorService
      * + o texto livre do TipTap (content_html) já convertido pra texto puro,
      * já que TemplateProcessor::setValue só substitui texto simples.
      */
-    private function contentForTemplate(array $data, bool $isPj): array
+    private function contentForTemplate(array $data, bool $isPj, array $tipo): array
     {
         $imovel = $data['imovel'];
 
@@ -104,6 +108,13 @@ class ContractGeneratorService
         }
 
         return [
+            // Título do contrato: o .docx pode usar ${contrato.titulo},
+            // ${contrato.subtitulo} e ${contrato.base_legal}.
+            'contrato' => [
+                'titulo'     => $tipo['titulo'],
+                'subtitulo'  => $tipo['subtitulo'] ?? '',
+                'base_legal' => $tipo['base_legal'] ?? '',
+            ],
             'contratante' => $data['contratante'],
             'contratado'  => $data['contratado'],
             'imovel'      => $imovel,

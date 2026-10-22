@@ -1,8 +1,22 @@
+@php
+    $clausulasPadrao = '';
+
+    $tipoCliente = $clientType ?? $group?->client?->tipo ?? old('client_type');
+    $isPj = $tipoCliente === 'pj';
+
+    // Tipo de contrato: do grupo (edição), do old() ou da query string (?contract_type=).
+    // Fica aqui no topo porque o cabeçalho da página também usa.
+    $tipoContratoKey = \App\Domains\Contracts\Services\ContractTypes::resolve(
+        $group?->contract_type ?? old('contract_type', request('contract_type'))
+    );
+    $tipoContrato = config("contracts.types.$tipoContratoKey");
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ $group ? 'Editar Contrato' : 'Novo Contrato de Corretagem' }}
+                {{ $group ? 'Editar Contrato' : 'Novo ' . $tipoContrato['titulo'] }}
             </h2>
         </div>
     </x-slot>
@@ -19,21 +33,18 @@
         }
     </style>
 
-    @php
-        $clausulasPadrao = '';
-
-        $tipoCliente = $clientType ?? $group?->client?->tipo ?? old('client_type');
-        $isPj = $tipoCliente === 'pj';
-    @endphp
-
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-[900px] mx-auto bg-white p-8 rounded-lg shadow-sm font-sans text-black">
 
-            {{-- Cabeçalho igual ao topo do .docx --}}
+            {{-- Cabeçalho igual ao topo do .docx (vem do tipo de contrato) --}}
             <div class="text-center mb-6 leading-snug">
-                <p class="font-bold text-sm uppercase">Contrato de Corretagem de Venda de Imóveis</p>
-                <p class="font-bold text-sm uppercase">Com Cláusula de Exclusividade</p>
-                <p class="font-bold text-sm">(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)</p>
+                <p class="font-bold text-sm uppercase">{{ $tipoContrato['titulo'] }}</p>
+                @if (!empty($tipoContrato['subtitulo']))
+                    <p class="font-bold text-sm uppercase">{{ $tipoContrato['subtitulo'] }}</p>
+                @endif
+                @if (!empty($tipoContrato['base_legal']))
+                    <p class="font-bold text-sm">{{ $tipoContrato['base_legal'] }}</p>
+                @endif
             </div>
 
             @if ($group)
@@ -77,6 +88,7 @@
                     </fieldset>
                 @endif
 
+                <input type="hidden" name="contract_type" value="{{ $tipoContratoKey }}">
                 <input type="hidden" name="imovel_id" id="input-imovel-id" value="{{ $group->imovel_id ?? old('imovel_id') }}">
                 <input type="hidden" name="client_type" value="{{ $clientType ?? old('client_type') }}">
                 <input type="hidden" name="client_id" id="input-client-id" value="{{ $group->client_id ?? old('client_id') }}">
@@ -106,7 +118,7 @@
                         </div>
                     </div>
                 </fieldset>
-                
+
                 @php
                     $contratante = $contract->contratante ?? [];
                     $contratado = $contract->contratado ?? [];

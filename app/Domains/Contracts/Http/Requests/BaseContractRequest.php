@@ -20,7 +20,7 @@ abstract class BaseContractRequest extends FormRequest
         return [
             'client_type'   => 'required|string|in:pf,pj',
             'client_id'     => 'required|integer',
-            'contract_type' => 'nullable|string|max:255',
+            'contract_type' => ['nullable', \Illuminate\Validation\Rule::in(\App\Domains\Contracts\Services\ContractTypes::keys())],
             'imovel_id' => 'nullable|integer|exists:imoveis,id',
 
             'contratante'              => 'required|array',
