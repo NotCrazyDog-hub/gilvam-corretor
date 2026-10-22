@@ -1,4 +1,2 @@
 *
-  !.gitignore
-  !templates/
-  !templates/*
+!.gitignore
