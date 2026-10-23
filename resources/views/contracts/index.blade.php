@@ -71,7 +71,7 @@
                          class="relative py-1">
                             <button @click="open = !open"
                                     aria-haspopup="true" :aria-expanded="open"
-                                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2 transition">
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
                                 <svg class="w-4 h-4 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                 </svg>
@@ -82,8 +82,14 @@
                             </button>
 
                             <div x-show="open" x-cloak x-transition
-                                class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
+                                 class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
                                 @foreach (config('contracts.types') as $key => $tipoContrato)
+                                    @php
+                                        $pendente = empty($tipoContrato['form_supported'])
+                                            || !\Illuminate\Support\Facades\Storage::disk(config('contracts.templates_disk'))
+                                                ->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']);
+                                    @endphp
+
                                     <a href="{{ route('contracts.create', ['contractType' => $key]) }}"
                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
                                         {{ $tipoContrato['nome'] }}
