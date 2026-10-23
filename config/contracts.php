@@ -38,6 +38,9 @@ $types = [
 $contractTypes = [];
 foreach ($types as $key => $title) {
     $contractTypes[$key] = [
+        // Nome exibido no dropdown e na listagem de contratos.
+        'nome' => $title,
+        // Título usado no contrato gerado.
         'titulo' => $key === 'corretagem_venda_exclusividade'
             ? 'Contrato de Corretagem de Venda de Imóveis'
             : $title,

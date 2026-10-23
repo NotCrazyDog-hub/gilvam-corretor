@@ -69,7 +69,7 @@
                                 @foreach (config('contracts.types') as $key => $tipoContrato)
                                     <a href="{{ route('contracts.create', ['contractType' => $key]) }}"
                                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
-                                        {{ $tipoContrato['titulo'] }}
+                                        {{ $tipoContrato['nome'] }}
                                         @if (empty($tipoContrato['form_supported']) || !\Illuminate\Support\Facades\Storage::disk(config('contracts.templates_disk'))->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']))
                                             <span class="block mt-0.5 text-xs text-amber-700">Modelo .docx ou formulário pendente</span>
                                         @endif
@@ -103,7 +103,7 @@
                                         {{ $group->client_display_name }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
-                                        {{ \App\Domains\Contracts\Services\ContractTypes::get($group->contract_type)['titulo'] }}
+                                        {{ \App\Domains\Contracts\Services\ContractTypes::get($group->contract_type)['nome'] }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
                                         Versão {{ $v?->version ?? '—' }}
@@ -119,7 +119,7 @@
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
                                         @if ($v?->prazo_indeterminado)
-                                            <span class="text-gray-500">Indeterminado</span>
+                                            <span class="text-gray-700">Indeterminado</span>
                                         @elseif ($v?->data_termino)
                                             <div class="text-gray-700">{{ $v->data_termino->format('d/m/Y') }}</div>
                                             <div class="text-xs {{ str_contains($v->tempo_restante, 'vencido') ? 'text-red-600 font-semibold' : 'text-gray-500' }}">
