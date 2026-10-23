@@ -54,7 +54,7 @@
                          class="relative py-1">
                             <button @click="open = !open"
                                     aria-haspopup="true" :aria-expanded="open"
-                                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2 transition">
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
                                 <svg class="w-4 h-4 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                 </svg>
@@ -65,14 +65,29 @@
                             </button>
 
                             <div x-show="open" x-cloak x-transition
-                                class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
+                                 class="absolute right-0 mt-2 w-80 max-h-[70vh] overflow-y-auto bg-white shadow-lg rounded-lg border border-slate-100 py-2 z-10">
                                 @foreach (config('contracts.types') as $key => $tipoContrato)
+                                    @php
+                                        $pendente = empty($tipoContrato['form_supported'])
+                                            || !\Illuminate\Support\Facades\Storage::disk(config('contracts.templates_disk'))
+                                                ->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']);
+                                    @endphp
+
                                     <a href="{{ route('contracts.create', ['contractType' => $key]) }}"
-                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
-                                        {{ $tipoContrato['titulo'] }}
-                                        @if (empty($tipoContrato['form_supported']) || !\Illuminate\Support\Facades\Storage::disk(config('contracts.templates_disk'))->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']))
-                                            <span class="block mt-0.5 text-xs text-amber-700">Modelo .docx ou formulário pendente</span>
-                                        @endif
+                                       class="group flex items-start gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-gray-100 transition">
+
+                                        {{-- Ícone: documento com linhas de texto --}}
+                                        <svg class="w-5 h-5 shrink-0 mt-0.5 {{ $pendente ? 'text-amber-500' : 'text-slate-400 group-hover:text-green-600' }} transition"
+                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                        </svg>
+
+                                        <span class="min-w-0">
+                                            {{ $tipoContrato['titulo'] }}
+                                            @if ($pendente)
+                                                <span class="block mt-0.5 text-xs text-amber-700">Modelo .docx ou formulário pendente</span>
+                                            @endif
+                                        </span>
                                     </a>
                                 @endforeach
                             </div>
@@ -174,3 +189,9 @@
         </div>
     </div>
 </x-app-layout>
+
+
+
+
+
+

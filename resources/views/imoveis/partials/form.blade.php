@@ -5,8 +5,8 @@
     Quem inclui (create.blade.php / edit.blade.php) é que abre o <form>.
 --}}
 @php
-    use App\Models\Client;
-    use App\Models\Imovel;
+    use App\Domains\Clients\Models\Client;
+    use App\Domains\Imoveis\Models\Imovel;
 
     $imovel = $imovel ?? null;
     $papeis = Imovel::PAPEIS;
