@@ -1,7 +1,6 @@
-
-
 import Alpine from 'alpinejs';
 
-window.Alpine = Alpine;
+import './contract-form.js';
 
+window.Alpine = Alpine;
 Alpine.start();
