@@ -37,8 +37,8 @@ $types = [
 
 // Tudo que as duas corretagens têm em comum (mesmo .docx, mesmo formulário).
 $corretagemVenda = [
-    'titulo'         => 'Contrato de Corretagem de Venda de Imóveis',
-    'base_legal'     => '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)',
+    'titulo'         => 'CONTRATO DE CORRRETAGEM DE VENDA DE IMÓVEIS',
+    'base_legal'     => '(ARTS. 481 A 532 DO NOVO CÓDIGO CIVIL – LEI Nº 10.406/2002)',
     'form_supported' => true,
     'template'       => 'contrato-de-corretagem.docx',
 ];
@@ -46,11 +46,11 @@ $corretagemVenda = [
 // Só o que muda: subtítulo e arquivo com as cláusulas padrão.
 $especificos = [
     'corretagem_venda_exclusividade' => $corretagemVenda + [
-        'subtitulo'       => 'Com Cláusula de Exclusividade',
+        'subtitulo'       => 'COM CLÁUSULA DE EXCLUSIVIDADES',
         'clausulas_padrao' => 'corretagem-venda-exclusividade.html',
     ],
     'corretagem_venda_sem_exclusividade' => $corretagemVenda + [
-        'subtitulo'       => 'Sem Cláusula de Exclusividade',
+        'subtitulo'       => 'SEM CLÁUSULA DE EXCLUSIVIDADES',
         'clausulas_padrao' => 'corretagem-venda-sem-exclusividade.html',
     ],
 ];
