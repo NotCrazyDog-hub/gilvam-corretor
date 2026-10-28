@@ -35,27 +35,41 @@ $types = [
     'rescisao_distrato' => 'Rescisão/distrato',
 ];
 
+// Tudo que as duas corretagens têm em comum (mesmo .docx, mesmo formulário).
+$corretagemVenda = [
+    'titulo'         => 'Contrato de Corretagem de Venda de Imóveis',
+    'base_legal'     => '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)',
+    'form_supported' => true,
+    'template'       => 'contrato-de-corretagem.docx',
+];
+
+// Só o que muda: subtítulo e arquivo com as cláusulas padrão.
+$especificos = [
+    'corretagem_venda_exclusividade' => $corretagemVenda + [
+        'subtitulo'       => 'Com Cláusula de Exclusividade',
+        'clausulas_padrao' => 'corretagem-venda-exclusividade.html',
+    ],
+    'corretagem_venda_sem_exclusividade' => $corretagemVenda + [
+        'subtitulo'       => 'Sem Cláusula de Exclusividade',
+        'clausulas_padrao' => 'corretagem-venda-sem-exclusividade.html',
+    ],
+];
+
 $contractTypes = [];
 foreach ($types as $key => $title) {
-    $contractTypes[$key] = [
+    $contractTypes[$key] = ($especificos[$key] ?? []) + [
         // Nome exibido no dropdown e na listagem de contratos.
-        'nome' => $title,
+        'nome'             => $title,
         // Título usado no contrato gerado.
-        'titulo' => $key === 'corretagem_venda_exclusividade'
-            ? 'Contrato de Corretagem de Venda de Imóveis'
-            : $title,
-        'subtitulo' => $key === 'corretagem_venda_exclusividade'
-            ? 'Com Cláusula de Exclusividade'
-            : null,
-        'base_legal' => $key === 'corretagem_venda_exclusividade'
-            ? '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)'
-            : null,
+        'titulo'           => $title,
+        'subtitulo'        => null,
+        'base_legal'       => null,
         // Os outros formulários precisam ser implementados antes de gerar.
-        'form_supported' => $key === 'corretagem_venda_exclusividade',
+        'form_supported'   => false,
         // O arquivo pode ser adicionado depois em storage/app/public/templates.
-        'template' => $key === 'corretagem_venda_exclusividade'
-            ? 'contrato-de-corretagem.docx'
-            : $key . '.docx',
+        'template'         => $key . '.docx',
+        // Arquivo em resources/contracts/clausulas com o texto inicial do editor.
+        'clausulas_padrao' => null,
     ];
 }
 
@@ -63,5 +77,6 @@ return [
     'default' => 'corretagem_venda_exclusividade',
     'templates_disk' => 'public',
     'templates_dir' => 'templates',
+    'clausulas_dir' => 'contracts/clausulas', // relativo a resources/
     'types' => $contractTypes,
 ];

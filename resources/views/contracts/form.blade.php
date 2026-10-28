@@ -1,6 +1,4 @@
 @php
-    $clausulasPadrao = '';
-
     $tipoCliente = $clientType ?? $group?->client?->tipo ?? old('client_type');
     $isPj = $tipoCliente === 'pj';
 
@@ -13,6 +11,13 @@
     $templateAvailable = $templateAvailable ?? (!empty($tipoContrato['form_supported'])
         && \Illuminate\Support\Facades\Storage::disk(config('contracts.templates_disk'))
             ->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']));
+
+    // Cláusulas: na edição vale o que foi salvo na versão atual (JSON do TipTap);
+    // só contrato novo começa com o texto padrão do tipo.
+    $clausulasSalvas = $contract?->content_json['clausulas'] ?? null;
+    $clausulasInicial = $clausulasSalvas
+        ? json_decode($clausulasSalvas, true)
+        : \App\Domains\Contracts\Services\ContractTypes::clausulasPadrao($tipoContratoKey);
 @endphp
 
 <x-app-layout>
@@ -448,7 +453,7 @@
         window.contractFormConfig = {
             outrosDadosContent: @json($imovel['outros_dados'] ?? ''),
             condicoesContent: @json($imovel['condicoes_pagamento'] ?? ''),
-            clausulasContent: @json($contract->clausulas ?? $clausulasPadrao),
+            clausulasContent: @json($clausulasInicial),
         };
     </script>
 </x-app-layout>
