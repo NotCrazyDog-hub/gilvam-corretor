@@ -6,6 +6,7 @@
         'Indeterminado' => 'bg-gray-100 text-gray-700',
     ];
     $filtroAtivo = in_array($clientType ?? null, ['pf', 'pj'], true) ? $clientType : null;
+    $busca = $busca ?? '';
 @endphp
 
 <x-app-layout>
@@ -26,27 +27,43 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 
-                {{-- Abas + Tipo de contrato + Botão Novo Contrato --}}
-                <div class="flex items-center justify-between mb-4">
+                {{-- Abas + Busca + Botão Novo Contrato --}}
+                <div class="flex items-center justify-between gap-4 mb-4">
 
-                    {{-- Abas --}}
+                    {{-- Abas (mantêm o termo buscado) --}}
                     <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-                        <a href="{{ route('contracts.index') }}"
+                        <a href="{{ route('contracts.index', array_filter(['q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
                                   {{ $filtroAtivo ? 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' : 'bg-white text-green-600 shadow-sm' }}">
                             Todos
                         </a>
-                        <a href="{{ route('contracts.index', ['client_type' => 'pf']) }}"
+                        <a href="{{ route('contracts.index', array_filter(['client_type' => 'pf', 'q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
                                   {{ $filtroAtivo === 'pf' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
                             Pessoa física
                         </a>
-                        <a href="{{ route('contracts.index', ['client_type' => 'pj']) }}"
+                        <a href="{{ route('contracts.index', array_filter(['client_type' => 'pj', 'q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
                                   {{ $filtroAtivo === 'pj' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
                             Pessoa jurídica
                         </a>
                     </div>
+
+                    {{-- Busca --}}
+                    <form method="GET" action="{{ route('contracts.index') }}" class="flex-1 max-w-2xl">
+                        @if ($filtroAtivo)
+                            <input type="hidden" name="client_type" value="{{ $filtroAtivo }}">
+                        @endif
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+                                </svg>
+                            </span>
+                            <input type="search" name="q" value="{{ $busca }}" placeholder="Buscar por contratante, CPF ou CNPJ"
+                                class="w-full rounded-full border-gray-300 text-sm pl-12 pr-5 py-2.5 focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </form>
 
                     {{-- Botão Novo Contrato: o menu lista os tipos de contrato. --}}
                     <div x-data="{ open: false }"
@@ -118,7 +135,7 @@
                                         {{ $group->client_display_name }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
-                                        {{ \App\Domains\Contracts\Services\ContractTypes::get($group->contract_type)['titulo'] }}
+                                        {{ \App\Domains\Contracts\Services\ContractTypes::get($group->contract_type)['nome'] }}
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
                                         Versão {{ $v?->version ?? '—' }}
@@ -134,7 +151,7 @@
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center">
                                         @if ($v?->prazo_indeterminado)
-                                            <span class="text-gray-500">Indeterminado</span>
+                                            <span class="text-gray-700">Indeterminado</span>
                                         @elseif ($v?->data_termino)
                                             <div class="text-gray-700">{{ $v->data_termino->format('d/m/Y') }}</div>
                                             <div class="text-xs {{ str_contains($v->tempo_restante, 'vencido') ? 'text-red-600 font-semibold' : 'text-gray-500' }}">
@@ -173,7 +190,7 @@
                             @empty
                                 <tr>
                                     <td colspan="7" class="py-6 text-center text-gray-500">
-                                        Nenhum contrato encontrado.
+                                        {{ $busca ? "Nenhum contrato encontrado para \"{$busca}\"." : 'Nenhum contrato encontrado.' }}
                                     </td>
                                 </tr>
                             @endforelse
@@ -189,9 +206,3 @@
         </div>
     </div>
 </x-app-layout>
-
-
-
-
-
-

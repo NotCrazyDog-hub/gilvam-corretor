@@ -155,6 +155,14 @@ function atualizarCamposPessoa(tipo) {
     }
 }
 
+function atualizarCamposDonatario(tipo) {
+    document.querySelectorAll('[data-donatario-fields]').forEach((bloco) => {
+        const ativo = bloco.dataset.donatarioFields === tipo;
+        bloco.hidden = !ativo;
+        bloco.querySelectorAll('input').forEach((input) => { input.disabled = !ativo; });
+    });
+}
+
 /**
  * Busca de imóvel. Ao escolher um imóvel, preenche os dados do imóvel e
  * lista as pessoas vinculadas a ele como proprietário/vendedor para o
@@ -558,6 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     mountCurrencyMask('#input-preco-venda');
+    mountCurrencyMask('#input-valor-atribuido');
 
     // Campos de PF/PJ existem na mesma página; o documento selecionado define qual bloco usar.
     mountCpfMask('[name="contratante[cpf]"]');
@@ -569,6 +578,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Contratado: pode ser PF ou PJ, então usa a máscara combinada.
     mountCpfCnpjMask('[name="contratado[cpf_cnpj]"]');
     mountPhoneMask('[name="contratado[telefones]"]');
+    mountCpfMask('[name="donatario[cpf]"]');
+    mountCpfMask('[name="donatario[representante_legal_cpf]"]');
+    mountCnpjMask('[name="donatario[cnpj]"]');
+    mountPhoneMask('[name="donatario[telefones]"]');
+
+    const tipoDonatario = document.getElementById('donatario-tipo');
+    if (tipoDonatario) {
+        atualizarCamposDonatario(tipoDonatario.value);
+        tipoDonatario.addEventListener('change', () => atualizarCamposDonatario(tipoDonatario.value));
+    }
 
     const form = document.getElementById('contract-form');
     if (!form) return;

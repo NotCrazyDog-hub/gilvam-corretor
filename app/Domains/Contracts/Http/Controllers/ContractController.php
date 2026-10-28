@@ -18,22 +18,27 @@ class ContractController extends Controller
     public function __construct(private ContractGeneratorService $generator) {}
 
     /**
-     * Listagem com filtro por tipo de cliente (pf/pj), mostrando a versão vigente.
+     * Listagem com filtro por tipo de cliente (pf/pj) e busca por contratante
+     * (nome, nome fantasia, CPF ou CNPJ), mostrando a versão vigente.
      */
     public function index(Request $request)
     {
         $clientType = $request->query('client_type'); // 'pf' | 'pj' | null
+        $busca = trim((string) $request->query('q', ''));
 
         $groups = ContractGroup::query()
             ->when(in_array($clientType, [Client::TIPO_PF, Client::TIPO_PJ], true), fn ($q) =>
                 $q->whereHas('client', fn ($c) => $c->where('tipo', $clientType))
+            )
+            ->when(mb_strlen($busca) >= 2, fn ($q) =>
+                $q->whereHas('client', fn ($c) => $c->search($busca))
             )
             ->with(['latestVersion', 'client'])
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
-        return view('contracts.index', compact('groups', 'clientType'));
+        return view('contracts.index', compact('groups', 'clientType', 'busca'));
     }
 
     public function create(Request $request, string $contractType)
