@@ -31,6 +31,16 @@ class ContractGeneratorService
         'contratante.representante_legal_cargo',
     ];
 
+    private const CAMPOS_PF = [
+        'nome', 'estado_civil', 'profissao', 'cpf', 'identidade',
+        'conjuge_nome', 'conjuge_identidade',
+    ];
+
+    private const CAMPOS_PJ = [
+        'razao_social', 'nome_fantasia', 'inscricao_estadual', 'cnpj',
+        'representante_legal_nome', 'representante_legal_cargo', 'representante_legal_cpf',
+    ];
+
     public function __construct(private ContractVersionService $versioner) {}
 
     /**
@@ -80,8 +90,13 @@ class ContractGeneratorService
 
         // Remove primeiro as linhas do tipo de pessoa que NÃO se aplica.
         // Precisa vir antes do setValue, porque a busca é pelo placeholder.
-        foreach ($isPj ? self::LINHAS_SO_PF : self::LINHAS_SO_PJ as $placeholder) {
-            $processor->deleteRow($placeholder);
+        if ($contractType === 'doacao') {
+            $this->deletePartyRows($processor, 'doador', $isPj);
+            $this->deletePartyRows($processor, 'donatario', ($data['donatario']['tipo'] ?? 'pf') === 'pj');
+        } else {
+            foreach ($isPj ? self::LINHAS_SO_PF : self::LINHAS_SO_PJ as $placeholder) {
+                $processor->deleteRow($placeholder);
+            }
         }
 
         foreach ($this->flatten($this->contentForTemplate($data, $isPj, $tipo)) as $key => $value) {
@@ -107,6 +122,19 @@ class ContractGeneratorService
             }
         }
 
+        if (($data['contract_type'] ?? null) === 'doacao') {
+            return [
+                'doador' => $data['contratante'],
+                'donatario' => $data['donatario'],
+                'imovel' => array_merge($imovel, [
+                    'valor_atribuido' => $imovel['valor_atribuido'] ?? '',
+                    'onus' => $imovel['onus'] ?? '',
+                ]),
+                'clausulas' => !empty($data['clausulas']) ? $this->htmlToPlainText($data['clausulas']) : '',
+                'assinatura_segunda_parte' => $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE',
+            ];
+        }
+
         return [
             // Título do contrato: o .docx pode usar ${contrato.titulo},
             // ${contrato.subtitulo} e ${contrato.base_legal}.
@@ -122,6 +150,15 @@ class ContractGeneratorService
             // Rótulo da segunda assinatura: cônjuge (PF) ou representante legal (PJ).
             'assinatura_segunda_parte' => $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE',
         ];
+    }
+
+    private function deletePartyRows(TemplateProcessor $processor, string $party, bool $isPj): void
+    {
+        $fieldsToDelete = $isPj ? self::CAMPOS_PF : self::CAMPOS_PJ;
+
+        foreach ($fieldsToDelete as $field) {
+            $processor->deleteRow("{$party}.{$field}");
+        }
     }
 
     private function htmlToPlainText(string $html): string

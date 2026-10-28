@@ -54,7 +54,7 @@ class ContractVersionService
             'content_json'         => $data['content_json'] ?? [],
             'content_html'         => $data['content_html'] ?? null,
             'contratante'          => $data['contratante'],
-            'contratado'           => $data['contratado'],
+            'contratado'           => $data['donatario'] ?? $data['contratado'],
             'imovel'               => $data['imovel'],
             'data_termino'         => $data['data_termino'] ?? null,
             'prazo_indeterminado'  => $data['prazo_indeterminado'] ?? false,
