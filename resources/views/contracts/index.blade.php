@@ -100,7 +100,7 @@
                                         </svg>
 
                                         <span class="min-w-0">
-                                            {{ $tipoContrato['titulo'] }}
+                                            {{ $tipoContrato['nome'] }}
                                             @if ($pendente)
                                                 <span class="block mt-0.5 text-xs text-amber-700">Modelo .docx ou formulário pendente</span>
                                             @endif

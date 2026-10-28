@@ -35,36 +35,48 @@ $types = [
     'rescisao_distrato' => 'Rescisão/distrato',
 ];
 
+// Tudo que as duas corretagens têm em comum (mesmo .docx, mesmo formulário).
+$corretagemVenda = [
+    'titulo'         => 'CONTRATO DE CORRRETAGEM DE VENDA DE IMÓVEIS',
+    'base_legal'     => '(ARTS. 481 A 532 DO NOVO CÓDIGO CIVIL – LEI Nº 10.406/2002)',
+    'form_supported' => true,
+    'template'       => 'contrato-de-corretagem.docx',
+];
+
+// Só o que muda: subtítulo e arquivo com as cláusulas padrão.
+$especificos = [
+    'corretagem_venda_exclusividade' => $corretagemVenda + [
+        'subtitulo'       => 'COM CLÁUSULA DE EXCLUSIVIDADES',
+        'clausulas_padrao' => 'corretagem-venda-exclusividade.html',
+    ],
+    'corretagem_venda_sem_exclusividade' => $corretagemVenda + [
+        'subtitulo'       => 'SEM CLÁUSULA DE EXCLUSIVIDADES',
+        'clausulas_padrao' => 'corretagem-venda-sem-exclusividade.html',
+    ],
+];
+
 $contractTypes = [];
 $contractTypes = [];
 foreach ($types as $key => $title) {
-    $contractTypes[$key] = [
+    $contractTypes[$key] = ($especificos[$key] ?? []) + [
         // Nome exibido no dropdown e na listagem de contratos.
-        'nome' => $title,
+        'nome'             => $title,
         // Título usado no contrato gerado.
-        'titulo' => match ($key) {
-            'corretagem_venda_exclusividade' => 'Contrato de Corretagem de Venda de Imóveis',
-            'locacao' => 'Contrato de Locação de Imóvel',
-            default => $title,
-        },
-        'subtitulo' => match ($key) {
-            'corretagem_venda_exclusividade' => 'Com Cláusula de Exclusividade',
-            default => null,
-        },
-        'base_legal' => match ($key) {
-            'corretagem_venda_exclusividade' => '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)',
-            'locacao' => '(Lei nº 8.245/91)',
-            default => null,
-        },
+        'titulo' => $key === 'corretagem_venda_exclusividade'
+            ? 'Contrato de Corretagem de Venda de Imóveis'
+            : $title,
+        'subtitulo' => $key === 'corretagem_venda_exclusividade'
+            ? 'Com Cláusula de Exclusividade'
+            : null,
+        'base_legal' => $key === 'corretagem_venda_exclusividade'
+            ? '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)'
+            : null,
         // Os outros formulários precisam ser implementados antes de gerar.
-        'form_supported' => in_array($key, ['corretagem_venda_exclusividade', 'doacao', 'locacao'], true),
+        'form_supported' => $key === 'corretagem_venda_exclusividade',
         // O arquivo pode ser adicionado depois em storage/app/public/templates.
-        'template' => match ($key) {
-            'corretagem_venda_exclusividade' => 'contrato-de-corretagem.docx',
-            'doacao' => 'contrato-de-doacao.docx',
-            'locacao' => 'contrato-de-locacao.docx',
-            default => $key . '.docx',
-        },
+        'template' => $key === 'corretagem_venda_exclusividade'
+            ? 'contrato-de-corretagem.docx'
+            : $key . '.docx',
     ];
 }
 
@@ -72,5 +84,6 @@ return [
     'default' => 'corretagem_venda_exclusividade',
     'templates_disk' => 'public',
     'templates_dir' => 'templates',
+    'clausulas_dir' => 'contracts/clausulas', // relativo a resources/
     'types' => $contractTypes,
 ];
