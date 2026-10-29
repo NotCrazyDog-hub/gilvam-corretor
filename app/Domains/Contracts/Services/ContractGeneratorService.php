@@ -84,6 +84,16 @@ class ContractGeneratorService
             $processor->deleteRow($placeholder);
         }
 
+        // Campos com formatação do TipTap: mantêm negrito, itálico, etc.
+        $html = new HtmlToWord();
+        foreach (['outros_dados', 'condicoes_pagamento'] as $campo) {
+            $processor->setComplexValue(
+                "imovel.$campo",
+                $html->toTextRun($data['imovel'][$campo] ?? '')
+            );
+        }
+        $processor->replaceXmlBlock('clausulas', $html->toParagraphsXml($data['clausulas'] ?? ''), 'w:p');
+
         foreach ($this->flatten($this->contentForTemplate($data, $isPj, $tipo)) as $key => $value) {
             $processor->setValue($key, $value);
         }
@@ -94,19 +104,10 @@ class ContractGeneratorService
 
     /**
      * Dados vindos dos campos de formulário (contratante/contratado/imovel)
-     * + o texto livre do TipTap (content_html) já convertido pra texto puro,
-     * já que TemplateProcessor::setValue só substitui texto simples.
+     * (os campos de texto rico do TipTap são tratados em renderDocx via HtmlToWord).
      */
     private function contentForTemplate(array $data, bool $isPj, array $tipo): array
     {
-        $imovel = $data['imovel'];
-
-        foreach (['outros_dados', 'condicoes_pagamento'] as $htmlField) {
-            if (!empty($imovel[$htmlField])) {
-                $imovel[$htmlField] = $this->htmlToPlainText($imovel[$htmlField]);
-            }
-        }
-
         return [
             // Título do contrato: o .docx pode usar ${contrato.titulo},
             // ${contrato.subtitulo} e ${contrato.base_legal}.
@@ -117,17 +118,10 @@ class ContractGeneratorService
             ],
             'contratante' => $data['contratante'],
             'contratado'  => $data['contratado'],
-            'imovel'      => $imovel,
-            'clausulas'   => !empty($data['clausulas']) ? $this->htmlToPlainText($data['clausulas']) : '',
+            'imovel'      => $data['imovel'],
             // Rótulo da segunda assinatura: cônjuge (PF) ou representante legal (PJ).
             'assinatura_segunda_parte' => $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE',
         ];
-    }
-
-    private function htmlToPlainText(string $html): string
-    {
-        $withBreaks = preg_replace('/<\/p>|<br\s*\/?>/i', "\n", $html);
-        return trim(html_entity_decode(strip_tags($withBreaks), ENT_QUOTES, 'UTF-8'));
     }
 
     private function flatten(array $data, string $prefix = ''): array
