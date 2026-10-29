@@ -90,14 +90,19 @@ class ContractGeneratorService
 
         // Remove primeiro as linhas do tipo de pessoa que NÃO se aplica.
         // Precisa vir antes do setValue, porque a busca é pelo placeholder.
-        if ($contractType === 'doacao') {
-            $this->deletePartyRows($processor, 'doador', $isPj);
-            $this->deletePartyRows($processor, 'donatario', ($data['donatario']['tipo'] ?? 'pf') === 'pj');
-        } else {
-            foreach ($isPj ? self::LINHAS_SO_PF : self::LINHAS_SO_PJ as $placeholder) {
-                $processor->deleteRow($placeholder);
-            }
+        foreach ($isPj ? self::LINHAS_SO_PF : self::LINHAS_SO_PJ as $placeholder) {
+            $processor->deleteRow($placeholder);
         }
+
+        // Campos com formatação do TipTap: mantêm negrito, itálico, etc.
+        $html = new HtmlToWord();
+        foreach (['outros_dados', 'condicoes_pagamento'] as $campo) {
+            $processor->setComplexValue(
+                "imovel.$campo",
+                $html->toTextRun($data['imovel'][$campo] ?? '')
+            );
+        }
+        $processor->replaceXmlBlock('clausulas', $html->toParagraphsXml($data['clausulas'] ?? ''), 'w:p');
 
         foreach ($this->flatten($this->contentForTemplate($data, $isPj, $tipo)) as $key => $value) {
             $processor->setValue($key, $value);
@@ -109,32 +114,10 @@ class ContractGeneratorService
 
     /**
      * Dados vindos dos campos de formulário (contratante/contratado/imovel)
-     * + o texto livre do TipTap (content_html) já convertido pra texto puro,
-     * já que TemplateProcessor::setValue só substitui texto simples.
+     * (os campos de texto rico do TipTap são tratados em renderDocx via HtmlToWord).
      */
     private function contentForTemplate(array $data, bool $isPj, array $tipo): array
     {
-        $imovel = $data['imovel'];
-
-        foreach (['outros_dados', 'condicoes_pagamento'] as $htmlField) {
-            if (!empty($imovel[$htmlField])) {
-                $imovel[$htmlField] = $this->htmlToPlainText($imovel[$htmlField]);
-            }
-        }
-
-        if (($data['contract_type'] ?? null) === 'doacao') {
-            return [
-                'doador' => $data['contratante'],
-                'donatario' => $data['donatario'],
-                'imovel' => array_merge($imovel, [
-                    'valor_atribuido' => $imovel['valor_atribuido'] ?? '',
-                    'onus' => $imovel['onus'] ?? '',
-                ]),
-                'clausulas' => !empty($data['clausulas']) ? $this->htmlToPlainText($data['clausulas']) : '',
-                'assinatura_segunda_parte' => $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE',
-            ];
-        }
-
         return [
             // Título do contrato: o .docx pode usar ${contrato.titulo},
             // ${contrato.subtitulo} e ${contrato.base_legal}.
@@ -145,26 +128,10 @@ class ContractGeneratorService
             ],
             'contratante' => $data['contratante'],
             'contratado'  => $data['contratado'],
-            'imovel'      => $imovel,
-            'clausulas'   => !empty($data['clausulas']) ? $this->htmlToPlainText($data['clausulas']) : '',
+            'imovel'      => $data['imovel'],
             // Rótulo da segunda assinatura: cônjuge (PF) ou representante legal (PJ).
             'assinatura_segunda_parte' => $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE',
         ];
-    }
-
-    private function deletePartyRows(TemplateProcessor $processor, string $party, bool $isPj): void
-    {
-        $fieldsToDelete = $isPj ? self::CAMPOS_PF : self::CAMPOS_PJ;
-
-        foreach ($fieldsToDelete as $field) {
-            $processor->deleteRow("{$party}.{$field}");
-        }
-    }
-
-    private function htmlToPlainText(string $html): string
-    {
-        $withBreaks = preg_replace('/<\/p>|<br\s*\/?>/i', "\n", $html);
-        return trim(html_entity_decode(strip_tags($withBreaks), ENT_QUOTES, 'UTF-8'));
     }
 
     private function flatten(array $data, string $prefix = ''): array
