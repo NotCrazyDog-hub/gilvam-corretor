@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Domains\\Profile\\Http\\Requests;
+namespace App\Domains\Profile\Http\Requests;
 
-use App\\Models\\User;
-use Illuminate\\Contracts\\Validation\\ValidationRule;
-use Illuminate\\Foundation\\Http\\FormRequest;
-use Illuminate\\Validation\\Rule;
+use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
