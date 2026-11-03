@@ -37,6 +37,7 @@ class ImageStorage
     public function delete(string $path, ?string $disk = null): void
     {
         if (($disk ?? 'public') !== 'supabase') {
+            Storage::disk($disk ?? 'public')->delete($path);
             return;
         }
 
