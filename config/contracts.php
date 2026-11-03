@@ -41,6 +41,7 @@ $corretagemVenda = [
     'base_legal'     => '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)',
     'form_supported' => true,
     'template'       => 'contrato-de-corretagem.docx',
+    'form_view'      => 'contracts.forms.corretagem-venda.form',
 ];
 
 // Só o que muda: subtítulo e arquivo com as cláusulas padrão.
