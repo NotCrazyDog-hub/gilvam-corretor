@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -86,5 +88,28 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'Usuário atualizado com sucesso.');
+    }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        // O admin não pode apagar a si mesmo (evita ficar sem ninguém no painel)
+        if ($user->is($request->user())) {
+            return back()->with('error', 'Você não pode excluir a sua própria conta.');
+        }
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        // Derruba as sessões abertas do usuário (só se as sessões estiverem no banco)
+        if (config('session.driver') === 'database') {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+        }
+
+        $user->delete();
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'Usuário excluído com sucesso.');
     }
 }

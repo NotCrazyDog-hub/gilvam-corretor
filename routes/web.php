@@ -78,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
 // É aqui que fica o cadastro de usuários (não existe mais cadastro público).
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('usuarios', UserController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update'])
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->parameters(['usuarios' => 'user'])
         ->names('users');
 });
