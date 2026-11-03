@@ -78,7 +78,8 @@ class ImageStorage
 
     private function request(): PendingRequest
     {
-        $key = (string) config('services.supabase.secret_key');
+        $key = trim((string) config('services.supabase.secret_key'));
+        $key = preg_replace('/^Bearer\\s+/i', '', $key) ?? $key;
 
         if ($key === '') {
             throw new RuntimeException('Configure SUPABASE_SECRET_KEY para usar imagens do Supabase Storage.');
