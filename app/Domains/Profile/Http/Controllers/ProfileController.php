@@ -1,15 +1,15 @@
 <?php
 
-namespace App\\Domains\\Profile\\Http\\Controllers;
+namespace App\Domains\Profile\Http\Controllers;
 
-use App\\Domains\\Profile\\Http\\Requests\\ProfileUpdateRequest;
-use App\\Domains\\Shared\\Services\\ImageStorage;
-use App\\Http\\Controllers\\Controller;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\Auth;
-use Illuminate\\Support\\Facades\\Redirect;
-use Illuminate\\View\\View;
+use App\Domains\Profile\Http\Requests\ProfileUpdateRequest;
+use App\Domains\Shared\Services\ImageStorage;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
