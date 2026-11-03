@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domains\Profile\Http\Requests;
+namespace App\\Domains\\Profile\\Http\\Requests;
 
-use App\Models\User;
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use App\\Models\\User;
+use Illuminate\\Contracts\\Validation\\ValidationRule;
+use Illuminate\\Foundation\\Http\\FormRequest;
+use Illuminate\\Validation\\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -25,9 +25,9 @@ class ProfileUpdateRequest extends FormRequest
                 'email',
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
-                'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-                'remove_avatar' => ['nullable', 'boolean'],
             ],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_avatar' => ['nullable', 'boolean'],
         ];
     }
 }
