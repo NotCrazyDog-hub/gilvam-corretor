@@ -2,15 +2,20 @@
 
 return [
 
+    'supabase' => [
+        'url' => env('SUPABASE_URL'),
+        'secret_key' => env('SUPABASE_SECRET_KEY') ?: env('SUPABASE_SERVICE_ROLE_KEY'),
+        'storage_bucket' => env('SUPABASE_STORAGE_BUCKET', 'images'),
+    ],
+
     /*
-    |--------------------------------------------------------------------------
+    |---------------------------------------------------------------------------
     | Third Party Services
-    |--------------------------------------------------------------------------
+    |---------------------------------------------------------------------------
     |
     | This file is for storing the credentials for third party services such
     | as Resend, Postmark, AWS, and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
+    | location for these credentials.
     |
     */
 
