@@ -1,12 +1,12 @@
 <?php
 
-namespace App\\Domains\\Shared\\Services;
+namespace App\Domains\Shared\Services;
 
-use Illuminate\\Http\\Client\\PendingRequest;
-use Illuminate\\Http\\UploadedFile;
-use Illuminate\\Support\\Facades\\Cache;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Support\\Str;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class ImageStorage
