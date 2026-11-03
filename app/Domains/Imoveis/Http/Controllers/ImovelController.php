@@ -4,15 +4,19 @@ namespace App\Domains\Imoveis\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Domains\Clients\Models\Client;
+use App\Domains\Shared\Services\ImageStorage;
 use App\Domains\Imoveis\Models\Imovel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ImovelController extends Controller
 {
+    public function __construct(private ImageStorage $imageStorage)
+    {
+    }
+
     public function index(Request $request): View
     {
         $imoveis = Imovel::query()
@@ -92,7 +96,9 @@ class ImovelController extends Controller
 
     public function destroy(Imovel $imovel): RedirectResponse
     {
-        Storage::disk('public')->deleteDirectory("imoveis/{$imovel->id}");
+        $imovel->imagens->each(function ($imagem): void {
+            $this->imageStorage->delete($imagem->caminho, $imagem->disk);
+        });
 
         $imovel->delete();
 
@@ -141,10 +147,11 @@ class ImovelController extends Controller
         $ordem = (int) $imovel->imagens()->max('ordem');
 
         foreach ($request->file('imagens') as $arquivo) {
-            $caminho = $arquivo->store("imoveis/{$imovel->id}", 'public');
+            $imagem = $this->imageStorage->store($arquivo, "imoveis/{$imovel->id}");
 
             $imovel->imagens()->create([
-                'caminho' => $caminho,
+                'caminho' => $imagem['path'],
+                'disk' => $imagem['disk'],
                 'principal' => !$temPrincipal,
                 'ordem' => ++$ordem,
             ]);
@@ -165,8 +172,8 @@ class ImovelController extends Controller
             return;
         }
 
-        $imovel->imagens()->whereIn('id', $ids)->get()->each(function ($imagem) {
-            Storage::disk('public')->delete($imagem->caminho);
+        $imovel->imagens()->whereIn('id', $ids)->get()->each(function ($imagem): void {
+            $this->imageStorage->delete($imagem->caminho, $imagem->disk);
             $imagem->delete();
         });
 
