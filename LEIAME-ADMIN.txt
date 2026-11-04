@@ -1,0 +1,17 @@
+CADASTRO SÓ PARA O ADMIN (CHEFE)
+
+1) Copie estas pastas/arquivos para dentro do seu projeto, aceitando substituir.
+
+2) APAGUE estes dois arquivos (cadastro público antigo):
+   app/Domains/Profile/Http/Controllers/Auth/RegisteredUserController.php
+   resources/views/auth/register.blade.php
+
+3) Rode:
+   php artisan migrate
+   php artisan admin:criar email-do-chefe@exemplo.com
+   (se o e-mail já existe, ele vira admin; se não existe, pede nome e senha)
+
+4) Teste:
+   php artisan test
+   Entre como chefe -> menu "Usuários" -> "Novo usuário"
+   URL: /admin/usuarios/novo

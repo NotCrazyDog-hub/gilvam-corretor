@@ -23,6 +23,11 @@
                     <x-nav-link :href="route('contracts.index')" :active="request()->routeIs('contracts.*')">
                         {{ __('Geração de Contratos') }}
                     </x-nav-link>
+                    @if (Auth::user()->isAdmin())
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
+                            {{ __('Usuários') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -127,6 +132,11 @@
             <x-responsive-nav-link :href="route('contracts.index')" :active="request()->routeIs('contracts.*')">
                 {{ __('Geração de Contratos') }}
             </x-responsive-nav-link>
+            @if (Auth::user()->isAdmin())
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
+                    {{ __('Usuários') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Perfil (link direto) -->
