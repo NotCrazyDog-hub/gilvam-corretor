@@ -1,6 +1,6 @@
                 {{-- I. CONTRATANTE — segue a ordem/pareamento de linhas do template .docx --}}
                 <div>
-                    <p class="font-bold text-sm uppercase mb-1">I. Contratante:</p>
+                    <p class="font-bold text-sm uppercase mb-1">{{ $tipoContratoKey === 'doacao' ? 'I. Doador:' : 'I. Contratante:' }}</p>
 
                     <div class="border border-black text-sm">
                         <div data-person-fields="pj" class="divide-y divide-black" @if (!$isPj) hidden @endif>
