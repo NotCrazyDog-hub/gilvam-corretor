@@ -55,6 +55,9 @@ $especificos = [
         'clausulas_padrao' => 'corretagem-venda-sem-exclusividade.html',
     ],
 ];
+$especificos['doacao'] = [
+    'form_view' => 'contracts.forms.corretagem-venda.form',
+];
 
 $contractTypes = [];
 foreach ($types as $key => $title) {
