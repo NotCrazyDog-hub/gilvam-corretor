@@ -1,8 +1,12 @@
                 {{-- CLÁUSULAS + ASSINATURAS (caixa única, sem os rótulos IV/V) --}}
                 <div class="border border-black text-sm p-4 space-y-6">
                     <p>
+                        @if ($tipoContratoKey === 'doacao')
+                            Pelo presente instrumento, DOADOR e DONATÁRIO têm justo e contratado a presente doação, que será regida pelas cláusulas e condições a seguir:
+                        @else
                         Pelo presente instrumento particular, CONTRATANTE e CONTRATADO, têm justo e contratado,
                         a presente contratação, que será regida pelas cláusulas e condições a seguir:
+                        @endif
                     </p>
 
                     <div class="field-wrapper">
@@ -26,13 +30,13 @@
 
                     <div class="max-w-md mx-auto space-y-10 text-center pt-6">
                         <div class="border-t border-black pt-1">
-                            <p class="font-bold">CONTRATANTE</p>
+                            <p class="font-bold">{{ $tipoContratoKey === 'doacao' ? 'DOADOR' : 'CONTRATANTE' }}</p>
                         </div>
                         <div class="border-t border-black pt-1">
                             <p class="font-bold" data-assinatura-segundo>{{ $isPj ? 'REPRESENTANTE LEGAL' : 'CÔNJUGE' }}</p>
                         </div>
                         <div class="border-t border-black pt-1">
-                            <p class="font-bold">CONTRATADO</p>
+                            <p class="font-bold">{{ $tipoContratoKey === 'doacao' ? 'DONATÁRIO' : 'CONTRATADO' }}</p>
                         </div>
                     </div>
 
