@@ -78,13 +78,6 @@
                         Entrar
                     </button>
 
-                    @if (Route::has('register'))
-                        <p class="text-center text-sm text-gray-600 mt-6">
-                            Não tem uma conta?
-                            <a href="{{ route('register') }}" class="text-green-600 hover:underline font-bold">Cadastre-se</a>
-                        </p>
-                    @endif
-
                 </form>
 
             </div>
