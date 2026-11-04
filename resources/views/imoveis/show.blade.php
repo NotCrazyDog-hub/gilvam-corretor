@@ -182,16 +182,6 @@
                     </ul>
                 @endif
             </div>
-
-            <div class="flex justify-end">
-                <form action="{{ route('imoveis.destroy', $imovel) }}" method="POST"
-                      onsubmit="return confirm('Tem certeza que deseja remover este imóvel? Essa ação não pode ser desfeita.');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="text-sm text-red-600 hover:underline">Excluir imóvel</button>
-                </form>
-            </div>
-
         </div>
     </div>
 </x-app-layout>
