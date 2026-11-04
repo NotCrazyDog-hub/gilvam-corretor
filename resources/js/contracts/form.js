@@ -4,6 +4,24 @@ import { mountImovelSearch } from './property-search.js';
 import { limparErrosDeCampo, exibirErrosDeCampo } from './validation.js';
 import { mountCurrencyMask, mountCnpjMask, mountCpfMask, mountCpfCnpjMask, mountPhoneMask } from './masks.js';
 
+function mountDonatarioTypeSelector() {
+    const select = document.querySelector('#donatario-tipo');
+    if (!select) return;
+
+    const atualizarCampos = () => {
+        document.querySelectorAll('[data-donatario-fields]').forEach((bloco) => {
+            const ativo = bloco.dataset.donatarioFields === select.value;
+            bloco.hidden = !ativo;
+            bloco.querySelectorAll('input, select, textarea').forEach((campo) => {
+                campo.disabled = !ativo;
+            });
+        });
+    };
+
+    select.addEventListener('change', atualizarCampos);
+    atualizarCampos();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const config = window.contractFormConfig || {};
 
@@ -29,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     mountCurrencyMask('#input-preco-venda');
+    mountCurrencyMask('#input-valor-atribuido');
 
     // Campos de PF/PJ existem na mesma página; o documento selecionado define qual bloco usar.
     mountCpfMask('[name="contratante[cpf]"]');
@@ -40,6 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Contratado: pode ser PF ou PJ, então usa a máscara combinada.
     mountCpfCnpjMask('[name="contratado[cpf_cnpj]"]');
     mountPhoneMask('[name="contratado[telefones]"]');
+    mountCpfMask('[name="donatario[cpf]"]');
+    mountCnpjMask('[name="donatario[cnpj]"]');
+    mountCpfMask('[name="donatario[representante_legal_cpf]"]');
+    mountPhoneMask('[name="donatario[telefones]"]');
+    mountDonatarioTypeSelector();
 
     const form = document.getElementById('contract-form');
     if (!form) return;
