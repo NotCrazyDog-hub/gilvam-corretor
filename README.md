@@ -1,58 +1,147 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<p align="center" style="margin-bottom: 56px;">
+    <img width="400" alt="Votus Logo" src="./public/images/logo.png" />
 </p>
 
-## About Laravel
+# Gilvam Vieira - Corretor de Imóveis
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Sobre o projeto
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+O **Gilvam Vieira** é uma aplicação web para apoiar a gestão imobiliária. O sistema reúne cadastros de clientes e imóveis e permite criar, editar e consultar contratos, incluindo suas versões e documentos para download.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Também oferece autenticação, recuperação de senha e gerenciamento de perfil.
 
-## Learning Laravel
+## Funcionalidades
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Clientes:** cadastro e gerenciamento de clientes.
+- **Imóveis:** cadastro e gerenciamento de imóveis, com busca de clientes.
+- **Contratos:** criação para pessoas físicas e jurídicas, edição, consulta de versões e download de documentos.
+- **Conta:** login, recuperação de senha e gerenciamento de perfil.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tecnologias
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- PHP 8.3 ou superior
+- Laravel 13
+- PostgreSQL hospedado no Supabase
+- Supabase Storage para imagens
+- Vite, Tailwind CSS e Alpine.js
+- Tiptap para edição de conteúdo
+- PHPWord para documentos
 
-## Agentic Development
+As versões das dependências estão registradas em `composer.lock` e `package-lock.json`.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Requisitos
+
+- PHP 8.3 ou superior
+- Composer
+- Node.js e npm
+- Git
+- Projeto configurado no Supabase
+
+## Instalação
+
+Clone o repositório e acesse a pasta:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/NotCrazyDog-hub/gilvam-corretor.git
+cd gilvam-corretor
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Instale as dependências:
 
-## Contributing
+```bash
+composer install
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Configuração do `.env`
 
-## Code of Conduct
+Crie o arquivo `.env` copiando o modelo:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+cp .env.example .env
+```
 
-## Security Vulnerabilities
+Abra o `.env` e preencha as configurações da aplicação e do Supabase. Use os dados de conexão PostgreSQL e as credenciais exibidas no painel do seu projeto Supabase:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```dotenv
+APP_NAME=Gilvam
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+APP_LOCALE=pt_BR
 
-## License
+DB_CONNECTION=pgsql
+DB_HOST=<host-do-supabase>
+DB_PORT=<porta-do-supabase>
+DB_DATABASE=postgres
+DB_USERNAME=<usuario-do-supabase>
+DB_PASSWORD=<senha-do-banco>
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+IMAGE_STORAGE_DISK=supabase
+SUPABASE_URL=https://<id-do-projeto>.supabase.co
+SUPABASE_SECRET_KEY=<chave-secreta-do-projeto>
+SUPABASE_STORAGE_BUCKET=<nome-do-bucket>
+
+MAIL_MAILER=log
+```
+
+Substitua os valores entre `< >` pelos dados reais do projeto. Para encontrar os dados do banco, abra **Connect** no painel do Supabase. Para as imagens, crie um bucket privado no Supabase Storage e informe seu nome em `SUPABASE_STORAGE_BUCKET`.
+
+Não use a porta `3306`, que é padrão do MySQL. Use a porta indicada pelo Supabase para o método de conexão escolhido.
+
+Não compartilhe o `.env` nem envie esse arquivo ao repositório. A chave secreta do Supabase deve permanecer no servidor.
+
+### Gerar a chave da aplicação
+
+Depois de salvar o `.env`, gere a chave do Laravel:
+
+```bash
+php artisan key:generate
+```
+
+Esse comando preencherá `APP_KEY` no arquivo `.env`.
+
+### Criar as tabelas
+
+Com o `.env` preenchido e `APP_KEY` gerada, execute as migrations no banco PostgreSQL do Supabase:
+
+```bash
+php artisan migrate
+```
+
+## Desenvolvimento local
+
+Inicie os processos de desenvolvimento configurados pelo projeto:
+
+```bash
+composer run dev
+```
+
+A aplicação fica disponível, por padrão, em:
+
+```text
+http://localhost:8000
+```
+
+Também é possível iniciar o Laravel e o Vite em terminais separados:
+
+```bash
+php artisan serve
+```
+
+```bash
+npm run dev
+```
+
+Para gerar os arquivos finais do frontend:
+
+```bash
+npm run build
+```
+
+---
+
+<p align="center">
+    Equipe de Desenvolvimento do Gilvam Vieira
+</p>
