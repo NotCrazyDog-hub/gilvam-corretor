@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Domains\Shared\Services\ImageStorage;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Storage;
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
+    public const ROLE_USER = 'user';
+    public const ROLE_ADMIN = 'admin';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -31,8 +35,21 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
     public function getAvatarUrlAttribute(): ?string
     {
-        return $this->avatar ? Storage::disk('public')->url($this->avatar) : null;
+        if (! $this->avatar) {
+            return null;
+        }
+
+        if ($this->avatar_disk === 'supabase') {
+            return app(ImageStorage::class)->url($this->avatar);
+        }
+
+        return Storage::disk('public')->url($this->avatar);
     }
 }

@@ -41,6 +41,7 @@ $corretagemVenda = [
     'base_legal'     => '(ARTS. 481 A 532 DO NOVO CÓDIGO CIVIL – LEI Nº 10.406/2002)',
     'form_supported' => true,
     'template'       => 'contrato-de-corretagem.docx',
+    'form_view'      => 'contracts.forms.corretagem-venda.form',
 ];
 
 // Só o que muda: subtítulo e arquivo com as cláusulas padrão.
@@ -55,21 +56,40 @@ $especificos = [
     ],
 ];
 
+
 $contractTypes = [];
 foreach ($types as $key => $title) {
-    $contractTypes[$key] = ($especificos[$key] ?? []) + [
+    $contractTypes[$key] = [
         // Nome exibido no dropdown e na listagem de contratos.
-        'nome'             => $title,
+        'nome' => $title,
         // Título usado no contrato gerado.
-        'titulo'           => $title,
-        'subtitulo'        => null,
-        'base_legal'       => null,
+        'titulo' => match ($key) {
+            'corretagem_venda_exclusividade' => 'Contrato de Corretagem de Venda de Imóveis',
+            'locacao' => 'Contrato de Locação de Imóvel',
+            default => $title,
+        },
+        'subtitulo' => match ($key) {
+            'corretagem_venda_exclusividade' => 'Com Cláusula de Exclusividade',
+            default => null,
+        },
+        'base_legal' => match ($key) {
+            'corretagem_venda_exclusividade' => '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)',
+            'locacao' => '(Lei nº 8.245/91)',
+            default => null,
+        },
         // Os outros formulários precisam ser implementados antes de gerar.
-        'form_supported'   => false,
+        'form_supported' => in_array($key, ['corretagem_venda_exclusividade', 'doacao', 'locacao'], true),
+        'form_view' => match ($key) {
+            'doacao' => 'contracts.forms.doacao.form',
+            default => 'contracts.forms.corretagem-venda.form',
+        },
         // O arquivo pode ser adicionado depois em storage/app/public/templates.
-        'template'         => $key . '.docx',
-        // Arquivo em resources/contracts/clausulas com o texto inicial do editor.
-        'clausulas_padrao' => null,
+        'template' => match ($key) {
+            'corretagem_venda_exclusividade' => 'contrato-de-corretagem.docx',
+            'doacao' => 'contrato-de-doacao.docx',
+            'locacao' => 'contrato-de-locacao.docx',
+            default => $key . '.docx',
+        },
     ];
 }
 

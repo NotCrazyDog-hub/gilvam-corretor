@@ -17,7 +17,7 @@ abstract class BaseContractRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'client_type'   => 'required|string|in:pf,pj',
             'client_id'     => 'required|integer',
             'contract_type' => ['nullable', \Illuminate\Validation\Rule::in(\App\Domains\Contracts\Services\ContractTypes::keys())],
@@ -43,12 +43,12 @@ abstract class BaseContractRequest extends FormRequest
             'contratante.representante_legal_cargo'   => 'required_if:client_type,pj|string|max:100',
             'contratante.representante_legal_cpf'     => 'required_if:client_type,pj|string|max:20',
 
-            'contratado'          => 'required|array',
-            'contratado.nome'     => 'required|string|max:255',
-            'contratado.cpf_cnpj' => 'required|string|max:20',
-            'contratado.endereco'  => 'required|string|max:255',
+            'contratado'          => 'required_unless:contract_type,doacao|array',
+            'contratado.nome'     => 'required_unless:contract_type,doacao|string|max:255',
+            'contratado.cpf_cnpj' => 'required_unless:contract_type,doacao|string|max:20',
+            'contratado.endereco'  => 'required_unless:contract_type,doacao|string|max:255',
             'contratado.telefones' => 'nullable|string|max:100',
-            'contratado.creci'     => 'required|string|max:50',
+            'contratado.creci'     => 'required_unless:contract_type,doacao|string|max:50',
 
             'imovel'                          => 'required|array',
             'imovel.tipo'                      => 'required|string|max:255',
@@ -56,9 +56,30 @@ abstract class BaseContractRequest extends FormRequest
             'imovel.documento_propriedade'     => 'required|string|max:255',
             'imovel.matricula'                 => 'required|string|max:255',
             'imovel.inscricao_prefeitura'      => 'nullable|string|max:255',
-            'imovel.preco_venda'               => 'required|string|max:100',
+            'imovel.preco_venda'               => 'required_unless:contract_type,doacao|string|max:100',
             'imovel.outros_dados'              => 'nullable|string',
             'imovel.condicoes_pagamento'       => 'nullable|string',
+            'imovel.valor_atribuido'           => 'required_if:contract_type,doacao|string|max:100',
+            'imovel.onus'                      => 'nullable|string|max:2000',
+
+            'donatario' => 'required_if:contract_type,doacao|array',
+            'donatario.tipo' => 'required_if:contract_type,doacao|in:pf,pj',
+            'donatario.nome' => 'required_if:donatario.tipo,pf|string|max:255',
+            'donatario.estado_civil' => 'required_if:donatario.tipo,pf|string|max:100',
+            'donatario.profissao' => 'required_if:donatario.tipo,pf|string|max:255',
+            'donatario.cpf' => 'required_if:donatario.tipo,pf|string|max:20',
+            'donatario.identidade' => 'required_if:donatario.tipo,pf|string|max:50',
+            'donatario.conjuge_nome' => 'nullable|string|max:255',
+            'donatario.conjuge_identidade' => 'nullable|string|max:50',
+            'donatario.razao_social' => 'required_if:donatario.tipo,pj|string|max:255',
+            'donatario.nome_fantasia' => 'nullable|string|max:255',
+            'donatario.inscricao_estadual' => 'nullable|string|max:100',
+            'donatario.cnpj' => 'required_if:donatario.tipo,pj|string|max:20',
+            'donatario.representante_legal_nome' => 'required_if:donatario.tipo,pj|string|max:255',
+            'donatario.representante_legal_cargo' => 'required_if:donatario.tipo,pj|string|max:100',
+            'donatario.representante_legal_cpf' => 'required_if:donatario.tipo,pj|string|max:20',
+            'donatario.endereco' => 'required_if:contract_type,doacao|string|max:255',
+            'donatario.telefones' => 'nullable|string|max:100',
 
             'content_json' => 'nullable|array',
             'content_html' => 'nullable|string',
@@ -74,6 +95,8 @@ abstract class BaseContractRequest extends FormRequest
             }],
             'prazo_indeterminado'  => 'nullable|boolean',
         ];
+
+        return $rules;
     }
 
     public function messages(): array

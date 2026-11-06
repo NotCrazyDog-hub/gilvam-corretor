@@ -31,6 +31,16 @@ class ContractGeneratorService
         'contratante.representante_legal_cargo',
     ];
 
+    private const CAMPOS_PF = [
+        'nome', 'estado_civil', 'profissao', 'cpf', 'identidade',
+        'conjuge_nome', 'conjuge_identidade',
+    ];
+
+    private const CAMPOS_PJ = [
+        'razao_social', 'nome_fantasia', 'inscricao_estadual', 'cnpj',
+        'representante_legal_nome', 'representante_legal_cargo', 'representante_legal_cpf',
+    ];
+
     public function __construct(private ContractVersionService $versioner) {}
 
     /**

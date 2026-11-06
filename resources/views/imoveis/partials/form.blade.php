@@ -116,7 +116,7 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             @foreach ($imovel->imagens as $img)
                 <label class="block border border-gray-200 rounded-lg p-2 text-xs text-gray-600">
-                    <img src="{{ asset('storage/' . $img->caminho) }}" alt="Foto do imóvel"
+                    <img src="{{ $img->url }}" alt="Foto do imóvel"
                          class="w-full h-28 object-cover rounded mb-2">
                     <span class="inline-flex items-center gap-2">
                         <input type="checkbox" name="remover_imagens[]" value="{{ $img->id }}"

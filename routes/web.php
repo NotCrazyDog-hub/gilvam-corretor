@@ -1,5 +1,6 @@
 <?php
 
+use App\Domains\Admin\Http\Controllers\UserController;
 use App\Domains\Contracts\Http\Controllers\ContractController;
 use App\Domains\Clients\Http\Controllers\ClientController;
 use App\Domains\Imoveis\Http\Controllers\ImovelController;
@@ -71,6 +72,15 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/imoveis/busca', [ContractController::class, 'searchImoveis'])->name('imoveis.search');
     });
+});
+
+// Área do administrador: só quem tem role = admin entra.
+// É aqui que fica o cadastro de usuários (não existe mais cadastro público).
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('usuarios', UserController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->parameters(['usuarios' => 'user'])
+        ->names('users');
 });
 
 require __DIR__.'/auth.php';
