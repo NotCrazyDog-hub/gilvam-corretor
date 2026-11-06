@@ -32,12 +32,6 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ $imovel->tipo_label }} — {{ $imovel->bairro }}
             </h2>
-            <div class="flex gap-2">
-                <a href="{{ route('imoveis.edit', $imovel) }}"
-                   class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
-                    Editar
-                </a>
-            </div>
         </div>
     </x-slot>
 
@@ -181,6 +175,12 @@
                         @endforeach
                     </ul>
                 @endif
+            </div>
+            <div class="flex gap-2, flex justify-end">
+                <a href="{{ route('imoveis.edit', $imovel) }}"
+                   class="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-600 transition">
+                    Editar
+                </a>
             </div>
         </div>
     </div>
