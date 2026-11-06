@@ -34,17 +34,17 @@
                     <div class="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
                         <a href="{{ route('contracts.index', array_filter(['q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo ? 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' : 'bg-white text-green-600 shadow-sm' }}">
+                                  {{ $filtroAtivo ? 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' : 'bg-white text-blue-600 shadow-sm' }}">
                             Todos
                         </a>
                         <a href="{{ route('contracts.index', array_filter(['client_type' => 'pf', 'q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pf' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
                             Pessoa física
                         </a>
                         <a href="{{ route('contracts.index', array_filter(['client_type' => 'pj', 'q' => $busca])) }}"
                            class="px-4 py-2 text-sm font-medium rounded-md transition
-                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
+                                  {{ $filtroAtivo === 'pj' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
                             Pessoa jurídica
                         </a>
                     </div>
@@ -71,7 +71,7 @@
                          class="relative py-1">
                             <button @click="open = !open"
                                     aria-haspopup="true" :aria-expanded="open"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
+                                    class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
                                 <svg class="w-4 h-4 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                 </svg>
@@ -169,7 +169,7 @@
                                             {{-- Editar (papel com lápis) --}}
                                             <a href="{{ route('contracts.edit', $group) }}?from=index"
                                             title="Editar" aria-label="Editar"
-                                            class="p-1.5 rounded-lg text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-gray-700 transition">
+                                            class="p-1.5 rounded-lg text-gray-600 hover:bg-gray-200 hover:text-gray-700 transition">
                                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                                 </svg>
@@ -178,7 +178,7 @@
                                             {{-- Histórico (folha com relógio) --}}
                                             <a href="{{ route('contracts.versions', $group) }}"
                                             title="Histórico" aria-label="Histórico"
-                                            class="p-1.5 rounded-lg text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700 transition">
+                                            class="p-1.5 rounded-lg text-green-600 hover:bg-green-100 hover:text-green-700 transition">
                                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 3H7a2 2 0 00-2 2v14a2 2 0 002 2h3M13 3l5 5v2M13 3v5h5" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 13a4 4 0 100 8 4 4 0 000-8zM17 15v2l1.5 1" />

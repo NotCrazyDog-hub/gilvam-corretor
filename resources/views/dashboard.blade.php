@@ -8,7 +8,7 @@
             {{-- Ações Rápidas --}}
             <div x-data="{ open: false }" @click.outside="open = false" class="relative">
                 <button @click="open = !open"
-                        class="bg-blue-600 text-white shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium hover:bg-blue-700 transition">
+                        class="bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm rounded-lg px-4 py-2 flex items-center gap-2 text-sm font-medium transition">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
