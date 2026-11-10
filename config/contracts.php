@@ -56,33 +56,41 @@ $especificos = [
     ],
 ];
 
-
 $contractTypes = [];
+
 foreach ($types as $key => $title) {
     $contractTypes[$key] = [
         // Nome exibido no dropdown e na listagem de contratos.
         'nome' => $title,
+
         // Título usado no contrato gerado.
         'titulo' => match ($key) {
             'corretagem_venda_exclusividade' => 'Contrato de Corretagem de Venda de Imóveis',
             'locacao' => 'Contrato de Locação de Imóvel',
+            'doacao' => 'Contrato de Doação de Imóvel',
             default => $title,
         },
+
         'subtitulo' => match ($key) {
             'corretagem_venda_exclusividade' => 'Com Cláusula de Exclusividade',
             default => null,
         },
+
         'base_legal' => match ($key) {
             'corretagem_venda_exclusividade' => '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)',
             'locacao' => '(Lei nº 8.245/91)',
+            'doacao' => '(Arts. 538 a 564 do Novo Código Civil)',
             default => null,
         },
+
         // Os outros formulários precisam ser implementados antes de gerar.
         'form_supported' => in_array($key, ['corretagem_venda_exclusividade', 'doacao', 'locacao'], true),
+
         'form_view' => match ($key) {
             'doacao' => 'contracts.forms.doacao.form',
             default => 'contracts.forms.corretagem-venda.form',
         },
+
         // O arquivo pode ser adicionado depois em storage/app/public/templates.
         'template' => match ($key) {
             'corretagem_venda_exclusividade' => 'contrato-de-corretagem.docx',
