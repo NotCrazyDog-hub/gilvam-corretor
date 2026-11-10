@@ -61,7 +61,7 @@
                                         @if ($user->isAdmin())
                                             <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-700">Administrador</span>
                                         @else
-                                            <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-gray-100 text-gray-600">Usuário</span>
+                                            <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-gray-200 text-gray-600">Usuário</span>
                                         @endif
                                     </td>
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
