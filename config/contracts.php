@@ -1,5 +1,6 @@
 <?php
 
+// Tipos disponíveis (chave => nome exibido no dropdown e na listagem).
 $types = [
     'compra_venda' => 'Contrato de compra e venda',
     'locacao' => 'Contrato de locação (aluguel)',
@@ -35,70 +36,68 @@ $types = [
     'rescisao_distrato' => 'Rescisão/distrato',
 ];
 
-// Tudo que as duas corretagens têm em comum (mesmo .docx, mesmo formulário).
+// Valores padrão: valem para qualquer tipo que não os sobrescreva.
+// Tipos sem formulário implementado ficam com form_supported = false.
+$defaults = [
+    'subtitulo'        => null,
+    'base_legal'       => null,
+    'form_supported'   => false,
+    'form_view'        => null,
+    'clausulas_padrao' => null,
+    // O arquivo pode ser adicionado depois em storage/app/public/templates.
+    'template'         => null, // null = "{chave}.docx" (resolvido no loop abaixo)
+];
+
+// Base compartilhada pelas duas corretagens (mesmo .docx, mesmo formulário).
 $corretagemVenda = [
-    'titulo'         => 'CONTRATO DE CORRRETAGEM DE VENDA DE IMÓVEIS',
-    'base_legal'     => '(ARTS. 481 A 532 DO NOVO CÓDIGO CIVIL – LEI Nº 10.406/2002)',
+    'titulo'         => 'CONTRATO DE CORRETAGEM DE VENDA DE IMÓVEIS',
+    'base_legal'     => '(ARTS. 722 A 729 DO NOVO CÓDIGO CIVIL)',
     'form_supported' => true,
     'template'       => 'contrato-de-corretagem.docx',
     'form_view'      => 'contracts.forms.corretagem-venda.form',
 ];
 
-// Só o que muda: subtítulo e arquivo com as cláusulas padrão.
+// Apenas o que difere do padrão em cada tipo.
 $especificos = [
     'corretagem_venda_exclusividade' => $corretagemVenda + [
-        'subtitulo'       => 'COM CLÁUSULA DE EXCLUSIVIDADES',
+        'subtitulo'        => 'COM CLÁUSULA DE EXCLUSIVIDADE',
+        'base_legal'       => '(ARTS. 722 A 729 DO NOVO CÓDIGO CIVIL C/C ART. 20, III DA LEI Nº 6.530/78)',
         'clausulas_padrao' => 'corretagem-venda-exclusividade.html',
     ],
+
     'corretagem_venda_sem_exclusividade' => $corretagemVenda + [
-        'subtitulo'       => 'SEM CLÁUSULA DE EXCLUSIVIDADES',
+        'subtitulo'        => 'SEM CLÁUSULA DE EXCLUSIVIDADE',
         'clausulas_padrao' => 'corretagem-venda-sem-exclusividade.html',
+    ],
+
+    'locacao' => [
+        'titulo'         => 'CONTRATO DE LOCAÇÃO DE IMÓVEL',
+        'base_legal'     => '(LEI Nº 8.245/91)',
+        'form_supported' => true,
+        'template'       => 'contrato-de-locacao.docx',
+        'form_view'      => 'contracts.forms.locacao.form',
+    ],
+
+    'doacao' => [
+        'titulo'         => 'CONTRATO DE DOAÇÃO DE IMÓVEL',
+        'base_legal'     => '(ARTS. 538 A 564 DO NOVO CÓDIGO CIVIL)',
+        'form_supported' => true,
+        'template'       => 'contrato-de-doacao.docx',
+        'form_view'      => 'contracts.forms.doacao.form',
     ],
 ];
 
 $contractTypes = [];
 
-foreach ($types as $key => $title) {
-    $contractTypes[$key] = [
-        // Nome exibido no dropdown e na listagem de contratos.
-        'nome' => $title,
+foreach ($types as $key => $nome) {
+    $config = ($especificos[$key] ?? []) + $defaults;
 
-        // Título usado no contrato gerado.
-        'titulo' => match ($key) {
-            'corretagem_venda_exclusividade' => 'Contrato de Corretagem de Venda de Imóveis',
-            'locacao' => 'Contrato de Locação de Imóvel',
-            'doacao' => 'Contrato de Doação de Imóvel',
-            default => $title,
-        },
-
-        'subtitulo' => match ($key) {
-            'corretagem_venda_exclusividade' => 'Com Cláusula de Exclusividade',
-            default => null,
-        },
-
-        'base_legal' => match ($key) {
-            'corretagem_venda_exclusividade' => '(Arts. 722 a 729 do Novo Código Civil c/c Art. 20, III da Lei nº 6.530/78)',
-            'locacao' => '(Lei nº 8.245/91)',
-            'doacao' => '(Arts. 538 a 564 do Novo Código Civil)',
-            default => null,
-        },
-
-        // Os outros formulários precisam ser implementados antes de gerar.
-        'form_supported' => in_array($key, ['corretagem_venda_exclusividade', 'doacao', 'locacao'], true),
-
-        'form_view' => match ($key) {
-            'doacao' => 'contracts.forms.doacao.form',
-            default => 'contracts.forms.corretagem-venda.form',
-        },
-
-        // O arquivo pode ser adicionado depois em storage/app/public/templates.
-        'template' => match ($key) {
-            'corretagem_venda_exclusividade' => 'contrato-de-corretagem.docx',
-            'doacao' => 'contrato-de-doacao.docx',
-            'locacao' => 'contrato-de-locacao.docx',
-            default => $key . '.docx',
-        },
+    $contractTypes[$key] = $config + [
+        'nome'   => $nome,                       // exibido no dropdown e na listagem
+        'titulo' => $nome,                       // título do contrato gerado (se não sobrescrito)
     ];
+
+    $contractTypes[$key]['template'] ??= $key . '.docx';
 }
 
 return [
