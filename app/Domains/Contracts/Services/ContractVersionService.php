@@ -9,14 +9,35 @@ use Illuminate\Support\Str;
 class ContractVersionService
 {
     /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function normalizeLocacao(array $data): array
+    {
+        $data['locador'] = $data['locador'] ?? $data['contratante'] ?? [];
+        $data['locatario'] = $data['locatario'] ?? $data['contratado'] ?? [];
+        $data['contratante'] = $data['locador'];
+        $data['contratado'] = $data['locatario'];
+        $data['content_json'] = array_merge($data['content_json'] ?? [], [
+            'locacao' => $data['locacao'] ?? [],
+        ]);
+        $data['data_termino'] = $data['locacao']['data_termino'] ?? null;
+        $data['prazo_indeterminado'] = empty($data['data_termino']);
+        $data['contract_type'] = 'locacao';
+
+        return $data;
+    }
+
+    /**
      * Cria o "grupo" (identidade estável) de um contrato novo.
      * O slug aqui é só um identificador legível pra URL/arquivo — nunca é
      * usado pra decidir se duas gerações pertencem ao mesmo contrato.
      */
     public function createGroup(array $data): ContractGroup
     {
+        $contratante = $data['locador'] ?? $data['contratante'] ?? [];
         $baseSlug = Str::slug(
-            ($data['contratante']['razao_social'] ?? $data['contratante']['nome'] ?? 'contrato')
+            ($contratante['razao_social'] ?? $contratante['nome'] ?? 'contrato')
             . '-' . now()->format('Y-m-d-His')
         );
 
@@ -49,14 +70,19 @@ class ContractVersionService
         string $filePath,
         ?int $userId,
     ): Contract {
+        $isLocacao = ($data['contract_type'] ?? null) === 'locacao';
+
         return $group->versions()->create([
             'version'              => $version,
-            'content_json'         => $data['content_json'] ?? [],
+            'content_json'         => array_merge(
+                $data['content_json'] ?? [],
+                $isLocacao ? ['locacao' => $data['locacao'] ?? []] : []
+            ),
             'content_html'         => $data['content_html'] ?? null,
             'contratante'          => $data['contratante'],
-            'contratado'           => $data['donatario'] ?? $data['contratado'],
+            'contratado'           => $data['donatario'] ?? ($data['locatario'] ?? $data['contratado']),
             'imovel'               => $data['imovel'],
-            'data_termino'         => $data['data_termino'] ?? null,
+            'data_termino'         => $data['locacao']['data_termino'] ?? $data['data_termino'] ?? null,
             'prazo_indeterminado'  => $data['prazo_indeterminado'] ?? false,
             'file_path'            => $filePath,
             'file_format'          => 'docx',

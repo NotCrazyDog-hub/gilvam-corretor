@@ -44,6 +44,33 @@ class ContractGeneratorService
         'representante_legal_cargo',
     ];
 
+    private const LINHAS_LOCADOR_SO_PF = [
+        'locador.nome', 'locador.estado_civil', 'locador.cpf', 'locador.conjuge_nome', 'locador.conjuge_identidade',
+    ];
+
+    private const LINHAS_LOCADOR_SO_PJ = [
+        'locador.razao_social', 'locador.nome_fantasia', 'locador.cnpj', 'locador.representante_legal_nome', 'locador.representante_legal_cargo',
+    ];
+
+    private const CAMPOS_LOCADOR = [
+        'nome', 'estado_civil', 'profissao', 'cpf', 'identidade', 'conjuge_nome', 'conjuge_identidade',
+        'razao_social', 'nome_fantasia', 'inscricao_estadual', 'cnpj', 'endereco', 'telefones',
+        'representante_legal_nome', 'representante_legal_cargo', 'representante_legal_cpf',
+    ];
+
+    private const CAMPOS_LOCATARIO = [
+        'nome', 'estado_civil', 'profissao', 'cpf_cnpj', 'identidade', 'endereco', 'telefones',
+    ];
+
+    private const CAMPOS_LOCACAO = [
+        'finalidade', 'prazo', 'data_inicio', 'data_termino', 'valor_aluguel',
+        'indice_reajuste', 'dia_vencimento', 'condicoes_pagamento', 'garantia',
+    ];
+
+    private const CAMPOS_IMOVEL_LOCACAO = [
+        'tipo', 'localizacao', 'documento_propriedade', 'matricula', 'inscricao_prefeitura', 'outros_dados',
+    ];
+
     public function __construct(private ContractVersionService $versioner)
     {
     }
@@ -54,6 +81,14 @@ class ContractGeneratorService
     public function generate(?ContractGroup $group, array $data, ?int $userId = null): Contract
     {
         return DB::transaction(function () use ($group, $data, $userId) {
+            $contractType = $group?->contract_type ?? ($data['contract_type'] ?? null);
+            if ($contractType !== null) {
+                $data['contract_type'] = $contractType;
+            }
+            if ($contractType === 'locacao') {
+                $data = $this->versioner->normalizeLocacao($data);
+            }
+
             $group = $group ?? $this->versioner->createGroup($data);
             $this->versioner->lockGroupForVersioning($group);
 
@@ -100,17 +135,23 @@ class ContractGeneratorService
                 $tipoDonatario === 'pj'
             );
         } else {
-            foreach ($isPj ? self::LINHAS_SO_PF : self::LINHAS_SO_PJ as $placeholder) {
+            $linhasSoPessoa = $contractType === 'locacao'
+                ? ($isPj ? self::LINHAS_LOCADOR_SO_PF : self::LINHAS_LOCADOR_SO_PJ)
+                : ($isPj ? self::LINHAS_SO_PF : self::LINHAS_SO_PJ);
+            foreach ($linhasSoPessoa as $placeholder) {
                 $processor->deleteRow($placeholder);
             }
         }
 
         $html = new HtmlToWord();
-
-        foreach (['outros_dados', 'condicoes_pagamento'] as $campo) {
+        $camposHtml = $contractType === 'locacao'
+            ? ['imovel.outros_dados', 'locacao.condicoes_pagamento']
+            : ['imovel.outros_dados', 'imovel.condicoes_pagamento'];
+        foreach ($camposHtml as $campo) {
+            [$grupo, $nomeCampo] = explode('.', $campo, 2);
             $processor->setComplexValue(
-                "imovel.$campo",
-                $html->toTextRun($data['imovel'][$campo] ?? '')
+                $campo,
+                $html->toTextRun($data[$grupo][$nomeCampo] ?? '')
             );
         }
 
@@ -142,6 +183,17 @@ class ContractGeneratorService
         }
     }
 
+    private function formatDate(?string $value): string
+    {
+        if (blank($value)) {
+            return '';
+        }
+
+        return preg_match('/^\d{4}-\d{2}-\d{2}/', $value)
+            ? \Illuminate\Support\Carbon::parse($value)->format('d/m/Y')
+            : $value;
+    }
+
     /**
      * Prepara os dados e os nomes de placeholders usados pelo modelo.
      */
@@ -166,6 +218,24 @@ class ContractGeneratorService
         if ($contractType === 'doacao') {
             $content['doador'] = $data['contratante'] ?? [];
             $content['donatario'] = $data['donatario'] ?? [];
+
+            return $content;
+        }
+
+        if ($contractType === 'locacao') {
+            $fill = static fn (array $fields, array $values): array => array_merge(
+                array_fill_keys($fields, ''),
+                array_intersect_key($values, array_flip($fields)),
+            );
+
+            $locacao = $fill(self::CAMPOS_LOCACAO, $data['locacao'] ?? []);
+            $locacao['data_inicio'] = $this->formatDate($locacao['data_inicio']);
+            $locacao['data_termino'] = $this->formatDate($locacao['data_termino']);
+
+            $content['locador'] = $fill(self::CAMPOS_LOCADOR, $data['locador'] ?? $data['contratante'] ?? []);
+            $content['locatario'] = $fill(self::CAMPOS_LOCATARIO, $data['locatario'] ?? $data['contratado'] ?? []);
+            $content['imovel'] = $fill(self::CAMPOS_IMOVEL_LOCACAO, $data['imovel'] ?? []);
+            $content['locacao'] = $locacao;
 
             return $content;
         }

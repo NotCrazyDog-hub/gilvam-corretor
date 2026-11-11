@@ -1,4 +1,4 @@
-import { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, atualizarCamposPessoa } from './fields.js';
+import { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, CAMPOS_LOCADOR, atualizarCamposPessoa } from './fields.js';
 
 /**
  * Busca de imóvel. Ao escolher um imóvel, preenche os dados do imóvel e
@@ -11,6 +11,8 @@ export function mountImovelSearch() {
     if (!bloco) return;
 
     const clientTypeInput = document.querySelector('#input-client-type');
+    const isLocacao = document.querySelector('[name="contract_type"]')?.value === 'locacao';
+    const camposContratante = isLocacao ? CAMPOS_LOCADOR : CAMPOS_CONTRATANTE;
     const buscaInput = bloco.querySelector('#busca-imovel');
     const resultadosDiv = bloco.querySelector('#resultados-busca-imovel');
     const blocoContratante = bloco.querySelector('#bloco-contratante');
@@ -27,14 +29,14 @@ export function mountImovelSearch() {
         clientTypeInput.value = c.tipo;
         atualizarCamposPessoa(c.tipo);
         const camposPessoa = document.querySelector(`[data-person-fields="${c.tipo}"]`);
-        preencherCampos(CAMPOS_CONTRATANTE[c.tipo], c.dados, camposPessoa);
+        preencherCampos(camposContratante[c.tipo], c.dados, camposPessoa);
     };
 
     const limparContratante = () => {
         clientIdInput.value = '';
         clientTypeInput.value = '';
-        preencherCampos(CAMPOS_CONTRATANTE.pf, {}, document.querySelector('[data-person-fields="pf"]'));
-        preencherCampos(CAMPOS_CONTRATANTE.pj, {}, document.querySelector('[data-person-fields="pj"]'));
+        preencherCampos(camposContratante.pf, {}, document.querySelector('[data-person-fields="pf"]'));
+        preencherCampos(camposContratante.pj, {}, document.querySelector('[data-person-fields="pj"]'));
         atualizarCamposPessoa('');
     };
 

@@ -38,6 +38,22 @@ const CAMPOS_CONTRATANTE = {
     },
 };
 
+const CAMPOS_LOCADOR = {
+    pf: {
+        nome: 'locador[nome]', cpf: 'locador[cpf]', rg: 'locador[identidade]',
+        estado_civil: 'locador[estado_civil]', profissao: 'locador[profissao]',
+        conjuge_nome: 'locador[conjuge_nome]', conjuge_rg: 'locador[conjuge_identidade]',
+        endereco: 'locador[endereco]', telefone: 'locador[telefones]',
+    },
+    pj: {
+        razao_social: 'locador[razao_social]', nome_fantasia: 'locador[nome_fantasia]',
+        cnpj: 'locador[cnpj]', inscricao_estadual: 'locador[inscricao_estadual]',
+        endereco: 'locador[endereco]', representante_legal_nome: 'locador[representante_legal_nome]',
+        representante_legal_cargo: 'locador[representante_legal_cargo]',
+        representante_legal_cpf: 'locador[representante_legal_cpf]', telefones: 'locador[telefones]',
+    },
+};
+
 function atualizarCamposPessoa(tipo) {
     document.querySelectorAll('[data-person-fields]').forEach((bloco) => {
         const ativo = bloco.dataset.personFields === tipo;
@@ -51,4 +67,4 @@ function atualizarCamposPessoa(tipo) {
     }
 }
 
-export { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, atualizarCamposPessoa };
+export { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, CAMPOS_LOCADOR, atualizarCamposPessoa };

@@ -96,6 +96,53 @@ abstract class BaseContractRequest extends FormRequest
             'prazo_indeterminado'  => 'nullable|boolean',
         ];
 
+        if ($this->input('contract_type') === 'locacao') {
+            foreach (array_keys($rules) as $key) {
+                if (str_starts_with($key, 'contratante') || str_starts_with($key, 'contratado')
+                    || in_array($key, ['imovel.preco_venda', 'imovel.condicoes_pagamento', 'data_termino', 'prazo_indeterminado'], true)) {
+                    unset($rules[$key]);
+                }
+            }
+
+            $rules += [
+                'locador' => 'required|array',
+                'locador.nome' => 'required_if:client_type,pf|string|max:255',
+                'locador.estado_civil' => 'required_if:client_type,pf|string|max:100',
+                'locador.profissao' => 'required_if:client_type,pf|string|max:255',
+                'locador.cpf' => 'required_if:client_type,pf|string|max:20',
+                'locador.identidade' => 'required_if:client_type,pf|string|max:50',
+                'locador.conjuge_nome' => 'nullable|string|max:255',
+                'locador.conjuge_identidade' => 'nullable|string|max:50',
+                'locador.razao_social' => 'required_if:client_type,pj|string|max:255',
+                'locador.nome_fantasia' => 'nullable|string|max:255',
+                'locador.inscricao_estadual' => 'nullable|string|max:100',
+                'locador.cnpj' => 'required_if:client_type,pj|string|max:20',
+                'locador.representante_legal_nome' => 'required_if:client_type,pj|string|max:255',
+                'locador.representante_legal_cargo' => 'required_if:client_type,pj|string|max:100',
+                'locador.representante_legal_cpf' => 'required_if:client_type,pj|string|max:20',
+                'locador.endereco' => 'required|string|max:255',
+                'locador.telefones' => 'nullable|string|max:100',
+                'locatario' => 'required|array',
+                'locatario.nome' => 'required|string|max:255',
+                'locatario.estado_civil' => 'nullable|string|max:100',
+                'locatario.profissao' => 'nullable|string|max:255',
+                'locatario.cpf_cnpj' => 'required|string|max:20',
+                'locatario.identidade' => 'nullable|string|max:50',
+                'locatario.endereco' => 'required|string|max:255',
+                'locatario.telefones' => 'nullable|string|max:100',
+                'locacao' => 'required|array',
+                'locacao.finalidade' => 'required|string|max:255',
+                'locacao.prazo' => 'required|string|max:100',
+                'locacao.data_inicio' => 'required|date',
+                'locacao.data_termino' => 'required|date|after:locacao.data_inicio',
+                'locacao.valor_aluguel' => 'required|string|max:100',
+                'locacao.indice_reajuste' => 'required|string|max:100',
+                'locacao.dia_vencimento' => 'required|string|max:20',
+                'locacao.garantia' => 'required|string|max:255',
+                'locacao.condicoes_pagamento' => 'nullable|string',
+            ];
+        }
+
         return $rules;
     }
 

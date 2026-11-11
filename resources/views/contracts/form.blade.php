@@ -18,6 +18,7 @@
     $clausulasInicial = $clausulasSalvas
         ? json_decode($clausulasSalvas, true)
         : \App\Domains\Contracts\Services\ContractTypes::clausulasPadrao($tipoContratoKey);
+    $locacaoSalva = $contract?->content_json['locacao'] ?? [];
 @endphp
 
 <x-app-layout>
@@ -172,7 +173,7 @@
     <script>
         window.contractFormConfig = {
             outrosDadosContent: @json($imovel['outros_dados'] ?? ''),
-            condicoesContent: @json($imovel['condicoes_pagamento'] ?? ''),
+            condicoesContent: @json($tipoContratoKey === 'locacao' ? ($locacaoSalva['condicoes_pagamento'] ?? '') : ($imovel['condicoes_pagamento'] ?? '')),
             clausulasContent: @json($clausulasInicial),
         };
     </script>
