@@ -71,7 +71,7 @@ $especificos = [
     ],
 
     'locacao' => [
-        'titulo'         => 'CONTRATO DE LOCAÇÃO DE IMÓVEL',
+        'titulo'         => 'Contrato de locação de imóvel',
         'base_legal'     => '(LEI Nº 8.245/91)',
         'form_supported' => true,
         'template'       => 'contrato-de-locacao.docx',

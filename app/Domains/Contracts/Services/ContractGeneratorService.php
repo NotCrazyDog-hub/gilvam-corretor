@@ -205,7 +205,7 @@ class ContractGeneratorService
     ): array {
         $content = [
             'contrato' => [
-                'titulo' => $tipo['titulo'],
+                'titulo' => mb_strtoupper($tipo['titulo'], 'UTF-8'),
                 'subtitulo' => $tipo['subtitulo'] ?? '',
                 'base_legal' => $tipo['base_legal'] ?? '',
             ],
