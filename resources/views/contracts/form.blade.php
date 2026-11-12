@@ -24,7 +24,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight uppercase">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ $group ? 'Editar Contrato' : 'Novo ' . $tipoContrato['titulo'] }}
             </h2>
         </div>

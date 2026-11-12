@@ -50,7 +50,7 @@ $defaults = [
 
 // Base compartilhada pelas duas corretagens (mesmo .docx, mesmo formulário).
 $corretagemVenda = [
-    'titulo'         => 'CONTRATO DE CORRETAGEM DE VENDA DE IMÓVEIS',
+    'titulo'         => 'contrato de corretagem de venda de imóveis',
     'base_legal'     => '(ARTS. 722 A 729 DO NOVO CÓDIGO CIVIL)',
     'form_supported' => true,
     'template'       => 'contrato-de-corretagem.docx',
@@ -71,7 +71,7 @@ $especificos = [
     ],
 
     'locacao' => [
-        'titulo'         => 'Contrato de locação de imóvel',
+        'titulo'         => 'contrato de locação de imóvel',
         'base_legal'     => '(LEI Nº 8.245/91)',
         'form_supported' => true,
         'template'       => 'contrato-de-locacao.docx',
@@ -79,7 +79,7 @@ $especificos = [
     ],
 
     'doacao' => [
-        'titulo'         => 'CONTRATO DE DOAÇÃO DE IMÓVEL',
+        'titulo'         => 'contrato de doação de imóvel',
         'base_legal'     => '(ARTS. 538 A 564 DO NOVO CÓDIGO CIVIL)',
         'form_supported' => true,
         'template'       => 'contrato-de-doacao.docx',
