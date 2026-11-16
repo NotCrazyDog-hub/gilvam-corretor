@@ -53,13 +53,13 @@ class ContractGeneratorService
     ];
 
     private const LINHAS_COMPRA_VENDA_SO_PF = [
-        'nome', 'estado_civil', 'profissao', 'nacionalidade', 'email', 'cpf', 'identidade',
-        'conjuge_nome', 'conjuge_identidade', 'conjuge_cpf', 'regime_bens',
+        'nome', 'estado_civil', 'nacionalidade', 'cpf', 'conjuge_nome',
+        'conjuge_identidade', 'regime_bens',
     ];
 
     private const LINHAS_COMPRA_VENDA_SO_PJ = [
-        'razao_social', 'nome_fantasia', 'inscricao_estadual', 'cnpj',
-        'representante_legal_nome', 'representante_legal_cargo', 'representante_legal_cpf',
+        'razao_social', 'nome_fantasia', 'cnpj',
+        'representante_legal_nome', 'representante_legal_cargo',
     ];
 
     private const CAMPOS_COMPRA_VENDA_PESSOA = [
