@@ -1,10 +1,5 @@
 @php
-    $filtroAtivo = in_array($clientType ?? null, ['pf', 'pj'], true) ? $clientType : null;
     $queryState = $queryState ?? [];
-    $urlComFiltros = fn (array $alteracoes = []) => route('contracts.index', array_filter(
-        array_merge($queryState, $alteracoes),
-        fn ($valor) => $valor !== null && $valor !== '',
-    ));
     $sortUrl = function (string $column) use ($queryState, $sort, $direction): string {
         $nextDirection = $sort === $column && $direction === 'asc' ? 'desc' : 'asc';
 
@@ -32,23 +27,42 @@
             @endif
 
             <div class="overflow-hidden rounded-lg bg-white p-6 shadow-sm">
-                <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <div class="flex items-center gap-1 rounded-lg bg-slate-100 p-1">
-                        <a href="{{ $urlComFiltros(['client_type' => null]) }}"
-                           class="rounded-md px-4 py-2 text-sm font-medium transition {{ !$filtroAtivo ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
-                            Todos
-                        </a>
-                        <a href="{{ $urlComFiltros(['client_type' => 'pf']) }}"
-                           class="rounded-md px-4 py-2 text-sm font-medium transition {{ $filtroAtivo === 'pf' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
-                            Pessoa física
-                        </a>
-                        <a href="{{ $urlComFiltros(['client_type' => 'pj']) }}"
-                           class="rounded-md px-4 py-2 text-sm font-medium transition {{ $filtroAtivo === 'pj' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700' }}">
-                            Pessoa jurídica
-                        </a>
-                    </div>
+                <div class="flex flex-col gap-3 xl:flex-row xl:items-center">
+                    <form method="GET" action="{{ route('contracts.index') }}"
+                          x-data="{ timeout: null, submitSoon() { clearTimeout(this.timeout); this.timeout = setTimeout(() => this.$el.requestSubmit(), 350); }, submitNow() { clearTimeout(this.timeout); this.$el.requestSubmit(); } }"
+                          class="flex min-w-0 flex-1 flex-col gap-3 lg:flex-row lg:items-center">
+                        <input type="hidden" name="sort" value="{{ $sort }}">
+                        <input type="hidden" name="direction" value="{{ $direction }}">
 
-                    <div x-data="{ open: false }" @click.outside="open = false" class="relative self-start xl:self-auto">
+                        <label class="relative block min-w-0 flex-1">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+                                </svg>
+                            </span>
+                            <input type="search" name="q" value="{{ $search }}" placeholder="Contratante, CPF/CNPJ, código ou endereço do imóvel"
+                                   aria-label="Buscar contratos" x-on:input="submitSoon()"
+                                   class="w-full rounded-full border-gray-300 py-2.5 pl-12 pr-5 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        </label>
+
+                        <select name="contract_type" aria-label="Filtrar por tipo de contrato" x-on:change="submitNow()"
+                                class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-56">
+                            <option value="">Todos os tipos</option>
+                            @foreach (config('contracts.types') as $key => $tipoContrato)
+                                <option value="{{ $key }}" @selected($contractType === $key)>{{ $tipoContrato['nome'] }}</option>
+                            @endforeach
+                        </select>
+
+                        <select name="status" aria-label="Filtrar por situação" x-on:change="submitNow()"
+                                class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-52">
+                            <option value="">Todas as situações</option>
+                            @foreach ($situacoes as $opcaoSituacao)
+                                <option value="{{ $opcaoSituacao }}" @selected($situacao === $opcaoSituacao)>{{ $opcaoSituacao }}</option>
+                            @endforeach
+                        </select>
+                    </form>
+
+                    <div x-data="{ open: false }" @click.outside="open = false" class="relative shrink-0 self-start xl:self-auto">
                         <button @click="open = !open" type="button" aria-haspopup="true" :aria-expanded="open"
                                 class="flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm text-white transition hover:bg-emerald-800">
                             <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -84,66 +98,10 @@
                     </div>
                 </div>
 
-                <form method="GET" action="{{ route('contracts.index') }}" class="mt-4 grid gap-3 lg:grid-cols-[minmax(18rem,1fr)_15rem_13rem_auto]">
-                    @if ($filtroAtivo)
-                        <input type="hidden" name="client_type" value="{{ $filtroAtivo }}">
-                    @endif
-                    @if ($layout === 'client')
-                        <input type="hidden" name="layout" value="client">
-                    @endif
-                    <input type="hidden" name="sort" value="{{ $sort }}">
-                    <input type="hidden" name="direction" value="{{ $direction }}">
-
-                    <label class="relative block">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
-                            </svg>
-                        </span>
-                        <input type="search" name="q" value="{{ $search }}" placeholder="Contratante, CPF/CNPJ, código ou endereço do imóvel"
-                               aria-label="Buscar contratos"
-                               class="w-full rounded-full border-gray-300 py-2.5 pl-12 pr-5 text-sm focus:border-blue-500 focus:ring-blue-500">
-                    </label>
-
-                    <select name="contract_type" aria-label="Filtrar por tipo de contrato" class="rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Todos os tipos</option>
-                        @foreach (config('contracts.types') as $key => $tipoContrato)
-                            <option value="{{ $key }}" @selected($contractType === $key)>{{ $tipoContrato['nome'] }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="status" aria-label="Filtrar por situação" class="rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Todas as situações</option>
-                        @foreach ($situacoes as $opcaoSituacao)
-                            <option value="{{ $opcaoSituacao }}" @selected($situacao === $opcaoSituacao)>{{ $opcaoSituacao }}</option>
-                        @endforeach
-                    </select>
-
-                    <button type="submit" class="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700">
-                        Aplicar filtros
-                    </button>
-                </form>
-
                 <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <p class="text-sm text-slate-500">
                         {{ $groups->total() }} {{ \Illuminate\Support\Str::plural('contrato', $groups->total()) }}
                     </p>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <a href="{{ $urlComFiltros(['status' => 'Vencendo']) }}"
-                           class="rounded-full px-3 py-1.5 text-xs font-semibold transition {{ $situacao === 'Vencendo' ? 'bg-yellow-100 text-yellow-800 ring-1 ring-yellow-300' : 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' }}">
-                            Vencendo
-                        </a>
-                        <div class="inline-flex rounded-lg border border-slate-200 p-1 text-sm">
-                            <a href="{{ $urlComFiltros(['layout' => null]) }}"
-                               class="rounded-md px-3 py-1.5 {{ $layout === 'list' ? 'bg-slate-100 font-medium text-slate-900' : 'text-slate-500 hover:text-slate-800' }}">
-                                Lista
-                            </a>
-                            <a href="{{ $urlComFiltros(['layout' => 'client']) }}"
-                               class="rounded-md px-3 py-1.5 {{ $layout === 'client' ? 'bg-slate-100 font-medium text-slate-900' : 'text-slate-500 hover:text-slate-800' }}">
-                                Agrupar por cliente
-                            </a>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="mt-3 overflow-x-auto rounded-lg border border-gray-200">
@@ -171,60 +129,22 @@
                             </tr>
                         </thead>
 
-                        @if ($layout === 'client')
-                            @foreach ($groups->getCollection()->groupBy('client_id') as $clientGroups)
-                                @php
-                                    $firstGroup = $clientGroups->first();
-                                    $clientDocument = $firstGroup->client?->documento_formatado;
-                                @endphp
-                                <tbody x-data="{ expanded: false }" class="divide-y divide-gray-100">
-                                    <tr class="bg-slate-50">
-                                        <td colspan="7" class="px-4 py-2.5">
-                                            <button type="button" @click="expanded = !expanded" :aria-expanded="expanded" class="flex w-full items-center gap-2 text-left">
-                                                <span class="flex h-5 w-5 items-center justify-center rounded border border-slate-300 bg-white text-xs text-slate-600" x-text="expanded ? '−' : '+'"></span>
-                                                <span class="font-semibold text-slate-800">{{ $firstGroup->client_display_name }}</span>
-                                                @if ($clientDocument)
-                                                    <span class="text-xs text-slate-500">{{ $clientDocument }}</span>
-                                                @endif
-                                                <span class="ml-auto rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700">
-                                                    {{ $clientGroups->count() }} {{ \Illuminate\Support\Str::plural('contrato', $clientGroups->count()) }} nesta página
-                                                </span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @foreach ($clientGroups as $rowIndex => $group)
-                                        @include('contracts._row', ['group' => $group, 'rowIndex' => $rowIndex, 'rowHidden' => true])
-                                    @endforeach
-                                </tbody>
-                            @endforeach
-                        @else
-                            <tbody class="divide-y divide-gray-100">
-                                @forelse ($groups as $rowIndex => $group)
-                                    @include('contracts._row', ['group' => $group, 'rowIndex' => $rowIndex])
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500">
-                                            @if ($search || $contractType || $situacao)
-                                                Nenhum contrato corresponde aos filtros aplicados.
-                                            @else
-                                                Nenhum contrato encontrado.
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        @endif
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse ($groups as $rowIndex => $group)
+                                @include('contracts._row', ['group' => $group, 'rowIndex' => $rowIndex])
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500">
+                                        @if ($search || $contractType || $situacao)
+                                            Nenhum contrato corresponde aos filtros aplicados.
+                                        @else
+                                            Nenhum contrato encontrado.
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
                     </table>
-
-                    @if ($layout === 'client' && $groups->isEmpty())
-                        <p class="px-4 py-10 text-center text-sm text-gray-500">
-                            @if ($search || $contractType || $situacao)
-                                Nenhum contrato corresponde aos filtros aplicados.
-                            @else
-                                Nenhum contrato encontrado.
-                            @endif
-                        </p>
-                    @endif
                 </div>
 
                 <div class="mt-4">

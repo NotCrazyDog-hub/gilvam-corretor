@@ -23,19 +23,14 @@ class ContractController extends Controller
 
     public function index(Request $request): View
     {
-        $clientType = $request->query('client_type');
         $search = trim((string) $request->query('q', ''));
         $contractType = $request->query('contract_type');
         $situacao = $request->query('status');
-        $layout = $request->query('layout') === 'client' ? 'client' : 'list';
         $sort = $request->query('sort', 'generated');
         $direction = $request->query('direction', 'desc');
         $situacoes = ['Vigente', 'Vencendo', 'Vencido', 'Indeterminado'];
         $sortOptions = ['contract', 'client', 'type', 'property', 'status', 'validity', 'generated'];
 
-        $clientType = in_array($clientType, [Client::TIPO_PF, Client::TIPO_PJ], true)
-            ? $clientType
-            : null;
         $contractType = in_array($contractType, ContractTypes::keys(), true)
             ? $contractType
             : null;
@@ -47,9 +42,6 @@ class ContractController extends Controller
             ->select('contract_groups.*')
             ->leftJoin('clients', 'clients.id', '=', 'contract_groups.client_id')
             ->leftJoin('imoveis', 'imoveis.id', '=', 'contract_groups.imovel_id')
-            ->when($clientType !== null, fn (Builder $groups) =>
-                $groups->whereHas('client', fn (Builder $client) => $client->where('tipo', $clientType))
-            )
             ->when($contractType !== null, fn (Builder $groups) =>
                 $groups->where('contract_groups.contract_type', $contractType)
             )
@@ -86,22 +78,18 @@ class ContractController extends Controller
 
         $queryState = array_filter([
             'q' => $search,
-            'client_type' => $clientType,
             'contract_type' => $contractType,
             'status' => $situacao,
-            'layout' => $layout === 'client' ? 'client' : null,
             'sort' => $sort,
             'direction' => $direction,
         ], fn ($value) => $value !== null && $value !== '');
 
         return view('contracts.index', [
             'groups' => $groups,
-            'clientType' => $clientType,
             'search' => $search,
             'contractType' => $contractType,
             'situacao' => $situacao,
             'situacoes' => $situacoes,
-            'layout' => $layout,
             'sort' => $sort,
             'direction' => $direction,
             'queryState' => $queryState,
