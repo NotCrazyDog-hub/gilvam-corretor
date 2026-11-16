@@ -44,7 +44,7 @@
                                    class="w-full rounded-full border-gray-300 py-2.5 pl-12 pr-5 text-sm focus:border-blue-500 focus:ring-blue-500">
                         </label>
 
-                        <select name="contract_type" aria-label="Filtrar por tipo de contrato" x-on:change="$el.form.requestSubmit()"
+                        <select name="contract_type" aria-label="Filtrar por tipo de contrato" onchange="this.form.submit()"
                                 class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-56">
                             <option value="">Todos os tipos</option>
                             @foreach (config('contracts.types') as $key => $tipoContrato)
@@ -52,7 +52,7 @@
                             @endforeach
                         </select>
 
-                        <select name="status" aria-label="Filtrar por situação" x-on:change="$el.form.requestSubmit()"
+                        <select name="status" aria-label="Filtrar por situação" onchange="this.form.submit()"
                                 class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-52">
                             <option value="">Todas as situações</option>
                             @foreach ($situacoes as $opcaoSituacao)
