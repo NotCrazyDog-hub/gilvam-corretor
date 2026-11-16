@@ -30,13 +30,11 @@
         </div>
     </td>
 
-    <td class="py-3 px-4 text-sm text-left">
-        <span class="inline-flex max-w-56 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium leading-4 text-indigo-700">
-            {{ $typeName }}
-        </span>
+    <td class="py-3 px-4 text-sm text-center text-gray-900">
+        {{ $typeName }}
     </td>
 
-    <td class="py-3 px-4 text-sm text-left min-w-56">
+    <td class="py-3 px-4 text-sm text-center min-w-56">
         <div class="font-medium text-gray-800">{{ $group->imovel_display_name }}</div>
         @if ($group->imovel_display_address !== '')
             <div class="mt-0.5 max-w-sm truncate text-xs text-gray-500" title="{{ $group->imovel_display_address }}">
@@ -48,7 +46,7 @@
         @endif
     </td>
 
-    <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
+    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
         @if ($version)
             <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusColors[$version->situacao] ?? 'bg-slate-100 text-slate-600' }}">
                 {{ $version->situacao }}
@@ -58,7 +56,7 @@
         @endif
     </td>
 
-    <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
+    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
         @if ($version?->prazo_indeterminado)
             <span class="text-gray-700">Indeterminado</span>
         @elseif ($version?->data_termino)
@@ -75,28 +73,21 @@
         {{ $version?->created_at?->format('d/m/Y, H:i') ?? '—' }}
     </td>
 
-    <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
-        <div x-data="{ open: false }" @click.outside="open = false" class="relative inline-block">
-            <button
-                type="button"
-                @click="open = !open"
-                :aria-expanded="open"
-                aria-haspopup="true"
-                aria-label="Ações do contrato {{ $group->reference_code }}"
-                class="rounded-lg p-2 text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-            >
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+        <span class="inline-flex items-center gap-3">
+            <a href="{{ route('contracts.edit', $group) }}?from=index" title="Editar" aria-label="Editar"
+               class="rounded-lg p-1.5 text-gray-600 transition hover:bg-gray-200 hover:text-gray-700">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                 </svg>
-            </button>
-
-            <div x-show="open" x-cloak x-transition class="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-gray-200 bg-white py-1 text-sm shadow-lg">
-                <a href="{{ route('contracts.edit', $group) }}?from=index" class="block px-3 py-2 text-gray-700 hover:bg-gray-50">Editar contrato</a>
-                <a href="{{ route('contracts.versions', $group) }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-50">Ver versões</a>
-                @if ($version)
-                    <a href="{{ route('contracts.download', ['group' => $group->uuid, 'version' => $version->version]) }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-50">Baixar .docx</a>
-                @endif
-            </div>
-        </div>
+            </a>
+            <a href="{{ route('contracts.versions', $group) }}" title="Histórico" aria-label="Histórico"
+               class="rounded-lg p-1.5 text-green-600 transition hover:bg-green-100 hover:text-green-700">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 3H7a2 2 0 00-2 2v14a2 2 0 002 2h3M13 3l5 5v2M13 3v5h5" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 13a4 4 0 100 8 4 4 0 000-8zM17 15v2l1.5 1" />
+                </svg>
+            </a>
+        </span>
     </td>
 </tr>

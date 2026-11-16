@@ -158,7 +158,7 @@
                                     'validity' => 'Validade',
                                     'generated' => 'Gerado em',
                                 ] as $sortColumn => $label)
-                                    <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 {{ $sortColumn === 'contract' ? 'text-left' : '' }}">
                                         <a href="{{ $sortUrl($sortColumn) }}" class="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-slate-900">
                                             {{ $label }}
                                             @if ($sortIndicator($sortColumn) !== '')
