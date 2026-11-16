@@ -10,35 +10,165 @@ use App\Domains\Contracts\Models\Contract;
 use App\Domains\Imoveis\Models\Imovel;
 use App\Domains\Contracts\Models\ContractGroup;
 use App\Domains\Contracts\Services\ContractGeneratorService;
+use App\Domains\Contracts\Services\ContractTypes;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class ContractController extends Controller
 {
     public function __construct(private ContractGeneratorService $generator) {}
 
-    /**
-     * Listagem com filtro por tipo de cliente (pf/pj) e busca por contratante
-     * (nome, nome fantasia, CPF ou CNPJ), mostrando a versão vigente.
-     */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $clientType = $request->query('client_type'); // 'pf' | 'pj' | null
-        $busca = trim((string) $request->query('q', ''));
+        $clientType = $request->query('client_type');
+        $search = trim((string) $request->query('q', ''));
+        $contractType = $request->query('contract_type');
+        $situacao = $request->query('status');
+        $layout = $request->query('layout') === 'client' ? 'client' : 'list';
+        $sort = $request->query('sort', 'generated');
+        $direction = $request->query('direction', 'desc');
+        $situacoes = ['Vigente', 'Vencendo', 'Vencido', 'Indeterminado'];
+        $sortOptions = ['contract', 'client', 'type', 'property', 'status', 'validity', 'generated'];
 
-        $groups = ContractGroup::query()
-            ->when(in_array($clientType, [Client::TIPO_PF, Client::TIPO_PJ], true), fn ($q) =>
-                $q->whereHas('client', fn ($c) => $c->where('tipo', $clientType))
+        $clientType = in_array($clientType, [Client::TIPO_PF, Client::TIPO_PJ], true)
+            ? $clientType
+            : null;
+        $contractType = in_array($contractType, ContractTypes::keys(), true)
+            ? $contractType
+            : null;
+        $situacao = in_array($situacao, $situacoes, true) ? $situacao : null;
+        $sort = in_array($sort, $sortOptions, true) ? $sort : 'generated';
+        $direction = in_array($direction, ['asc', 'desc'], true) ? $direction : 'desc';
+
+        $query = ContractGroup::query()
+            ->select('contract_groups.*')
+            ->leftJoin('clients', 'clients.id', '=', 'contract_groups.client_id')
+            ->leftJoin('imoveis', 'imoveis.id', '=', 'contract_groups.imovel_id')
+            ->when($clientType !== null, fn (Builder $groups) =>
+                $groups->whereHas('client', fn (Builder $client) => $client->where('tipo', $clientType))
             )
-            ->when(mb_strlen($busca) >= 2, fn ($q) =>
-                $q->whereHas('client', fn ($c) => $c->search($busca))
+            ->when($contractType !== null, fn (Builder $groups) =>
+                $groups->where('contract_groups.contract_type', $contractType)
             )
-            ->with(['latestVersion', 'client'])
-            ->latest()
+            ->when($situacao !== null, fn (Builder $groups) =>
+                $groups->whereHas('latestVersion', fn (Builder $version) =>
+                    $this->filterBySituation($version, $situacao)
+                )
+            )
+            ->when(mb_strlen($search) >= 2, fn (Builder $groups) =>
+                $this->searchGroups($groups, $search)
+            )
+            ->with(['latestVersion', 'client', 'imovel']);
+
+        $latestContractValue = fn (string $column) => Contract::query()
+            ->select($column)
+            ->whereColumn('contracts.contract_group_id', 'contract_groups.id')
+            ->orderByDesc('contracts.version')
+            ->limit(1);
+
+        match ($sort) {
+            'contract' => $query->orderBy('contract_groups.id', $direction),
+            'client' => $query->orderBy('clients.nome', $direction),
+            'type' => $query->orderBy('contract_groups.contract_type', $direction),
+            'property' => $query->orderBy('imoveis.logradouro', $direction)
+                ->orderBy('imoveis.numero', $direction),
+            'status', 'validity' => $query->orderBy($latestContractValue('data_termino'), $direction),
+            default => $query->orderBy($latestContractValue('created_at'), $direction),
+        };
+
+        $groups = $query
+            ->orderBy('contract_groups.id', 'desc')
             ->paginate(20)
             ->withQueryString();
 
-        return view('contracts.index', compact('groups', 'clientType', 'busca'));
+        $queryState = array_filter([
+            'q' => $search,
+            'client_type' => $clientType,
+            'contract_type' => $contractType,
+            'status' => $situacao,
+            'layout' => $layout === 'client' ? 'client' : null,
+            'sort' => $sort,
+            'direction' => $direction,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        return view('contracts.index', [
+            'groups' => $groups,
+            'clientType' => $clientType,
+            'search' => $search,
+            'contractType' => $contractType,
+            'situacao' => $situacao,
+            'situacoes' => $situacoes,
+            'layout' => $layout,
+            'sort' => $sort,
+            'direction' => $direction,
+            'queryState' => $queryState,
+        ]);
+    }
+
+    private function searchGroups(Builder $groups, string $term): void
+    {
+        $like = '%' . mb_strtolower($term) . '%';
+
+        $groups->where(function (Builder $query) use ($term, $like) {
+            $query->whereHas('client', fn (Builder $client) => $client->search($term))
+                ->orWhereHas('imovel', function (Builder $imovel) use ($like) {
+                    $imovel->where(function (Builder $property) use ($like) {
+                        foreach ([
+                            'logradouro', 'numero', 'complemento', 'bairro', 'municipio',
+                            'numero_matricula', 'inscricao_imobiliaria', 'condominio_nome',
+                            'numero_unidade',
+                        ] as $column) {
+                            $property->orWhereRaw("LOWER({$column}) LIKE ?", [$like]);
+                        }
+                    });
+                })
+                ->orWhereHas('latestVersion', function (Builder $version) use ($like) {
+                    $version->where(function (Builder $snapshot) use ($like) {
+                        foreach (['localizacao', 'matricula', 'inscricao_prefeitura', 'tipo'] as $field) {
+                            $snapshot->orWhere("imovel->{$field}", 'like', $like);
+                        }
+                    });
+                });
+
+            if (ctype_digit($term)) {
+                $query->orWhere('contract_groups.id', (int) $term);
+            }
+
+            if (preg_match('/^([A-Z]{2,5})-(\d{4})-(\d{1,10})$/i', $term, $code)) {
+                $prefix = strtoupper($code[1]);
+                $contractTypes = array_keys(array_filter(
+                    ContractGroup::referenceCodePrefixes(),
+                    fn (string $candidatePrefix) => $candidatePrefix === $prefix,
+                ));
+
+                if ($contractTypes !== []) {
+                    $query->orWhere(function (Builder $reference) use ($contractTypes, $code) {
+                        $reference->whereIn('contract_groups.contract_type', $contractTypes)
+                            ->whereYear('contract_groups.created_at', (int) $code[2])
+                            ->where('contract_groups.id', (int) $code[3]);
+                    });
+                }
+            }
+        });
+    }
+
+    private function filterBySituation(Builder $version, string $situacao): void
+    {
+        $today = Carbon::today();
+
+        match ($situacao) {
+            'Vencido' => $version->whereDate('data_termino', '<', $today),
+            'Vencendo' => $version->whereDate('data_termino', '>=', $today)
+                ->whereDate('data_termino', '<=', $today->copy()->addDays(30)),
+            'Vigente' => $version->whereDate('data_termino', '>', $today->copy()->addDays(30)),
+            default => $version->where(function (Builder $query) {
+                $query->where('prazo_indeterminado', true)
+                    ->orWhereNull('data_termino');
+            }),
+        };
     }
 
     public function create(Request $request, string $contractType)
