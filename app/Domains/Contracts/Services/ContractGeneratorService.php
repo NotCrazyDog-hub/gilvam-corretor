@@ -52,6 +52,32 @@ class ContractGeneratorService
         'locador.razao_social', 'locador.nome_fantasia', 'locador.cnpj', 'locador.representante_legal_nome', 'locador.representante_legal_cargo',
     ];
 
+    private const LINHAS_COMPRA_VENDA_SO_PF = [
+        'nome', 'estado_civil', 'profissao', 'nacionalidade', 'email', 'cpf', 'identidade',
+        'conjuge_nome', 'conjuge_identidade', 'conjuge_cpf', 'regime_bens',
+    ];
+
+    private const LINHAS_COMPRA_VENDA_SO_PJ = [
+        'razao_social', 'nome_fantasia', 'inscricao_estadual', 'cnpj',
+        'representante_legal_nome', 'representante_legal_cargo', 'representante_legal_cpf',
+    ];
+
+    private const CAMPOS_COMPRA_VENDA_PESSOA = [
+        'nome', 'estado_civil', 'profissao', 'nacionalidade', 'email', 'cpf', 'identidade',
+        'conjuge_nome', 'conjuge_identidade', 'conjuge_cpf', 'regime_bens', 'razao_social',
+        'nome_fantasia', 'inscricao_estadual', 'cnpj', 'representante_legal_nome',
+        'representante_legal_cargo', 'representante_legal_cpf', 'endereco', 'telefones',
+    ];
+
+    private const CAMPOS_IMOVEL_COMPRA_VENDA = [
+        'tipo', 'localizacao', 'documento_propriedade', 'matricula', 'inscricao_prefeitura',
+        'outros_dados', 'preco_venda', 'condicoes_pagamento',
+    ];
+
+    private const CAMPOS_NEGOCIO_COMPRA_VENDA = [
+        'sinal', 'prazo_escritura', 'data_posse', 'comissao', 'comissao_responsavel',
+    ];
+
     private const CAMPOS_LOCADOR = [
         'nome', 'estado_civil', 'profissao', 'cpf', 'identidade', 'conjuge_nome', 'conjuge_identidade',
         'razao_social', 'nome_fantasia', 'inscricao_estadual', 'cnpj', 'endereco', 'telefones',
@@ -87,6 +113,9 @@ class ContractGeneratorService
             }
             if ($contractType === 'locacao') {
                 $data = $this->versioner->normalizeLocacao($data);
+            }
+            if ($contractType === 'compra_venda') {
+                $data = $this->versioner->normalizeCompraVenda($data);
             }
 
             $group = $group ?? $this->versioner->createGroup($data);
@@ -125,7 +154,18 @@ class ContractGeneratorService
 
         $processor = new TemplateProcessor($templates->path($templatePath));
 
-        if ($contractType === 'doacao') {
+        if ($contractType === 'compra_venda') {
+            $this->deleteCompraVendaPersonRows(
+                $processor,
+                'vendedor',
+                ($data['vendedor']['tipo'] ?? '') === 'pj'
+            );
+            $this->deleteCompraVendaPersonRows(
+                $processor,
+                'comprador',
+                ($data['comprador']['tipo'] ?? '') === 'pj'
+            );
+        } elseif ($contractType === 'doacao') {
             $this->deleteDonationPersonRows($processor, 'doador', $isPj);
 
             $tipoDonatario = $data['donatario']['tipo'] ?? 'pf';
@@ -177,6 +217,20 @@ class ContractGeneratorService
         $placeholders = $isPj
             ? self::LINHAS_DOACAO_SO_PF
             : self::LINHAS_DOACAO_SO_PJ;
+
+        foreach ($placeholders as $placeholder) {
+            $processor->deleteRow("{$prefix}.{$placeholder}");
+        }
+    }
+
+    private function deleteCompraVendaPersonRows(
+        TemplateProcessor $processor,
+        string $prefix,
+        bool $isPj
+    ): void {
+        $placeholders = $isPj
+            ? self::LINHAS_COMPRA_VENDA_SO_PF
+            : self::LINHAS_COMPRA_VENDA_SO_PJ;
 
         foreach ($placeholders as $placeholder) {
             $processor->deleteRow("{$prefix}.{$placeholder}");
@@ -236,6 +290,33 @@ class ContractGeneratorService
             $content['locatario'] = $fill(self::CAMPOS_LOCATARIO, $data['locatario'] ?? $data['contratado'] ?? []);
             $content['imovel'] = $fill(self::CAMPOS_IMOVEL_LOCACAO, $data['imovel'] ?? []);
             $content['locacao'] = $locacao;
+
+            return $content;
+        }
+
+        if ($contractType === 'compra_venda') {
+            $fill = static fn (array $fields, array $values): array => array_merge(
+                array_fill_keys($fields, ''),
+                array_intersect_key($values, array_flip($fields)),
+            );
+
+            $negocio = $fill(self::CAMPOS_NEGOCIO_COMPRA_VENDA, $data['negocio'] ?? []);
+            $negocio['data_posse'] = $this->formatDate($negocio['data_posse']);
+
+            $content['vendedor'] = $fill(
+                self::CAMPOS_COMPRA_VENDA_PESSOA,
+                $data['vendedor'] ?? $data['contratante'] ?? []
+            );
+            $content['comprador'] = $fill(
+                self::CAMPOS_COMPRA_VENDA_PESSOA,
+                $data['comprador'] ?? []
+            );
+            $content['contratado'] = $data['contratado'] ?? [];
+            $content['imovel'] = $fill(
+                self::CAMPOS_IMOVEL_COMPRA_VENDA,
+                $data['imovel'] ?? []
+            );
+            $content['negocio'] = $negocio;
 
             return $content;
         }

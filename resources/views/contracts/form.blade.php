@@ -98,7 +98,9 @@
                         </div>
 
                         <div id="bloco-contratante" class="hidden mt-4 space-y-2">
-                            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Quem será o contratante?</p>
+                            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                                {{ $tipoContratoKey === 'compra_venda' ? 'Quem será o vendedor?' : 'Quem será o contratante?' }}
+                            </p>
                             <div id="lista-candidatos" class="space-y-1"></div>
                             <p id="aviso-candidatos" class="hidden text-sm text-amber-700 bg-amber-50 border border-amber-200 p-2"></p>
                         </div>
@@ -110,6 +112,7 @@
                 <input type="hidden" name="client_type" id="input-client-type" value="{{ $clientType ?? old('client_type') }}">
                 <input type="hidden" name="client_id" id="input-client-id" value="{{ $group->client_id ?? old('client_id') }}">
 
+                @if ($tipoContratoKey !== 'compra_venda')
                 <fieldset class="border border-slate-300 p-4">
                     <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">
                         Vigência do contrato (uso interno)
@@ -135,6 +138,7 @@
                         </div>
                     </div>
                 </fieldset>
+                @endif
 
                 @php
                     $contratante = $contract->contratante ?? [];

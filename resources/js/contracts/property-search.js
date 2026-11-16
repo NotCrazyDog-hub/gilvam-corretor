@@ -1,4 +1,4 @@
-import { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, CAMPOS_LOCADOR, atualizarCamposPessoa } from './fields.js';
+import { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, CAMPOS_VENDEDOR, CAMPOS_LOCADOR, atualizarCamposPessoa } from './fields.js';
 
 /**
  * Busca de imóvel. Ao escolher um imóvel, preenche os dados do imóvel e
@@ -11,8 +11,13 @@ export function mountImovelSearch() {
     if (!bloco) return;
 
     const clientTypeInput = document.querySelector('#input-client-type');
-    const isLocacao = document.querySelector('[name="contract_type"]')?.value === 'locacao';
-    const camposContratante = isLocacao ? CAMPOS_LOCADOR : CAMPOS_CONTRATANTE;
+    const contractType = document.querySelector('[name="contract_type"]')?.value;
+    const isLocacao = contractType === 'locacao';
+    const isCompraVenda = contractType === 'compra_venda';
+    const papelSelecionado = isCompraVenda ? 'vendedor(a)' : 'contratante';
+    const camposContratante = isLocacao
+        ? CAMPOS_LOCADOR
+        : (isCompraVenda ? CAMPOS_VENDEDOR : CAMPOS_CONTRATANTE);
     const buscaInput = bloco.querySelector('#busca-imovel');
     const resultadosDiv = bloco.querySelector('#resultados-busca-imovel');
     const blocoContratante = bloco.querySelector('#bloco-contratante');
@@ -20,6 +25,7 @@ export function mountImovelSearch() {
     const aviso = bloco.querySelector('#aviso-candidatos');
     const imovelIdInput = document.querySelector('#input-imovel-id');
     const clientIdInput = document.querySelector('#input-client-id');
+    const sellerTypeInput = document.querySelector('[name="vendedor[tipo]"]');
 
     let timeoutId;
     let currentController;
@@ -27,6 +33,7 @@ export function mountImovelSearch() {
     const escolherContratante = (c) => {
         clientIdInput.value = c.id;
         clientTypeInput.value = c.tipo;
+        if (sellerTypeInput) sellerTypeInput.value = c.tipo;
         atualizarCamposPessoa(c.tipo);
         const camposPessoa = document.querySelector(`[data-person-fields="${c.tipo}"]`);
         preencherCampos(camposContratante[c.tipo], c.dados, camposPessoa);
@@ -35,6 +42,7 @@ export function mountImovelSearch() {
     const limparContratante = () => {
         clientIdInput.value = '';
         clientTypeInput.value = '';
+        if (sellerTypeInput) sellerTypeInput.value = '';
         preencherCampos(camposContratante.pf, {}, document.querySelector('[data-person-fields="pf"]'));
         preencherCampos(camposContratante.pj, {}, document.querySelector('[data-person-fields="pj"]'));
         atualizarCamposPessoa('');
@@ -90,8 +98,8 @@ export function mountImovelSearch() {
         });
 
         mostrarAviso(candidatos.length > 1
-            ? 'Este imóvel tem mais de uma pessoa vinculada. Escolha quem será o contratante.'
-            : 'O CPF/CNPJ do cadastro define automaticamente se o contratante é pessoa física ou jurídica.');
+            ? `Este imóvel tem mais de uma pessoa vinculada. Escolha quem será ${papelSelecionado}.`
+            : `O CPF/CNPJ do cadastro define automaticamente se ${papelSelecionado} é pessoa física ou jurídica.`);
     };
 
     const escolherImovel = (imovel) => {

@@ -29,6 +29,25 @@ class ContractVersionService
     }
 
     /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function normalizeCompraVenda(array $data): array
+    {
+        $data['vendedor'] = $data['vendedor'] ?? [];
+        $data['contratante'] = $data['vendedor'];
+        $data['content_json'] = array_merge($data['content_json'] ?? [], [
+            'compra_venda' => [
+                'comprador' => $data['comprador'] ?? [],
+                'negocio' => $data['negocio'] ?? [],
+            ],
+        ]);
+        $data['contract_type'] = 'compra_venda';
+
+        return $data;
+    }
+
+    /**
      * Cria o "grupo" (identidade estável) de um contrato novo.
      * O slug aqui é só um identificador legível pra URL/arquivo — nunca é
      * usado pra decidir se duas gerações pertencem ao mesmo contrato.
@@ -71,13 +90,23 @@ class ContractVersionService
         ?int $userId,
     ): Contract {
         $isLocacao = ($data['contract_type'] ?? null) === 'locacao';
+        $isCompraVenda = ($data['contract_type'] ?? null) === 'compra_venda';
+        $contentData = $data['content_json'] ?? [];
+
+        if ($isLocacao) {
+            $contentData['locacao'] = $data['locacao'] ?? [];
+        }
+
+        if ($isCompraVenda) {
+            $contentData['compra_venda'] = [
+                'comprador' => $data['comprador'] ?? [],
+                'negocio' => $data['negocio'] ?? [],
+            ];
+        }
 
         return $group->versions()->create([
             'version'              => $version,
-            'content_json'         => array_merge(
-                $data['content_json'] ?? [],
-                $isLocacao ? ['locacao' => $data['locacao'] ?? []] : []
-            ),
+            'content_json'         => $contentData,
             'content_html'         => $data['content_html'] ?? null,
             'contratante'          => $data['contratante'],
             'contratado'           => $data['donatario'] ?? ($data['locatario'] ?? $data['contratado']),

@@ -143,6 +143,73 @@ abstract class BaseContractRequest extends FormRequest
             ];
         }
 
+        if ($this->input('contract_type') === 'compra_venda') {
+            $rules['imovel_id'] = 'required|integer|exists:imoveis,id';
+
+            foreach (array_keys($rules) as $key) {
+                if (str_starts_with($key, 'contratante')) {
+                    unset($rules[$key]);
+                }
+            }
+
+            unset($rules['data_termino'], $rules['prazo_indeterminado']);
+
+            $rules += [
+                'vendedor' => 'required|array',
+                'vendedor.tipo' => 'required|string|in:pf,pj|same:client_type',
+                'vendedor.nome' => 'required_if:client_type,pf|string|max:255',
+                'vendedor.estado_civil' => 'required_if:client_type,pf|string|max:100',
+                'vendedor.profissao' => 'required_if:client_type,pf|string|max:255',
+                'vendedor.nacionalidade' => 'nullable|string|max:255',
+                'vendedor.email' => 'nullable|email|max:255',
+                'vendedor.cpf' => 'required_if:client_type,pf|string|max:20',
+                'vendedor.identidade' => 'required_if:client_type,pf|string|max:50',
+                'vendedor.conjuge_nome' => 'nullable|string|max:255',
+                'vendedor.conjuge_identidade' => 'nullable|string|max:50',
+                'vendedor.conjuge_cpf' => 'nullable|string|max:20',
+                'vendedor.regime_bens' => 'nullable|string|max:100',
+                'vendedor.razao_social' => 'required_if:client_type,pj|string|max:255',
+                'vendedor.nome_fantasia' => 'nullable|string|max:255',
+                'vendedor.inscricao_estadual' => 'nullable|string|max:100',
+                'vendedor.cnpj' => 'required_if:client_type,pj|string|max:20',
+                'vendedor.representante_legal_nome' => 'required_if:client_type,pj|string|max:255',
+                'vendedor.representante_legal_cargo' => 'required_if:client_type,pj|string|max:100',
+                'vendedor.representante_legal_cpf' => 'required_if:client_type,pj|string|max:20',
+                'vendedor.endereco' => 'required|string|max:255',
+                'vendedor.telefones' => 'nullable|string|max:100',
+
+                'comprador' => 'required|array',
+                'comprador.tipo' => 'required|string|in:pf,pj',
+                'comprador.nome' => 'required_if:comprador.tipo,pf|string|max:255',
+                'comprador.estado_civil' => 'required_if:comprador.tipo,pf|string|max:100',
+                'comprador.profissao' => 'required_if:comprador.tipo,pf|string|max:255',
+                'comprador.nacionalidade' => 'nullable|string|max:255',
+                'comprador.email' => 'nullable|email|max:255',
+                'comprador.cpf' => 'required_if:comprador.tipo,pf|string|max:20',
+                'comprador.identidade' => 'required_if:comprador.tipo,pf|string|max:50',
+                'comprador.conjuge_nome' => 'nullable|string|max:255',
+                'comprador.conjuge_identidade' => 'nullable|string|max:50',
+                'comprador.conjuge_cpf' => 'nullable|string|max:20',
+                'comprador.regime_bens' => 'nullable|string|max:100',
+                'comprador.razao_social' => 'required_if:comprador.tipo,pj|string|max:255',
+                'comprador.nome_fantasia' => 'nullable|string|max:255',
+                'comprador.inscricao_estadual' => 'nullable|string|max:100',
+                'comprador.cnpj' => 'required_if:comprador.tipo,pj|string|max:20',
+                'comprador.representante_legal_nome' => 'required_if:comprador.tipo,pj|string|max:255',
+                'comprador.representante_legal_cargo' => 'required_if:comprador.tipo,pj|string|max:100',
+                'comprador.representante_legal_cpf' => 'required_if:comprador.tipo,pj|string|max:20',
+                'comprador.endereco' => 'required|string|max:255',
+                'comprador.telefones' => 'nullable|string|max:100',
+
+                'negocio' => 'required|array',
+                'negocio.sinal' => 'nullable|string|max:255',
+                'negocio.prazo_escritura' => 'nullable|string|max:255',
+                'negocio.data_posse' => 'nullable|date',
+                'negocio.comissao' => 'nullable|string|max:255',
+                'negocio.comissao_responsavel' => 'nullable|string|max:255',
+            ];
+        }
+
         return $rules;
     }
 
@@ -175,6 +242,31 @@ abstract class BaseContractRequest extends FormRequest
             'imovel.documento_propriedade.required' => 'O documento de propriedade do imóvel é obrigatório.',
             'imovel.matricula.required'        => 'A matrícula do imóvel é obrigatória.',
             'imovel.preco_venda.required'      => 'O preço de venda do imóvel é obrigatório.',
+
+            'vendedor.tipo.same' => 'O tipo do vendedor deve corresponder ao cliente selecionado para o imóvel.',
+            'vendedor.endereco.required' => 'O endereço do vendedor é obrigatório.',
+            'vendedor.nome.required_if' => 'O nome do vendedor é obrigatório.',
+            'vendedor.estado_civil.required_if' => 'O estado civil do vendedor é obrigatório.',
+            'vendedor.profissao.required_if' => 'A profissão do vendedor é obrigatória.',
+            'vendedor.cpf.required_if' => 'O CPF do vendedor é obrigatório.',
+            'vendedor.identidade.required_if' => 'A identidade do vendedor é obrigatória.',
+            'vendedor.razao_social.required_if' => 'A razão social do vendedor é obrigatória.',
+            'vendedor.cnpj.required_if' => 'O CNPJ do vendedor é obrigatório.',
+            'vendedor.representante_legal_nome.required_if' => 'O representante legal do vendedor é obrigatório.',
+            'vendedor.representante_legal_cargo.required_if' => 'O cargo do representante legal do vendedor é obrigatório.',
+            'vendedor.representante_legal_cpf.required_if' => 'O CPF do representante legal do vendedor é obrigatório.',
+            'comprador.nome.required_if' => 'O nome do comprador é obrigatório.',
+            'comprador.tipo.required' => 'Selecione se o comprador é pessoa física ou jurídica.',
+            'comprador.estado_civil.required_if' => 'O estado civil do comprador é obrigatório.',
+            'comprador.profissao.required_if' => 'A profissão do comprador é obrigatória.',
+            'comprador.cpf.required_if' => 'O CPF do comprador é obrigatório.',
+            'comprador.identidade.required_if' => 'A identidade do comprador é obrigatória.',
+            'comprador.razao_social.required_if' => 'A razão social do comprador é obrigatória.',
+            'comprador.cnpj.required_if' => 'O CNPJ do comprador é obrigatório.',
+            'comprador.representante_legal_nome.required_if' => 'O representante legal do comprador é obrigatório.',
+            'comprador.representante_legal_cargo.required_if' => 'O cargo do representante legal do comprador é obrigatório.',
+            'comprador.representante_legal_cpf.required_if' => 'O CPF do representante legal do comprador é obrigatório.',
+            'comprador.endereco.required' => 'O endereço do comprador é obrigatório.',
 
             'data_termino.required_if' => 'Informe a data de término ou marque como prazo indeterminado.',
             'data_termino.after'       => 'A data de término deve ser posterior a hoje.',

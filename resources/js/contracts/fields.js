@@ -38,6 +38,25 @@ const CAMPOS_CONTRATANTE = {
     },
 };
 
+const CAMPOS_VENDEDOR = {
+    pf: {
+        nome: 'vendedor[nome]', cpf: 'vendedor[cpf]', rg: 'vendedor[identidade]',
+        estado_civil: 'vendedor[estado_civil]', profissao: 'vendedor[profissao]',
+        nacionalidade: 'vendedor[nacionalidade]', email: 'vendedor[email]',
+        conjuge_nome: 'vendedor[conjuge_nome]', conjuge_rg: 'vendedor[conjuge_identidade]',
+        endereco: 'vendedor[endereco]', telefone: 'vendedor[telefones]',
+    },
+    pj: {
+        razao_social: 'vendedor[razao_social]', nome_fantasia: 'vendedor[nome_fantasia]',
+        cnpj: 'vendedor[cnpj]', inscricao_estadual: 'vendedor[inscricao_estadual]',
+        endereco: 'vendedor[endereco]', email: 'vendedor[email]',
+        representante_legal_nome: 'vendedor[representante_legal_nome]',
+        representante_legal_cargo: 'vendedor[representante_legal_cargo]',
+        representante_legal_cpf: 'vendedor[representante_legal_cpf]',
+        telefones: 'vendedor[telefones]',
+    },
+};
+
 const CAMPOS_LOCADOR = {
     pf: {
         nome: 'locador[nome]', cpf: 'locador[cpf]', rg: 'locador[identidade]',
@@ -67,4 +86,4 @@ function atualizarCamposPessoa(tipo) {
     }
 }
 
-export { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, CAMPOS_LOCADOR, atualizarCamposPessoa };
+export { preencherCampos, CAMPOS_IMOVEL, CAMPOS_CONTRATANTE, CAMPOS_VENDEDOR, CAMPOS_LOCADOR, atualizarCamposPessoa };
