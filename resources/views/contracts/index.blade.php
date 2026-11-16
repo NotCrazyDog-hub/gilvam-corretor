@@ -29,7 +29,6 @@
             <div class="overflow-hidden rounded-lg bg-white p-6 shadow-sm">
                 <div class="flex flex-col gap-3 xl:flex-row xl:items-center">
                     <form method="GET" action="{{ route('contracts.index') }}"
-                          x-data="{ timeout: null, submitSoon() { clearTimeout(this.timeout); this.timeout = setTimeout(() => this.$el.requestSubmit(), 350); }, submitNow() { clearTimeout(this.timeout); this.$el.requestSubmit(); } }"
                           class="flex min-w-0 flex-1 flex-col gap-3 lg:flex-row lg:items-center">
                         <input type="hidden" name="sort" value="{{ $sort }}">
                         <input type="hidden" name="direction" value="{{ $direction }}">
@@ -41,11 +40,11 @@
                                 </svg>
                             </span>
                             <input type="search" name="q" value="{{ $search }}" placeholder="Contratante, CPF/CNPJ, código ou endereço do imóvel"
-                                   aria-label="Buscar contratos" x-on:input="submitSoon()"
+                                   aria-label="Buscar contratos" x-on:input.debounce.400ms="$el.form.requestSubmit()"
                                    class="w-full rounded-full border-gray-300 py-2.5 pl-12 pr-5 text-sm focus:border-blue-500 focus:ring-blue-500">
                         </label>
 
-                        <select name="contract_type" aria-label="Filtrar por tipo de contrato" x-on:change="submitNow()"
+                        <select name="contract_type" aria-label="Filtrar por tipo de contrato" x-on:change="$el.form.requestSubmit()"
                                 class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-56">
                             <option value="">Todos os tipos</option>
                             @foreach (config('contracts.types') as $key => $tipoContrato)
@@ -53,7 +52,7 @@
                             @endforeach
                         </select>
 
-                        <select name="status" aria-label="Filtrar por situação" x-on:change="submitNow()"
+                        <select name="status" aria-label="Filtrar por situação" x-on:change="$el.form.requestSubmit()"
                                 class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-52">
                             <option value="">Todas as situações</option>
                             @foreach ($situacoes as $opcaoSituacao)
