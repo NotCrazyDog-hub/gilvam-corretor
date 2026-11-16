@@ -70,7 +70,7 @@
     </td>
 
     <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
-        {{ $version?->created_at?->format('d/m/Y, H:i') ?? '—' }}
+        {{ $version?->created_at?->format('d/m/Y, à\s H:i') ?? '—' }}
     </td>
 
     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
