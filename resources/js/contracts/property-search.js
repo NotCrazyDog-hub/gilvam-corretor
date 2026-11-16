@@ -55,7 +55,9 @@ export function mountImovelSearch() {
 
     const renderCandidatos = (imovel) => {
         lista.innerHTML = '';
-        const candidatos = imovel.candidatos;
+        const candidatos = (imovel.candidatos ?? []).filter((candidato) =>
+            (candidato.papeis ?? []).some((papel) => ['proprietario', 'vendedor'].includes(papel))
+        );
 
         blocoContratante.classList.remove('hidden');
 
