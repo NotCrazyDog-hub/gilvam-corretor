@@ -34,7 +34,7 @@
         {{ $typeName }}
     </td>
 
-    <td class="py-3 px-4 text-sm text-center min-w-56">
+    <td class="py-3 px-4 text-sm min-w-56">
         <div class="font-medium text-gray-800">{{ $group->imovel_display_name }}</div>
         @if ($group->imovel_display_address !== '')
             <div class="mt-0.5 max-w-sm truncate text-xs text-gray-500" title="{{ $group->imovel_display_address }}">
