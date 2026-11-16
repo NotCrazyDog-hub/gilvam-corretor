@@ -77,13 +77,23 @@ $especificos = [
         'template'       => 'contrato-de-locacao.docx',
         'form_view'      => 'contracts.forms.locacao.form',
     ],
-
+ 
     'doacao' => [
         'titulo'         => 'contrato de doação de imóvel',
         'base_legal'     => '(ARTS. 538 A 564 DO NOVO CÓDIGO CIVIL)',
         'form_supported' => true,
         'template'       => 'contrato-de-doacao.docx',
         'form_view'      => 'contracts.forms.doacao.form',
+        'clausulas_padrao' => 'doacao.html',
+    ],
+
+    'compra_venda' => [
+        'titulo'         => 'contrato de compra e venda de imóvel',
+        'subtitulo'      => 'COM INTERVENIÊNCIA DE CORRETOR(A) DE IMÓVEIS',
+        'base_legal'     => 'CÓDIGO CIVIL (LEI Nº 10.406/2002), ARTS. 481 E SEGUINTES · LEI Nº 6.530/1978',
+        'form_supported' => true,
+        'template'       => 'contrato-compra-e-venda.docx',
+        'form_view'      => 'contracts.forms.compra-venda.form',
     ],
 ];
 
