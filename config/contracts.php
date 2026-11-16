@@ -94,6 +94,7 @@ $especificos = [
         'form_supported' => true,
         'template'       => 'contrato-compra-e-venda.docx',
         'form_view'      => 'contracts.forms.compra-venda.form',
+        'clausulas_padrao' => 'compra-venda.html',
     ],
 ];
 
