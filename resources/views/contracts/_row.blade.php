@@ -68,8 +68,13 @@
         @endif
     </td>
 
-    <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
-        {{ $version?->created_at?->format('d/m/Y, à\s H:i') ?? '—' }}
+    <td class="py-3 px-4 text-sm text-left">
+        @if ($version?->created_at)
+            <div>{{ $version->created_at->format('d/m/Y') }}</div>
+            <div class="text-xs text-gray-500">às {{ $version->created_at->format('H:i') }}</div>
+        @else
+            <span class="text-gray-400">—</span>
+        @endif
     </td>
 
     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
