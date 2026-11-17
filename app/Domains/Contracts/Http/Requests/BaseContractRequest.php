@@ -210,6 +210,31 @@ abstract class BaseContractRequest extends FormRequest
             ];
         }
 
+        if ($this->input('contract_type') === 'prestacao_servicos') {
+            foreach (array_keys($rules) as $key) {
+                if (str_starts_with($key, 'imovel') || str_starts_with($key, 'donatario')) {
+                    unset($rules[$key]);
+                }
+            }
+
+            unset($rules['contratado.creci']);
+
+            $rules += [
+                'contratado.email' => 'nullable|email|max:255',
+                'prestacao_servicos' => 'required|array',
+                'prestacao_servicos.objeto' => 'required|string|max:10000',
+                'prestacao_servicos.local_execucao' => 'nullable|string|max:5000',
+                'prestacao_servicos.data_inicio' => 'required|date',
+                'prestacao_servicos.prazo' => 'nullable|string|max:255',
+                'prestacao_servicos.entregaveis' => 'nullable|string|max:5000',
+                'prestacao_servicos.remuneracao' => 'required|string|max:255',
+                'prestacao_servicos.forma_pagamento' => 'required|string|max:1000',
+                'prestacao_servicos.despesas' => 'nullable|string|max:5000',
+                'prestacao_servicos.aviso_previo' => 'nullable|string|max:255',
+                'prestacao_servicos.observacoes' => 'nullable|string|max:5000',
+            ];
+        }
+
         return $rules;
     }
 
@@ -267,6 +292,11 @@ abstract class BaseContractRequest extends FormRequest
             'comprador.representante_legal_cargo.required_if' => 'O cargo do representante legal do comprador é obrigatório.',
             'comprador.representante_legal_cpf.required_if' => 'O CPF do representante legal do comprador é obrigatório.',
             'comprador.endereco.required' => 'O endereço do comprador é obrigatório.',
+
+            'prestacao_servicos.objeto.required' => 'Descreva o objeto e o escopo dos serviços.',
+            'prestacao_servicos.data_inicio.required' => 'Informe a data de início dos serviços.',
+            'prestacao_servicos.remuneracao.required' => 'Informe a remuneração pelos serviços.',
+            'prestacao_servicos.forma_pagamento.required' => 'Informe a forma e as datas de pagamento.',
 
             'data_termino.required_if' => 'Informe a data de término ou marque como prazo indeterminado.',
             'data_termino.after'       => 'A data de término deve ser posterior a hoje.',

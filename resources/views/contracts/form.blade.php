@@ -85,7 +85,7 @@
                 @endif
 
                 {{-- Dados do cliente --}}
-                @if (!$group)
+                @if (!$group && $tipoContratoKey !== 'prestacao_servicos')
                     <fieldset id="bloco-busca-imovel" data-tipo="{{ $clientType ?? '' }}" class="border border-slate-300 p-4">
                         <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">Imóvel</legend>
 
@@ -104,6 +104,20 @@
                             <div id="lista-candidatos" class="space-y-1"></div>
                             <p id="aviso-candidatos" class="hidden text-sm text-amber-700 bg-amber-50 border border-amber-200 p-2"></p>
                         </div>
+                    </fieldset>
+                @endif
+
+                @if (!$group && $tipoContratoKey === 'prestacao_servicos')
+                    <fieldset id="bloco-busca-cliente-servico" data-pf-url="{{ route('contracts.pessoas-fisicas.search') }}"
+                              data-pj-url="{{ route('contracts.pessoas-juridicas.search') }}"
+                              class="border border-slate-300 p-4">
+                        <legend class="px-2 text-xs font-semibold text-slate-600 uppercase tracking-wide">Contratante</legend>
+                        <label for="busca-cliente-servico" class="sr-only">Buscar contratante</label>
+                        <input type="search" id="busca-cliente-servico" autocomplete="off"
+                               placeholder="Buscar cliente por nome, CPF ou CNPJ..."
+                               class="w-full border border-slate-300 text-sm px-2 py-1.5 focus:border-black focus:ring-0 focus:outline-none">
+                        <div id="resultados-cliente-servico" class="hidden mt-1 border border-slate-200 bg-white shadow-sm"></div>
+                        <p id="aviso-cliente-servico" class="mt-2 text-xs text-slate-500">Selecione um cliente cadastrado para preencher os dados do contratante.</p>
                     </fieldset>
                 @endif
 
@@ -145,6 +159,7 @@
                     $contratado = $contract->contratado ?? [];
                     $imovel = $contract->imovel ?? [];
                     $assinatura = $contract->assinatura ?? [];
+                    $prestacaoServicosSalva = $contract?->content_json['prestacao_servicos'] ?? [];
                 @endphp
 
                 @include($tipoContrato['form_view'] ?? 'contracts.forms.corretagem-venda.form')

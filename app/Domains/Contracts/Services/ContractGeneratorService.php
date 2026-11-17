@@ -78,6 +78,11 @@ class ContractGeneratorService
         'sinal', 'prazo_escritura', 'data_posse', 'comissao', 'comissao_responsavel',
     ];
 
+    private const CAMPOS_PRESTACAO_SERVICOS = [
+        'objeto', 'local_execucao', 'data_inicio', 'prazo', 'entregaveis',
+        'remuneracao', 'forma_pagamento', 'despesas', 'aviso_previo', 'observacoes',
+    ];
+
     private const CAMPOS_LOCADOR = [
         'nome', 'estado_civil', 'profissao', 'cpf', 'identidade', 'conjuge_nome', 'conjuge_identidade',
         'razao_social', 'nome_fantasia', 'inscricao_estadual', 'cnpj', 'endereco', 'telefones',
@@ -317,6 +322,22 @@ class ContractGeneratorService
                 $data['imovel'] ?? []
             );
             $content['negocio'] = $negocio;
+
+            return $content;
+        }
+
+        if ($contractType === 'prestacao_servicos') {
+            $fill = static fn (array $fields, array $values): array => array_merge(
+                array_fill_keys($fields, ''),
+                array_intersect_key($values, array_flip($fields)),
+            );
+
+            $servico = $fill(self::CAMPOS_PRESTACAO_SERVICOS, $data['prestacao_servicos'] ?? []);
+            $servico['data_inicio'] = $this->formatDate($servico['data_inicio']);
+
+            $content['contratante'] = $data['contratante'] ?? [];
+            $content['contratado'] = $data['contratado'] ?? [];
+            $content['prestacao_servicos'] = $servico;
 
             return $content;
         }

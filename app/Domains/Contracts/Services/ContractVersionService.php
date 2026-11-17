@@ -104,13 +104,17 @@ class ContractVersionService
             ];
         }
 
+        if (($data['contract_type'] ?? null) === 'prestacao_servicos') {
+            $contentData['prestacao_servicos'] = $data['prestacao_servicos'] ?? [];
+        }
+
         return $group->versions()->create([
             'version'              => $version,
             'content_json'         => $contentData,
             'content_html'         => $data['content_html'] ?? null,
             'contratante'          => $data['contratante'],
             'contratado'           => $data['donatario'] ?? ($data['locatario'] ?? $data['contratado']),
-            'imovel'               => $data['imovel'],
+            'imovel'               => $data['imovel'] ?? [],
             'data_termino'         => $data['locacao']['data_termino'] ?? $data['data_termino'] ?? null,
             'prazo_indeterminado'  => $data['prazo_indeterminado'] ?? false,
             'file_path'            => $filePath,
