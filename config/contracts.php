@@ -76,6 +76,7 @@ $especificos = [
         'form_supported' => true,
         'template'       => 'contrato-de-locacao.docx',
         'form_view'      => 'contracts.forms.locacao.form',
+        'clausulas_padrao' => 'locacao.html',
     ],
  
     'doacao' => [
