@@ -103,8 +103,17 @@
                     </p>
                 </div>
 
-                <div class="mt-3 overflow-x-auto rounded-lg border border-gray-200">
-                    <table class="w-full min-w-[1200px] border-collapse text-left">
+                <div class="mt-3 overflow-hidden rounded-lg border border-gray-200">
+                    <table class="w-full table-fixed border-collapse text-left">
+                        <colgroup>
+                            <col class="w-[18%]">
+                            <col class="w-[12%]">
+                            <col class="w-[13%]">
+                            <col class="w-[22%]">
+                            <col class="w-[11%]">
+                            <col class="w-[16%]">
+                            <col class="w-[8%]">
+                        </colgroup>
                         <thead>
                             <tr class="divide-x divide-gray-200 border-b border-gray-200 bg-gray-50">
                                 @foreach ([
@@ -112,11 +121,10 @@
                                     'type' => 'Tipo',
                                     'property' => 'Imóvel',
                                     'status' => 'Situação',
-                                    'validity' => 'Validade',
-                                    'generated' => 'Gerado em',
+                                    'generated' => 'Validade / Gerado em',
                                 ] as $sortColumn => $label)
-                                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 {{ $sortColumn === 'contract' ? 'text-left' : '' }}">
-                                        <a href="{{ $sortUrl($sortColumn) }}" class="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-slate-900">
+                                    <th scope="col" class="px-2 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 {{ $sortColumn === 'contract' ? 'text-left' : '' }}">
+                                        <a href="{{ $sortUrl($sortColumn) }}" class="inline-flex items-center gap-1.5 hover:text-slate-900">
                                             {{ $label }}
                                             @if ($sortIndicator($sortColumn) !== '')
                                                 <span aria-hidden="true">{{ $sortIndicator($sortColumn) }}</span>
@@ -124,7 +132,7 @@
                                         </a>
                                     </th>
                                     @if ($sortColumn === 'contract')
-                                        <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Responsável</th>
+                                        <th scope="col" class="px-2 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Responsável</th>
                                     @endif
                                 @endforeach
                                 <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Ações</th>
@@ -136,7 +144,7 @@
                                 @include('contracts._row', ['group' => $group, 'rowIndex' => $rowIndex])
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-4 py-10 text-center text-sm text-gray-500">
+                                    <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500">
                                         @if ($search || $contractType || $situacao)
                                             Nenhum contrato corresponde aos filtros aplicados.
                                         @else

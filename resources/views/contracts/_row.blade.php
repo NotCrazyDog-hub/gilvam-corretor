@@ -14,7 +14,7 @@
     @if ($rowHidden ?? false) x-show="expanded" x-cloak @endif
     class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-blue-50 {{ ($rowIndex ?? 0) % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}"
 >
-    <td class="py-3 px-4 text-sm text-left min-w-52">
+    <td class="py-3 px-2 text-sm text-left align-top">
         <div class="font-semibold text-gray-900" title="{{ $group->client_display_name }}">
             {{ $group->client_display_name }}
         </div>
@@ -24,21 +24,21 @@
                 <span aria-hidden="true">·</span>
                 <span>{{ $document }}</span>
             @endif
-            @if ($version && $version->version > 1)
-                <span class="rounded-full bg-blue-100 px-1.5 py-0.5 font-semibold text-blue-700">v{{ $version->version }}</span>
+            @if ($version)
+                <span class="font-medium text-blue-700">Versão atual: {{ $version->version }}</span>
             @endif
         </div>
     </td>
 
-    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+    <td class="py-3 px-2 text-sm text-center align-top">
         {{ $group->firstVersion?->creator?->name ?? '—' }}
     </td>
 
-    <td class="py-3 px-4 text-sm text-center text-gray-900">
+    <td class="py-3 px-2 text-sm text-center text-gray-900 align-top">
         {{ $typeName }}
     </td>
 
-    <td class="py-3 px-4 text-sm min-w-56">
+    <td class="py-3 px-2 text-sm align-top">
         <div class="font-medium text-gray-800">{{ $group->imovel_display_name }}</div>
         @if ($group->imovel_display_address !== '')
             <div class="mt-0.5 max-w-sm truncate text-xs text-gray-500" title="{{ $group->imovel_display_address }}">
@@ -50,7 +50,7 @@
         @endif
     </td>
 
-    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+    <td class="py-3 px-2 text-sm text-center align-top">
         @if ($version)
             <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusColors[$version->situacao] ?? 'bg-slate-100 text-slate-600' }}">
                 {{ $version->situacao }}
@@ -60,9 +60,9 @@
         @endif
     </td>
 
-    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+    <td class="py-3 px-2 text-sm text-center align-top">
         @if ($version?->prazo_indeterminado)
-            <span class="text-gray-700">Indeterminado</span>
+            <div class="text-gray-700">Indeterminado</div>
         @elseif ($version?->data_termino)
             <div class="text-gray-700">{{ $version->data_termino->format('d/m/Y') }}</div>
             <div class="text-xs {{ str_contains($version->tempo_restante ?? '', 'vencido') ? 'font-semibold text-red-600' : 'text-gray-500' }}">
@@ -71,13 +71,12 @@
         @else
             <span class="text-gray-400">—</span>
         @endif
+        <div class="mt-1 text-left text-xs text-gray-500">
+            Gerado: {{ $version?->created_at?->format('d/m/Y, à\s H:i') ?? '—' }}
+        </div>
     </td>
 
-    <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
-        {{ $version?->created_at?->format('d/m/Y, à\s H:i') ?? '—' }}
-    </td>
-
-    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+    <td class="py-3 px-2 text-sm text-center align-top">
         <span class="inline-flex items-center gap-3">
             <a href="{{ route('contracts.edit', $group) }}?from=index" title="Editar" aria-label="Editar"
                class="rounded-lg p-1.5 text-gray-600 transition hover:bg-gray-200 hover:text-gray-700">
