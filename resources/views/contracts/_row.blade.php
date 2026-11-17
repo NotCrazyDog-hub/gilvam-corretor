@@ -30,6 +30,10 @@
         </div>
     </td>
 
+    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+        {{ $version?->creator?->name ?? '—' }}
+    </td>
+
     <td class="py-3 px-4 text-sm text-center text-gray-900">
         {{ $typeName }}
     </td>
@@ -71,10 +75,6 @@
 
     <td class="py-3 px-4 text-sm text-left whitespace-nowrap">
         {{ $version?->created_at?->format('d/m/Y, à\s H:i') ?? '—' }}
-    </td>
-
-    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
-        {{ $version?->creator?->name ?? '—' }}
     </td>
 
     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
