@@ -7,6 +7,7 @@ use App\Domains\Clients\Models\Client;
 use App\Domains\Imoveis\Models\Imovel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class ContractGroup extends Model
@@ -74,6 +75,14 @@ class ContractGroup extends Model
     public function latestVersion()
     {
         return $this->hasOne(Contract::class)->latestOfMany('version');
+    }
+
+    /**
+     * Versão original, usada para manter fixo o responsável pelo contrato.
+     */
+    public function firstVersion(): HasOne
+    {
+        return $this->hasOne(Contract::class)->oldestOfMany('version');
     }
 
     public function getRouteKeyName()
