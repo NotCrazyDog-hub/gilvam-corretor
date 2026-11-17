@@ -44,6 +44,12 @@
             </div>
         </div>
 
+        <div class="field-wrapper px-2 py-1.5">
+            <label for="prestador-email" class="mr-2 whitespace-nowrap font-bold">E-MAIL:</label>
+            <input id="prestador-email" type="email" name="contratado[email]" value="{{ old('contratado.email', $contratado['email'] ?? '') }}"
+                   class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
+        </div>
+
         <div data-servico-contratado="pj" class="divide-y divide-black" @if ($tipoPrestador !== 'pj') hidden @endif>
             <div class="field-wrapper px-2 py-1.5">
                 <label for="prestador-razao-social" class="mr-2 whitespace-nowrap font-bold">RAZÃO SOCIAL:</label>
@@ -68,6 +74,20 @@
                        data-mask="cnpj" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00"
                        class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
             </div>
+        </div>
+
+        <div class="field-wrapper px-2 py-1.5">
+            <label for="prestador-endereco" class="mr-2 whitespace-nowrap font-bold">ENDEREÇO:</label>
+            <input id="prestador-endereco" name="contratado[endereco]" value="{{ old('contratado.endereco', $contratado['endereco'] ?? '') }}"
+                   class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
+        </div>
+        <div class="field-wrapper px-2 py-1.5">
+            <label for="prestador-telefones" class="mr-2 whitespace-nowrap font-bold">TELEFONES:</label>
+            <input id="prestador-telefones" name="contratado[telefones]" value="{{ old('contratado.telefones', $contratado['telefones'] ?? '') }}"
+                   class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
+        </div>
+
+        <div data-servico-contratado="pj" class="divide-y divide-black" @if ($tipoPrestador !== 'pj') hidden @endif>
             <div class="field-wrapper px-2 py-1.5">
                 <label for="prestador-representante" class="mr-2 whitespace-nowrap font-bold">REPRESENTANTE LEGAL:</label>
                 <input id="prestador-representante" name="contratado[representante_legal_nome]" value="{{ old('contratado.representante_legal_nome', $contratado['representante_legal_nome'] ?? '') }}"
@@ -86,22 +106,6 @@
                            class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
                 </div>
             </div>
-        </div>
-
-        <div class="field-wrapper px-2 py-1.5">
-            <label for="prestador-email" class="mr-2 whitespace-nowrap font-bold">E-MAIL:</label>
-            <input id="prestador-email" type="email" name="contratado[email]" value="{{ old('contratado.email', $contratado['email'] ?? '') }}"
-                   class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
-        </div>
-        <div class="field-wrapper px-2 py-1.5">
-            <label for="prestador-endereco" class="mr-2 whitespace-nowrap font-bold">ENDEREÇO:</label>
-            <input id="prestador-endereco" name="contratado[endereco]" value="{{ old('contratado.endereco', $contratado['endereco'] ?? '') }}"
-                   class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
-        </div>
-        <div class="field-wrapper px-2 py-1.5">
-            <label for="prestador-telefones" class="mr-2 whitespace-nowrap font-bold">TELEFONES:</label>
-            <input id="prestador-telefones" name="contratado[telefones]" value="{{ old('contratado.telefones', $contratado['telefones'] ?? '') }}"
-                   class="w-full border-0 bg-transparent p-0 focus:outline-none focus:ring-0">
         </div>
     </div>
 </div>

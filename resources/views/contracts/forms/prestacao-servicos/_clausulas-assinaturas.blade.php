@@ -19,11 +19,6 @@
         </p>
     </div>
 
-    <div class="grid grid-cols-2 gap-8 pt-8 text-center text-xs">
-        <div class="border-t border-black pt-1"><p class="font-bold">CONTRATANTE</p></div>
-        <div class="border-t border-black pt-1"><p class="font-bold">CONTRATADO(A)</p></div>
-    </div>
-
     <div>
         <p class="mb-4 font-bold">TESTEMUNHAS:</p>
         <div class="grid grid-cols-2 gap-8 text-center text-xs">
