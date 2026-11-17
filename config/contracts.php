@@ -97,6 +97,15 @@ $especificos = [
         'form_view'      => 'contracts.forms.compra-venda.form',
         'clausulas_padrao' => 'compra-venda.html',
     ],
+
+    'prestacao_servicos' => [
+        'titulo'         => 'contrato de prestação de serviços',
+        'base_legal'     => 'CÓDIGO CIVIL (LEI Nº 10.406/2002), ARTS. 593 A 609',
+        'form_supported' => true,
+        'template'       => 'contrato-de-prestacao-de-servicos.docx',
+        'form_view'      => 'contracts.forms.prestacao-servicos.form',
+        'clausulas_padrao' => 'prestacao-servicos.html',
+    ],
 ];
 
 $contractTypes = [];
