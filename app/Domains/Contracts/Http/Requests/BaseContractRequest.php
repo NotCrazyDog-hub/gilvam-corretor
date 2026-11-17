@@ -217,21 +217,39 @@ abstract class BaseContractRequest extends FormRequest
                 }
             }
 
-            unset($rules['contratado.creci']);
+            unset(
+                $rules['contratado.creci'],
+                $rules['contratado.nome'],
+                $rules['contratado.cpf_cnpj'],
+            );
 
             $rules += [
+                'contratante.email' => 'nullable|email|max:255',
+                'contratado.tipo' => 'required|string|in:pf,pj',
+                'contratado.nome' => 'required_if:contratado.tipo,pf|string|max:255',
+                'contratado.estado_civil' => 'required_if:contratado.tipo,pf|string|max:100',
+                'contratado.profissao' => 'required_if:contratado.tipo,pf|string|max:255',
+                'contratado.cpf' => 'required_if:contratado.tipo,pf|string|max:20',
+                'contratado.identidade' => 'required_if:contratado.tipo,pf|string|max:50',
+                'contratado.razao_social' => 'required_if:contratado.tipo,pj|string|max:255',
+                'contratado.nome_fantasia' => 'nullable|string|max:255',
+                'contratado.inscricao_estadual' => 'nullable|string|max:100',
+                'contratado.cnpj' => 'required_if:contratado.tipo,pj|string|max:20',
+                'contratado.representante_legal_nome' => 'required_if:contratado.tipo,pj|string|max:255',
+                'contratado.representante_legal_cargo' => 'required_if:contratado.tipo,pj|string|max:100',
+                'contratado.representante_legal_cpf' => 'required_if:contratado.tipo,pj|string|max:20',
                 'contratado.email' => 'nullable|email|max:255',
-                'prestacao_servicos' => 'required|array',
-                'prestacao_servicos.objeto' => 'required|string|max:10000',
-                'prestacao_servicos.local_execucao' => 'nullable|string|max:5000',
-                'prestacao_servicos.data_inicio' => 'required|date',
-                'prestacao_servicos.prazo' => 'nullable|string|max:255',
-                'prestacao_servicos.entregaveis' => 'nullable|string|max:5000',
-                'prestacao_servicos.remuneracao' => 'required|string|max:255',
-                'prestacao_servicos.forma_pagamento' => 'required|string|max:1000',
-                'prestacao_servicos.despesas' => 'nullable|string|max:5000',
-                'prestacao_servicos.aviso_previo' => 'nullable|string|max:255',
-                'prestacao_servicos.observacoes' => 'nullable|string|max:5000',
+                'servico' => 'required|array',
+                'servico.descricao' => 'required|string|max:10000',
+                'servico.local' => 'nullable|string|max:5000',
+                'servico.entregaveis' => 'nullable|string|max:5000',
+                'servico.data_inicio' => 'required|date',
+                'servico.prazo' => 'required|string|max:255',
+                'servico.outros_dados' => 'nullable|string|max:5000',
+                'servico.valor' => 'required|string|max:255',
+                'servico.forma_pagamento' => 'required|string|max:1000',
+                'servico.vencimento' => 'required|string|max:500',
+                'servico.dados_pagamento' => 'nullable|string|max:1000',
             ];
         }
 
@@ -293,10 +311,21 @@ abstract class BaseContractRequest extends FormRequest
             'comprador.representante_legal_cpf.required_if' => 'O CPF do representante legal do comprador é obrigatório.',
             'comprador.endereco.required' => 'O endereço do comprador é obrigatório.',
 
-            'prestacao_servicos.objeto.required' => 'Descreva o objeto e o escopo dos serviços.',
-            'prestacao_servicos.data_inicio.required' => 'Informe a data de início dos serviços.',
-            'prestacao_servicos.remuneracao.required' => 'Informe a remuneração pelos serviços.',
-            'prestacao_servicos.forma_pagamento.required' => 'Informe a forma e as datas de pagamento.',
+            'contratado.tipo.required' => 'Selecione se o prestador é pessoa física ou jurídica.',
+            'contratado.nome.required_if' => 'O nome do prestador é obrigatório.',
+            'contratado.cpf.required_if' => 'O CPF do prestador é obrigatório.',
+            'contratado.identidade.required_if' => 'A identidade do prestador é obrigatória.',
+            'contratado.razao_social.required_if' => 'A razão social do prestador é obrigatória.',
+            'contratado.cnpj.required_if' => 'O CNPJ do prestador é obrigatório.',
+            'contratado.representante_legal_nome.required_if' => 'O representante legal do prestador é obrigatório.',
+            'contratado.representante_legal_cargo.required_if' => 'O cargo do representante legal do prestador é obrigatório.',
+            'contratado.representante_legal_cpf.required_if' => 'O CPF do representante legal do prestador é obrigatório.',
+            'servico.descricao.required' => 'Descreva o serviço contratado.',
+            'servico.data_inicio.required' => 'Informe a data de início dos serviços.',
+            'servico.prazo.required' => 'Informe o prazo ou a vigência dos serviços.',
+            'servico.valor.required' => 'Informe o valor dos serviços.',
+            'servico.forma_pagamento.required' => 'Informe a forma de pagamento.',
+            'servico.vencimento.required' => 'Informe o vencimento ou as datas de pagamento.',
 
             'data_termino.required_if' => 'Informe a data de término ou marque como prazo indeterminado.',
             'data_termino.after'       => 'A data de término deve ser posterior a hoje.',

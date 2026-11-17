@@ -105,7 +105,7 @@ class ContractVersionService
         }
 
         if (($data['contract_type'] ?? null) === 'prestacao_servicos') {
-            $contentData['prestacao_servicos'] = $data['prestacao_servicos'] ?? [];
+            $contentData['prestacao_servicos'] = $data['servico'] ?? [];
         }
 
         return $group->versions()->create([

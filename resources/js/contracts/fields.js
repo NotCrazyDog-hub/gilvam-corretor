@@ -24,13 +24,13 @@ const CAMPOS_CONTRATANTE = {
     pf: {
         nome: 'contratante[nome]', cpf: 'contratante[cpf]', rg: 'contratante[identidade]',
         estado_civil: 'contratante[estado_civil]', profissao: 'contratante[profissao]',
-        conjuge_nome: 'contratante[conjuge_nome]', conjuge_rg: 'contratante[conjuge_identidade]',
+        email: 'contratante[email]', conjuge_nome: 'contratante[conjuge_nome]', conjuge_rg: 'contratante[conjuge_identidade]',
         endereco: 'contratante[endereco]', telefone: 'contratante[telefones]',
     },
     pj: {
         razao_social: 'contratante[razao_social]', nome_fantasia: 'contratante[nome_fantasia]',
         cnpj: 'contratante[cnpj]', inscricao_estadual: 'contratante[inscricao_estadual]',
-        endereco: 'contratante[endereco]',
+        endereco: 'contratante[endereco]', email: 'contratante[email]',
         representante_legal_nome: 'contratante[representante_legal_nome]',
         representante_legal_cargo: 'contratante[representante_legal_cargo]',
         representante_legal_cpf: 'contratante[representante_legal_cpf]',

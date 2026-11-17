@@ -62,6 +62,15 @@ class ContractGeneratorService
         'representante_legal_nome', 'representante_legal_cargo',
     ];
 
+    private const LINHAS_PRESTACAO_SERVICOS_SO_PF = [
+        'nome', 'estado_civil', 'cpf',
+    ];
+
+    private const LINHAS_PRESTACAO_SERVICOS_SO_PJ = [
+        'razao_social', 'nome_fantasia', 'cnpj',
+        'representante_legal_nome', 'representante_legal_cargo',
+    ];
+
     private const CAMPOS_COMPRA_VENDA_PESSOA = [
         'nome', 'estado_civil', 'profissao', 'nacionalidade', 'email', 'cpf', 'identidade',
         'conjuge_nome', 'conjuge_identidade', 'conjuge_cpf', 'regime_bens', 'razao_social',
@@ -79,8 +88,8 @@ class ContractGeneratorService
     ];
 
     private const CAMPOS_PRESTACAO_SERVICOS = [
-        'objeto', 'local_execucao', 'data_inicio', 'prazo', 'entregaveis',
-        'remuneracao', 'forma_pagamento', 'despesas', 'aviso_previo', 'observacoes',
+        'descricao', 'local', 'entregaveis', 'data_inicio', 'prazo',
+        'outros_dados', 'valor', 'forma_pagamento', 'vencimento', 'dados_pagamento',
     ];
 
     private const CAMPOS_LOCADOR = [
@@ -170,6 +179,13 @@ class ContractGeneratorService
                 'comprador',
                 ($data['comprador']['tipo'] ?? '') === 'pj'
             );
+        } elseif ($contractType === 'prestacao_servicos') {
+            $this->deletePrestacaoServicosPersonRows($processor, 'contratante', $isPj);
+            $this->deletePrestacaoServicosPersonRows(
+                $processor,
+                'contratado',
+                ($data['contratado']['tipo'] ?? 'pf') === 'pj'
+            );
         } elseif ($contractType === 'doacao') {
             $this->deleteDonationPersonRows($processor, 'doador', $isPj);
 
@@ -236,6 +252,20 @@ class ContractGeneratorService
         $placeholders = $isPj
             ? self::LINHAS_COMPRA_VENDA_SO_PF
             : self::LINHAS_COMPRA_VENDA_SO_PJ;
+
+        foreach ($placeholders as $placeholder) {
+            $processor->deleteRow("{$prefix}.{$placeholder}");
+        }
+    }
+
+    private function deletePrestacaoServicosPersonRows(
+        TemplateProcessor $processor,
+        string $prefix,
+        bool $isPj
+    ): void {
+        $placeholders = $isPj
+            ? self::LINHAS_PRESTACAO_SERVICOS_SO_PF
+            : self::LINHAS_PRESTACAO_SERVICOS_SO_PJ;
 
         foreach ($placeholders as $placeholder) {
             $processor->deleteRow("{$prefix}.{$placeholder}");
@@ -332,12 +362,12 @@ class ContractGeneratorService
                 array_intersect_key($values, array_flip($fields)),
             );
 
-            $servico = $fill(self::CAMPOS_PRESTACAO_SERVICOS, $data['prestacao_servicos'] ?? []);
+            $servico = $fill(self::CAMPOS_PRESTACAO_SERVICOS, $data['servico'] ?? []);
             $servico['data_inicio'] = $this->formatDate($servico['data_inicio']);
 
             $content['contratante'] = $data['contratante'] ?? [];
             $content['contratado'] = $data['contratado'] ?? [];
-            $content['prestacao_servicos'] = $servico;
+            $content['servico'] = $servico;
 
             return $content;
         }

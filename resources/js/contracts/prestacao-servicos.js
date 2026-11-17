@@ -1,6 +1,29 @@
 import { preencherCampos, CAMPOS_CONTRATANTE, atualizarCamposPessoa } from './fields.js';
+import { mountCnpjMask, mountCpfMask, mountCurrencyMask, mountPhoneMask } from './masks.js';
+
+function atualizarCamposPrestador(tipo) {
+    document.querySelectorAll('[data-servico-contratado]').forEach((bloco) => {
+        const ativo = bloco.dataset.servicoContratado === tipo;
+        bloco.hidden = !ativo;
+        bloco.querySelectorAll('input').forEach((input) => {
+            input.disabled = !ativo;
+        });
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+    mountCpfMask('[name="contratado[cpf]"]');
+    mountCpfMask('[name="contratado[representante_legal_cpf]"]');
+    mountCnpjMask('[name="contratado[cnpj]"]');
+    mountPhoneMask('[name="contratado[telefones]"]');
+    mountCurrencyMask('#servico-valor');
+
+    const tipoPrestador = document.getElementById('prestador-tipo');
+    if (tipoPrestador) {
+        atualizarCamposPrestador(tipoPrestador.value);
+        tipoPrestador.addEventListener('change', () => atualizarCamposPrestador(tipoPrestador.value));
+    }
+
     const bloco = document.getElementById('bloco-busca-cliente-servico');
     if (!bloco) return;
 
