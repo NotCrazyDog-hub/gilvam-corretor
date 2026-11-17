@@ -110,8 +110,8 @@
                             <col class="w-[12%]">
                             <col class="w-[13%]">
                             <col class="w-[22%]">
-                            <col class="w-[11%]">
                             <col class="w-[16%]">
+                            <col class="w-[11%]">
                             <col class="w-[8%]">
                         </colgroup>
                         <thead>
@@ -120,8 +120,8 @@
                                     'contract' => 'Contrato',
                                     'type' => 'Tipo',
                                     'property' => 'Imóvel',
-                                    'status' => 'Situação',
-                                    'generated' => 'Validade / Gerado em',
+                                    'status' => 'Situação / Validade',
+                                    'generated' => 'Gerado em',
                                 ] as $sortColumn => $label)
                                     <th scope="col" class="px-2 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 {{ $sortColumn === 'contract' ? 'text-left' : '' }}">
                                         <a href="{{ $sortUrl($sortColumn) }}" class="inline-flex items-center gap-1.5 hover:text-slate-900">
