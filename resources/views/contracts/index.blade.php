@@ -104,7 +104,7 @@
                 </div>
 
                 <div class="mt-3 overflow-x-auto rounded-lg border border-gray-200">
-                    <table class="w-full min-w-[1050px] border-collapse text-left">
+                    <table class="w-full min-w-[1200px] border-collapse text-left">
                         <thead>
                             <tr class="divide-x divide-gray-200 border-b border-gray-200 bg-gray-50">
                                 @foreach ([
@@ -124,6 +124,7 @@
                                         </a>
                                     </th>
                                 @endforeach
+                                <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Responsável</th>
                                 <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Ações</th>
                             </tr>
                         </thead>
@@ -133,7 +134,7 @@
                                 @include('contracts._row', ['group' => $group, 'rowIndex' => $rowIndex])
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500">
+                                    <td colspan="8" class="px-4 py-10 text-center text-sm text-gray-500">
                                         @if ($search || $contractType || $situacao)
                                             Nenhum contrato corresponde aos filtros aplicados.
                                         @else

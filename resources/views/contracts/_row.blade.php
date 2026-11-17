@@ -74,6 +74,10 @@
     </td>
 
     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
+        {{ $version?->creator?->name ?? '—' }}
+    </td>
+
+    <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
         <span class="inline-flex items-center gap-3">
             <a href="{{ route('contracts.edit', $group) }}?from=index" title="Editar" aria-label="Editar"
                class="rounded-lg p-1.5 text-gray-600 transition hover:bg-gray-200 hover:text-gray-700">

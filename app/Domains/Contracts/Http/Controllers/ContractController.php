@@ -53,7 +53,7 @@ class ContractController extends Controller
             ->when(mb_strlen($search) >= 2, fn (Builder $groups) =>
                 $this->searchGroups($groups, $search)
             )
-            ->with(['latestVersion', 'client', 'imovel']);
+            ->with(['latestVersion.creator', 'client', 'imovel']);
 
         $latestContractValue = fn (string $column) => Contract::query()
             ->select($column)

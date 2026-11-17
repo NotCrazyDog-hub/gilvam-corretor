@@ -23,6 +23,7 @@ class Contract extends Model
         'prazo_indeterminado',
         'file_path',
         'file_format',
+        'created_by',
     ];
 
     protected $casts = [
