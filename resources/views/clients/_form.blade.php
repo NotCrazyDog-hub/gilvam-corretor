@@ -168,18 +168,6 @@
         </div>
     </div>
 
-        {{-- Botões --}}
-    <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200">
-        <a href="{{ route('clients.index') }}"
-        class="px-5 py-2.5 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
-            Cancelar
-        </a>
-
-        <button type="submit"
-                class="px-5 py-2.5 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            {{ $client ? 'Salvar alterações' : 'Salvar' }}
-        </button>
-    </div>
 </form>
 
 <script>

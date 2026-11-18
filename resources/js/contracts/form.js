@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     atualizarCamposPessoa(initialClientType);
 
     const submitBtn = document.getElementById('submit-btn');
+    const submitBtnLabel = submitBtn?.dataset.defaultLabel || submitBtn?.textContent?.trim() || 'Gerar contrato';
     const resultado = document.getElementById('resultado');
     const linkDownload = document.getElementById('link-download');
     const erroBox = document.getElementById('erro');
@@ -116,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Gerar contrato';
+            submitBtn.textContent = submitBtnLabel;
         }
     });
 

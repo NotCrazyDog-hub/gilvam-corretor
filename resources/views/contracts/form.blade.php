@@ -19,6 +19,9 @@
         ? json_decode($clausulasSalvas, true)
         : \App\Domains\Contracts\Services\ContractTypes::clausulasPadrao($tipoContratoKey);
     $locacaoSalva = $contract?->content_json['locacao'] ?? [];
+    $cancelUrl = request('from') === 'versions' && $group
+        ? route('contracts.versions', $group)
+        : route('contracts.index');
 @endphp
 
 <x-app-layout>
@@ -42,8 +45,15 @@
         }
     </style>
 
-    <div class="py-12 bg-gray-50 min-h-screen">
+    <div class="py-12 pb-32 bg-gray-50 min-h-screen">
         <div class="max-w-[900px] mx-auto bg-white p-8 rounded-lg shadow-sm font-sans text-black">
+            <a href="{{ $cancelUrl }}"
+               class="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-900 hover:decoration-slate-600">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Voltar
+            </a>
 
             {{-- Cabeçalho igual ao topo do .docx (vem do tipo de contrato) --}}
             <div class="text-center mb-6 leading-snug">
@@ -164,19 +174,11 @@
 
                 @include($tipoContrato['form_view'] ?? 'contracts.forms.corretagem-venda.form')
 
-                {{-- Botões: centralizados, um sobre o outro (principal em cima, cancelar embaixo) --}}
-                <div class="flex flex-col items-center gap-3 pt-4">
-                    <button type="submit" id="submit-btn" {{ !$templateAvailable ? 'disabled' : '' }}
-                            class="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white shadow-sm rounded-lg px-8 py-3.5 text-base font-bold transition disabled:opacity-50 disabled:cursor-not-allowed">
-                        {{ $group ? 'Salvar nova versão' : 'Gerar contrato' }}
-                    </button>
-
-                    <a href="{{ request('from') === 'versions' ? route('contracts.versions', $group) : route('contracts.index') }}"
-                       class="w-full max-w-sm text-center bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 shadow-sm rounded-lg px-8 py-3.5 text-base font-bold transition">
-                        Cancelar ou voltar
-                    </a>
-                </div>
             </form>
+
+            <x-form-action-bar form-id="contract-form" button-id="submit-btn" :cancel-url="$cancelUrl"
+                               :submit-label="$group ? 'Salvar nova versão' : 'Gerar contrato'"
+                               container-class="max-w-[900px]" :disabled="!$templateAvailable" />
 
             <div id="resultado" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <a id="link-download" href="#" class="text-brand-green font-semibold hover:underline">
