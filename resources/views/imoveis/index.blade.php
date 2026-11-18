@@ -8,12 +8,6 @@
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            @if (session('sucesso'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded border border-green-300 text-sm">
-                    {{ session('sucesso') }}
-                </div>
-            @endif
-
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
 
                 {{-- Busca + filtro + Novo imóvel --}}

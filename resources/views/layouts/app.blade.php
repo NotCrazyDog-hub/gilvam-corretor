@@ -38,5 +38,7 @@
                 &copy; {{ date('Y') }} Gilvam Vieira Corretora. Todos os direitos reservados.
             </footer>
         </div>
+
+        <x-toast-notification />
     </body>
 </html>

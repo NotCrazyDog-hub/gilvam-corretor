@@ -46,12 +46,6 @@
                 Voltar para a lista
             </a>
 
-            @if (session('sucesso'))
-                <div class="p-4 bg-green-100 text-green-800 rounded border border-green-300 text-sm">
-                    {{ session('sucesso') }}
-                </div>
-            @endif
-
             @if ($imovel->possui_onus)
                 <div class="p-4 bg-amber-50 text-amber-800 rounded border border-amber-200 text-sm">
                     ⚠️ Este imóvel possui ônus ou direitos reais registrados. Veja detalhes na seção "Situação Jurídica".

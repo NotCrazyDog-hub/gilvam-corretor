@@ -180,12 +180,6 @@
                                :submit-label="$group ? 'Salvar nova versão' : 'Gerar contrato'"
                                container-class="max-w-[900px]" :disabled="!$templateAvailable" />
 
-            <div id="resultado" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <a id="link-download" href="#" class="text-brand-green font-semibold hover:underline">
-                    Baixar contrato gerado
-                </a>
-            </div>
-
             <div id="erro" class="hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-brand-red"></div>
 
         </div>

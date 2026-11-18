@@ -1,4 +1,4 @@
-import { mountEditor, buildPayload, downloadContract } from './editors.js';
+import { mountEditor, buildPayload } from './editors.js';
 import { atualizarCamposPessoa } from './fields.js';
 import { mountImovelSearch } from './property-search.js';
 import { limparErrosDeCampo, exibirErrosDeCampo } from './validation.js';
@@ -49,15 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const submitBtn = document.getElementById('submit-btn');
     const submitBtnLabel = submitBtn?.dataset.defaultLabel || submitBtn?.textContent?.trim() || 'Gerar contrato';
-    const resultado = document.getElementById('resultado');
-    const linkDownload = document.getElementById('link-download');
     const erroBox = document.getElementById('erro');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         erroBox?.classList.add('hidden');
-        resultado?.classList.add('hidden');
         limparErrosDeCampo(form);
         submitBtn.disabled = true;
         submitBtn.textContent = 'Gerando...';
@@ -79,14 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
 
-                if (linkDownload) {
-                    linkDownload.href = data.download_url;
-                    linkDownload.onclick = (ev) => {
-                        ev.preventDefault();
-                        downloadContract(data.download_url, data.file_name);
-                    };
+                if (data.redirect_url) {
+                    window.location.assign(data.redirect_url);
+                    return;
                 }
-                resultado?.classList.remove('hidden');
+
+                window.dispatchEvent(new CustomEvent('app-toast', {
+                    detail: { type: 'success', message: 'Contrato salvo com sucesso.' },
+                }));
                 return;
             }
 
@@ -108,6 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 erroBox.classList.remove('hidden');
             }
 
+            window.dispatchEvent(new CustomEvent('app-toast', {
+                detail: {
+                    type: 'error',
+                    message: response.status === 422
+                        ? 'Confira os campos destacados para concluir o contrato.'
+                        : 'Não foi possível salvar o contrato. Tente novamente.',
+                },
+            }));
+
             form.querySelector('.campo-invalido')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } catch (err) {
             // erro de rede, não de resposta HTTP
@@ -115,6 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 erroBox.textContent = 'Erro ao gerar contrato: ' + err.message;
                 erroBox.classList.remove('hidden');
             }
+
+            window.dispatchEvent(new CustomEvent('app-toast', {
+                detail: { type: 'error', message: 'Não foi possível conectar ao sistema para salvar o contrato.' },
+            }));
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = submitBtnLabel;

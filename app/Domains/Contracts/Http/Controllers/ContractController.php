@@ -185,7 +185,11 @@ class ContractController extends Controller
             userId: $request->user()?->id,
         );
 
-        return response()->json($this->contractPayload($contract));
+        session()->flash('success', 'Contrato gerado com sucesso.');
+
+        return response()->json($this->contractPayload($contract) + [
+            'redirect_url' => route('contracts.index'),
+        ]);
     }
 
     /**
@@ -220,7 +224,11 @@ class ContractController extends Controller
             userId: $request->user()?->id,
         );
 
-        return response()->json($this->contractPayload($contract));
+        session()->flash('success', 'Nova versão do contrato salva com sucesso.');
+
+        return response()->json($this->contractPayload($contract) + [
+            'redirect_url' => route('contracts.index'),
+        ]);
     }
 
     /**
