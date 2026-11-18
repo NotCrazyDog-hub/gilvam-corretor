@@ -17,7 +17,7 @@
 
         <button type="submit" form="{{ $formId }}" data-default-label="{{ $submitLabel }}" @if ($buttonId) id="{{ $buttonId }}" @endif
                 @disabled($disabled)
-                class="h-14 w-full whitespace-nowrap rounded-lg bg-emerald-700 px-6 text-base font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-56 sm:px-8">
+                class="h-14 w-full whitespace-nowrap rounded-lg bg-emerald-700 px-6 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-56 sm:px-8">
             {{ $submitLabel }}
         </button>
     </div>
