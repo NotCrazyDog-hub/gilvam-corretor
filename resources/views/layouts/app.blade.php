@@ -1,3 +1,16 @@
+@php
+    $showFooterClearance = request()->routeIs(
+        'clients.create',
+        'clients.edit',
+        'imoveis.create',
+        'imoveis.edit',
+        'contracts.create',
+        'contracts.create.pf',
+        'contracts.create.pj',
+        'contracts.edit',
+    );
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -16,7 +29,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 flex flex-col">
+        <div class="min-h-screen bg-gray-100 flex flex-col {{ $showFooterClearance ? 'pb-44 sm:pb-24' : '' }}">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
