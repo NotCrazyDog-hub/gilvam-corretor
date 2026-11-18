@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12 pb-32 bg-gray-100 min-h-screen">
+    <div class="py-12 pb-32 min-h-screen">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <a href="{{ route('imoveis.index') }}"
