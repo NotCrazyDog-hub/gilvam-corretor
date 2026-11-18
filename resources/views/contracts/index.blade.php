@@ -44,13 +44,56 @@
                                    class="w-full rounded-full border-gray-300 py-2.5 pl-12 pr-5 text-sm focus:border-blue-500 focus:ring-blue-500">
                         </label>
 
-                        <select name="contract_type" aria-label="Filtrar por tipo de contrato" onchange="this.form.submit()"
-                                class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-56">
-                            <option value="">Todos os tipos</option>
+                        <div x-data="{
+                                open: false,
+                                search: '',
+                                selected: @js($contractType),
+                                selectedLabel: @js($contractType ? config('contracts.types')[$contractType]['nome'] : 'Todos os tipos'),
+                                matches(name) {
+                                    const normalize = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                                    return normalize(name).includes(normalize(this.search.trim()));
+                                }
+                            }"
+                            @click.outside="open = false; search = ''"
+                            @keydown.escape.window="open = false; search = ''"
+                            class="relative w-full shrink-0 lg:w-56">
+                            <input type="hidden" name="contract_type" :value="selected">
+                            <button type="button" aria-label="Filtrar por tipo de contrato" aria-haspopup="listbox" :aria-expanded="open"
+                                    @click="open = !open; if (open) { search = ''; $nextTick(() => $refs.typeSearch.focus()) }"
+                                    class="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-left text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                <span class="truncate" x-text="selectedLabel"></span>
+                                <svg class="h-4 w-4 shrink-0 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <div x-show="open" x-cloak x-transition role="listbox"
+                                 class="absolute left-0 z-30 mt-2 max-h-64 w-80 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-lg border border-slate-100 bg-white py-2 shadow-lg">
+                                <div class="sticky top-0 z-10 border-b border-slate-100 bg-white px-2 pb-2">
+                                    <input x-ref="typeSearch" x-model="search" type="search" placeholder="Buscar tipo de contrato..."
+                                           aria-label="Buscar tipo de contrato"
+                                           class="w-full rounded-md border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <button type="button" role="option" data-contract-label="Todos os tipos" data-contract-type=""
+                                        x-show="matches($el.dataset.contractLabel)"
+                                        @click="selected = ''; selectedLabel = 'Todos os tipos'; open = false; search = ''; $el.closest('form').requestSubmit()"
+                                        class="block w-full px-4 py-2 text-left text-sm text-slate-700 transition hover:bg-gray-100">
+                                    Todos os tipos
+                                </button>
                             @foreach (config('contracts.types') as $key => $tipoContrato)
-                                <option value="{{ $key }}" @selected($contractType === $key)>{{ $tipoContrato['nome'] }}</option>
+                                    <button type="button" role="option" data-contract-label="{{ $tipoContrato['nome'] }}" data-contract-type="{{ $key }}"
+                                            x-show="matches($el.dataset.contractLabel)"
+                                            @click="selected = $el.dataset.contractType; selectedLabel = $el.dataset.contractLabel; open = false; search = ''; $el.closest('form').requestSubmit()"
+                                            class="block w-full px-4 py-2 text-left text-sm text-slate-700 transition hover:bg-gray-100">
+                                        {{ $tipoContrato['nome'] }}
+                                    </button>
                             @endforeach
-                        </select>
+                                <p x-show="!Array.from($el.parentElement.querySelectorAll('[data-contract-label]')).some(option => matches(option.dataset.contractLabel))"
+                                   class="px-4 py-3 text-sm text-slate-500">
+                                    Nenhum tipo encontrado.
+                                </p>
+                            </div>
+                        </div>
 
                         <select name="status" aria-label="Filtrar por situação" onchange="this.form.submit()"
                                 class="w-full shrink-0 rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 lg:w-52">
@@ -61,8 +104,18 @@
                         </select>
                     </form>
 
-                    <div x-data="{ open: false }" @click.outside="open = false" class="relative shrink-0 self-start xl:self-auto">
-                        <button @click="open = !open" type="button" aria-haspopup="true" :aria-expanded="open"
+                    <div x-data="{
+                            open: false,
+                            search: '',
+                            matches(name) {
+                                const normalize = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                                return normalize(name).includes(normalize(this.search.trim()));
+                            }
+                        }"
+                        @click.outside="open = false; search = ''"
+                        @keydown.escape.window="open = false; search = ''"
+                        class="relative shrink-0 self-start xl:self-auto">
+                        <button @click="open = !open; if (open) { search = ''; $nextTick(() => $refs.newContractSearch.focus()) }" type="button" aria-haspopup="true" :aria-expanded="open"
                                 class="flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm text-white transition hover:bg-emerald-800">
                             <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -74,6 +127,11 @@
                         </button>
 
                         <div x-show="open" x-cloak x-transition class="absolute right-0 z-30 mt-2 max-h-64 w-80 overflow-y-auto overscroll-contain rounded-lg border border-slate-100 bg-white py-2 shadow-lg">
+                            <div class="sticky top-0 z-10 border-b border-slate-100 bg-white px-2 pb-2">
+                                <input x-ref="newContractSearch" x-model="search" type="search" placeholder="Buscar tipo de contrato..."
+                                       aria-label="Buscar tipo de contrato" @click.stop
+                                       class="w-full rounded-md border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
                             @foreach (config('contracts.types') as $key => $tipoContrato)
                                 @php
                                     $pendente = empty($tipoContrato['form_supported'])
@@ -81,7 +139,10 @@
                                             ->exists(config('contracts.templates_dir') . '/' . $tipoContrato['template']);
                                 @endphp
 
-                                <a href="{{ route('contracts.create', ['contractType' => $key]) }}" class="group flex items-start gap-3 px-4 py-2 text-sm text-slate-700 transition hover:bg-gray-100">
+                                <a href="{{ route('contracts.create', ['contractType' => $key]) }}"
+                                   data-contract-name="{{ $tipoContrato['nome'] }}"
+                                   x-show="matches($el.dataset.contractName)"
+                                   class="group flex items-start gap-3 px-4 py-2 text-sm text-slate-700 transition hover:bg-gray-100">
                                     <svg class="mt-0.5 h-5 w-5 shrink-0 {{ $pendente ? 'text-amber-500' : 'text-slate-400 group-hover:text-green-600' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                                     </svg>
@@ -93,6 +154,10 @@
                                     </span>
                                 </a>
                             @endforeach
+                            <p x-show="!Array.from($el.parentElement.querySelectorAll('[data-contract-name]')).some(option => matches(option.dataset.contractName))"
+                               class="px-4 py-3 text-sm text-slate-500">
+                                Nenhum tipo encontrado.
+                            </p>
                         </div>
                     </div>
                 </div>
