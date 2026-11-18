@@ -26,7 +26,7 @@
                 </div>
             @endif
 
-            <div class="overflow-hidden rounded-lg bg-white p-6 shadow-sm">
+            <div class="rounded-lg bg-white p-6 shadow-sm">
                 <div class="flex flex-col gap-3 xl:flex-row xl:items-center">
                     <form method="GET" action="{{ route('contracts.index') }}"
                           class="flex min-w-0 flex-1 flex-col gap-3 lg:flex-row lg:items-center">
@@ -73,7 +73,7 @@
                             </svg>
                         </button>
 
-                        <div x-show="open" x-cloak x-transition class="absolute right-0 z-20 mt-2 max-h-[70vh] w-80 overflow-y-auto rounded-lg border border-slate-100 bg-white py-2 shadow-lg">
+                        <div x-show="open" x-cloak x-transition class="absolute right-0 z-30 mt-2 max-h-[70vh] w-80 overflow-y-auto rounded-lg border border-slate-100 bg-white py-2 shadow-lg">
                             @foreach (config('contracts.types') as $key => $tipoContrato)
                                 @php
                                     $pendente = empty($tipoContrato['form_supported'])
