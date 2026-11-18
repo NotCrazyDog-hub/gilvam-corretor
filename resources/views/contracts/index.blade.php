@@ -73,7 +73,7 @@
                             </svg>
                         </button>
 
-                        <div x-show="open" x-cloak x-transition class="absolute right-0 z-30 mt-2 max-h-[70vh] w-80 overflow-y-auto rounded-lg border border-slate-100 bg-white py-2 shadow-lg">
+                        <div x-show="open" x-cloak x-transition class="absolute right-0 z-30 mt-2 max-h-64 w-80 overflow-y-auto overscroll-contain rounded-lg border border-slate-100 bg-white py-2 shadow-lg">
                             @foreach (config('contracts.types') as $key => $tipoContrato)
                                 @php
                                     $pendente = empty($tipoContrato['form_supported'])
