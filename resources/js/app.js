@@ -7,4 +7,6 @@ import './contracts/compra-venda.js';
 import './contracts/prestacao-servicos.js';
 
 window.Alpine = Alpine;
+
+
 Alpine.start();

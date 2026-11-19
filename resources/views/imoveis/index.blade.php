@@ -112,12 +112,22 @@
                                     {{-- stopPropagation: cliques nos botões não disparam o clique da linha --}}
                                     <td class="py-3 px-4 whitespace-nowrap" onclick="event.stopPropagation()">
                                         <span class="inline-flex items-center gap-3">
-                                            <a href="{{ route('imoveis.show', $imovel) }}"
-                                               title="Ver" aria-label="Ver"
-                                               class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition">
+                                            <button type="button" x-data
+                                                x-on:click="$dispatch('abrir-modal', { url: '{{ route('imoveis.show', $imovel) }}' })"
+                                                title="Ver" aria-label="Ver"
+                                                class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition">
                                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+
+                                            <a href="{{ route('imoveis.pdf', $imovel) }}"
+                                               title="Baixar PDF" aria-label="Baixar PDF"
+                                               style="color: #047857;"
+                                               class="p-1.5 rounded-lg hover:bg-green-100 transition">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
                                                 </svg>
                                             </a>
 
@@ -162,4 +172,6 @@
             </div>
         </div>
     </div>
+
+    <x-modal-ajax />
 </x-app-layout>

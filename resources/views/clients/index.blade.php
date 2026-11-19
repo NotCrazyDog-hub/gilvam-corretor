@@ -137,14 +137,14 @@
                                     <td class="py-3 px-4 text-sm text-center whitespace-nowrap">
                                         <span class="inline-flex items-center gap-3">
                                             {{-- Ver --}}
-                                            <a href="{{ route('clients.show', $client) }}"
-                                            title="Ver" aria-label="Ver"
-                                            class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition">
+                                           <button type="button" x-data
+                                                    x-on:click="$dispatch('ver-detalhes', { url: '{{ route('clients.show', $client) }}' })"
+                                                    class="p-1.5 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition">
                                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                            </a>
+                                            </button>
 
                                             {{-- Editar (papel com lápis) --}}
                                             <a href="{{ route('clients.edit', $client) }}"
@@ -182,10 +182,60 @@
                     </table>
                 </div>
 
-                <div class="mt-4">
+                                <div class="mt-4">
                     {{ $clients->links() }}
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MODAL DE DETALHES ===== --}}
+    <div x-data="{
+            aberto: false,
+            carregando: false,
+            erro: false,
+            html: '',
+            async abrir(url) {
+                this.aberto = true;
+                this.carregando = true;
+                this.erro = false;
+                this.html = '';
+                try {
+                    const r = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    if (!r.ok) throw new Error(r.status);
+                    this.html = await r.text();
+                } catch (e) {
+                    this.erro = true;
+                } finally {
+                    this.carregando = false;
+                }
+            },
+            fechar() { this.aberto = false; }
+        }"
+        x-on:ver-detalhes.window="abrir($event.detail.url)"
+        x-on:keydown.escape.window="fechar()">
+
+        <div x-show="aberto" style="display: none;"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+            {{-- fundo escuro: clicar fecha --}}
+            <div class="absolute inset-0 bg-gray-500 opacity-75" x-on:click="fechar()"></div>
+
+            {{-- caixa do modal --}}
+            <div class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+
+                <p x-show="carregando" class="text-gray-500">Carregando...</p>
+                <p x-show="erro" class="text-red-600">Não foi possível carregar os detalhes.</p>
+
+                <div x-html="html"></div>
+
+                <div class="mt-6 flex justify-end">
+                    <button type="button" x-on:click="fechar()"
+                            class="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100">
+                        Fechar
+                    </button>
+                </div>
             </div>
         </div>
     </div>

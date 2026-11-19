@@ -9,10 +9,40 @@ use App\Domains\Imoveis\Models\Imovel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ImovelController extends Controller
 {
+    /**
+     * Campos checkbox: desmarcado não é enviado pelo navegador,
+     * então forçamos false para o valor antigo não permanecer no banco.
+     */
+    private const CAMPOS_BOOLEANOS = [
+        'onus_hipoteca',
+        'onus_alienacao_fiduciaria',
+        'onus_penhora',
+        'onus_usufruto',
+        'onus_indisponibilidade',
+        'onus_servidao',
+        'onus_promessa_compra_venda',
+        'existe_acoes',
+        'doc_certidao_onus_reais',
+        'doc_certidao_acoes_reais',
+        'doc_certidao_negativa_debitos',
+        'doc_comprovante_inscricao_imobiliaria',
+        'doc_certidao_quitacao_condominial',
+        'doc_convencao_condominio',
+        'doc_planta_aprovacao',
+        'doc_habite_se',
+        'doc_ambiental',
+        'doc_rural',
+        'doc_ccir',
+        'doc_car',
+        'doc_itr',
+    ];
+
     public function __construct(private ImageStorage $imageStorage)
     {
     }
@@ -20,14 +50,15 @@ class ImovelController extends Controller
     public function index(Request $request): View
     {
         $imoveis = Imovel::query()
+            ->with('imagemPrincipal')
             ->when($request->filled('busca'), function ($query) use ($request) {
                 $busca = $request->input('busca');
                 $query->where(function ($q) use ($busca) {
-                    $q->where('logradouro', 'like', "%{$busca}%")
-                        ->orWhere('bairro', 'like', "%{$busca}%")
-                        ->orWhere('municipio', 'like', "%{$busca}%")
-                        ->orWhere('numero_matricula', 'like', "%{$busca}%")
-                        ->orWhere('proprietario_nome', 'like', "%{$busca}%");
+                    $q->where('logradouro', 'ilike', "%{$busca}%")
+                        ->orWhere('bairro', 'ilike', "%{$busca}%")
+                        ->orWhere('municipio', 'ilike', "%{$busca}%")
+                        ->orWhere('numero_matricula', 'ilike', "%{$busca}%")
+                        ->orWhere('proprietario_nome', 'ilike', "%{$busca}%");
                 });
             })
             ->when($request->filled('tipo'), fn ($query) => $query->where('tipo', $request->input('tipo')))
@@ -52,42 +83,45 @@ class ImovelController extends Controller
     {
         $validated = $this->validarDados($request);
 
-        $imovel = Imovel::create($validated);
+        DB::transaction(function () use ($request, $validated): void {
+            $imovel = Imovel::create($validated);
 
-        $this->salvarImagens($request, $imovel);
-        $this->sincronizarPessoas($request, $imovel);
+            $this->salvarImagens($request, $imovel);
+            $this->sincronizarPessoas($request, $imovel);
+        });
 
         return redirect()
             ->route('imoveis.index')
             ->with('sucesso', 'Imóvel cadastrado com sucesso.');
     }
 
-    public function show(Imovel $imovel): View
+    /**
+     * Requisição AJAX (modal) recebe só o parcial; acesso direto recebe a página completa.
+     */
+    public function show(Request $request, Imovel $imovel): View|Response
     {
-        $imovel->load(['imagens', 'clients']);
+        $imovel->load(['imagens', 'imagemPrincipal']);
+
+        if ($request->ajax()) {
+            return response()
+                ->view('imoveis.partials.detalhes', compact('imovel'))
+                ->header('Vary', 'X-Requested-With');
+        }
 
         return view('imoveis.show', compact('imovel'));
-    }
-
-    public function edit(Imovel $imovel): View
-    {
-        $imovel->load(['imagens', 'clients']);
-
-        return view('imoveis.edit', [
-            'imovel' => $imovel,
-            'tipos' => Imovel::TIPOS,
-        ]);
     }
 
     public function update(Request $request, Imovel $imovel): RedirectResponse
     {
         $validated = $this->validarDados($request, $imovel->id);
 
-        $imovel->update($validated);
+        DB::transaction(function () use ($request, $imovel, $validated): void {
+            $imovel->update($validated);
 
-        $this->removerImagens($request, $imovel);
-        $this->salvarImagens($request, $imovel);
-        $this->sincronizarPessoas($request, $imovel);
+            $this->removerImagens($request, $imovel);
+            $this->salvarImagens($request, $imovel);
+            $this->sincronizarPessoas($request, $imovel);
+        });
 
         return redirect()
             ->route('imoveis.index')
@@ -217,6 +251,13 @@ class ImovelController extends Controller
 
     private function validarDados(Request $request, ?int $ignorarId = null): array
     {
+        // Checkbox desmarcado não vem na requisição: força false nesses casos.
+        $request->merge(
+            collect(self::CAMPOS_BOOLEANOS)
+                ->mapWithKeys(fn (string $campo) => [$campo => $request->boolean($campo)])
+                ->all()
+        );
+
         $validated = $request->validate([
             // Tipo
             'tipo' => ['required', 'string', 'in:' . implode(',', array_keys(Imovel::TIPOS))],

@@ -44,24 +44,38 @@ class ClientController extends Controller
             ->with('success', 'Cliente cadastrado com sucesso.');
     }
 
-    public function show(Client $client)
-    {
-        return view('clients.show', compact('client'));
+    public function show(Request $request, Client $client)
+{
+    if (! $request->ajax()) {
+        return redirect()->route('clients.index');
     }
 
-    public function edit(Client $client)
-    {
-        return view('clients.edit', compact('client'));
+    return view('clients.partials.show-content', compact('client'));
+}
+
+public function edit(Request $request, Client $client)
+{
+    if ($request->ajax()) {
+        return view('clients.partials.edit-content', compact('client'));
     }
 
-    public function update(UpdateClientRequest $request, Client $client)
-    {
-        $client->update($request->validated());
+    return view('clients.edit', compact('client'));
+}
 
-        return redirect()
-            ->route('clients.index')
-            ->with('success', 'Cliente atualizado com sucesso.');
+public function update(UpdateClientRequest $request, Client $client)
+{
+    $client->update($request->validated());
+
+    if ($request->ajax()) {
+        session()->flash('success', 'Cliente atualizado com sucesso.');
+
+        return response()->json(['redirect' => route('clients.index')]);
     }
+
+    return redirect()
+        ->route('clients.index')
+        ->with('success', 'Cliente atualizado com sucesso.');
+}
 
     public function destroy(Client $client)
     {

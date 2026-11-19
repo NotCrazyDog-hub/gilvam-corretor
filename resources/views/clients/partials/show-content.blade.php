@@ -1,15 +1,10 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Detalhes da {{ $client->isPj() ? 'Pessoa Jurídica' : 'Pessoa Física' }}
-        </h2>
-    </x-slot>
+<h3 class="text-lg font-semibold text-gray-800 mb-4">
+    Detalhes da {{ $client->isPj() ? 'Pessoa Jurídica' : 'Pessoa Física' }}
+</h3>
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 
-                <dl class="grid grid-cols-2 gap-4">
+<dl class="grid grid-cols-2 gap-4">
+    <dl class="grid grid-cols-2 gap-4">
                     @if ($client->isPf())
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Nome</dt>
@@ -99,15 +94,9 @@
                         </div>
                     @endif
                 </dl>
+</dl>
 
-                <div class="flex justify-end space-x-2 mt-6">
-                    <a href="{{ route('clients.index') }}"
-                       class="px-4 py-2 rounded border border-gray-300 text-gray-700">Voltar</a>
-                    <a href="{{ route('clients.edit', $client) }}"
-                       class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Editar</a>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+<div class="flex justify-end mt-6">
+    <a href="{{ route('clients.edit', $client) }}"
+       class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Editar</a>
+</div>

@@ -127,7 +127,10 @@
                             @foreach ($ultimasPessoasFisicas as $pessoa)
                                 <li class="py-2 flex justify-between items-center">
                                     <span class="text-sm text-gray-700">{{ $pessoa->nome }}</span>
+                                    {{-- Abre o modal; o href continua como fallback (ctrl+clique, sem JS) --}}
                                     <a href="{{ route('clients.show', $pessoa) }}"
+                                       x-data
+                                       x-on:click.prevent="$dispatch('abrir-modal', { url: '{{ route('clients.show', $pessoa) }}' })"
                                        class="text-xs text-blue-600 hover:underline">
                                         Ver
                                     </a>
@@ -153,6 +156,8 @@
                                 <li class="py-2 flex justify-between items-center">
                                     <span class="text-sm text-gray-700">{{ $pessoa->nome }}</span>
                                     <a href="{{ route('clients.show', $pessoa) }}"
+                                       x-data
+                                       x-on:click.prevent="$dispatch('abrir-modal', { url: '{{ route('clients.show', $pessoa) }}' })"
                                        class="text-xs text-blue-600 hover:underline">
                                         Ver
                                     </a>
@@ -202,6 +207,8 @@
                                     <li class="py-2 flex justify-between items-center">
                                         <span class="text-sm text-gray-700">{{ $imovel->tipo_label }} — {{ $imovel->bairro }}</span>
                                         <a href="{{ route('imoveis.show', $imovel) }}"
+                                           x-data
+                                           x-on:click.prevent="$dispatch('abrir-modal', { url: '{{ route('imoveis.show', $imovel) }}' })"
                                            class="text-xs text-blue-600 hover:underline">
                                             Ver
                                         </a>
@@ -216,4 +223,7 @@
 
         </div>
     </div>
+
+    {{-- Modal (mesmo usado nas listas): escuta o evento "abrir-modal" --}}
+    <x-modal-ajax />
 </x-app-layout>
