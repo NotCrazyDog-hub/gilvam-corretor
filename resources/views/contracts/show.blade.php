@@ -39,6 +39,11 @@
         'prestacao_servicos' => 'Pelo presente instrumento particular, CONTRATANTE e CONTRATADO(A), qualificados neste formulário, ajustam a prestação dos serviços descritos neste instrumento, conforme as cláusulas e condições abaixo:',
         default => null,
     };
+    $signatures = match ($group->contract_type) {
+        'locacao' => ['LOCADOR(A)', 'CÔNJUGE / REPRESENTANTE LEGAL', 'LOCATÁRIO(A)'],
+        'doacao' => ['DOADOR(A)', 'CÔNJUGE / REPRESENTANTE LEGAL', 'DONATÁRIO(A)'],
+        default => [],
+    };
 
     $labels = [
         'nome' => 'Nome', 'razao_social' => 'Razão social', 'nome_fantasia' => 'Nome fantasia',
@@ -153,12 +158,7 @@
             <span class="mx-1 inline-block min-w-[4rem] border-b border-black">&nbsp;</span>
         </p>
 
-        @if (in_array($group->contract_type, ['locacao', 'doacao'], true))
-            @php
-                $signatures = $group->contract_type === 'locacao'
-                    ? ['LOCADOR(A)', 'CÔNJUGE / REPRESENTANTE LEGAL', 'LOCATÁRIO(A)']
-                    : ['DOADOR(A)', 'CÔNJUGE / REPRESENTANTE LEGAL', 'DONATÁRIO(A)'];
-            @endphp
+        @if ($signatures !== [])
             <div class="mx-auto max-w-md space-y-8 pt-2 text-center">
                 @foreach ($signatures as $signatory)
                     <div class="border-t border-black pt-1 font-bold uppercase">{{ $signatory }}</div>
