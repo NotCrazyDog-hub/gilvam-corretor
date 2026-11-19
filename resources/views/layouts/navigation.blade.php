@@ -12,20 +12,20 @@
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        Dashboard
                     </x-nav-link>
                     <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')">
-                        {{ __('Meus clientes') }}
+                        Meus clientes
                     </x-nav-link>
                     <x-nav-link :href="route('imoveis.index')" :active="request()->routeIs('imoveis.*')">
-                        {{ __('Imóveis') }}
+                        Imóveis
                     </x-nav-link>
                     <x-nav-link :href="route('contracts.index')" :active="request()->routeIs('contracts.*')">
-                        {{ __('Geração de Contratos') }}
+                        Geração de Contratos
                     </x-nav-link>
                     @if (Auth::user()->isAdmin())
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
-                            {{ __('Usuários') }}
+                            Usuários
                         </x-nav-link>
                     @endif
                 </div>
