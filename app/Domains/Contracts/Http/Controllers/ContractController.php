@@ -231,6 +231,13 @@ class ContractController extends Controller
         ]);
     }
 
+    public function show(ContractGroup $group, int $version): View
+    {
+        $contract = $group->versions()->where('version', $version)->firstOrFail();
+
+        return view('contracts.show', compact('group', 'contract'));
+    }
+
     /**
      * Histórico de versões de um contrato.
      */
