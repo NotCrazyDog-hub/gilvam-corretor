@@ -73,6 +73,10 @@
                 }
                 continue;
             }
+            if ($key === 'tipo' && is_string($value)
+                && in_array(mb_strtolower(trim($value)), ['pf', 'pj'], true)) {
+                continue;
+            }
             $label = $labels[$key] ?? \Illuminate\Support\Str::headline(str_replace('_', ' ', (string) $key));
             $label = $prefix === '' ? $label : $prefix . ' — ' . $label;
             if (is_array($value)) {
