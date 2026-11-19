@@ -45,7 +45,7 @@
         }
     </style>
 
-    <div class="py-12 pb-32 bg-gray-50 min-h-screen">
+    <div class="py-12 pb-32 bg-gray-100 min-h-screen">
         <div class="max-w-[900px] mx-auto bg-white p-8 rounded-lg shadow-sm font-sans text-black">
             <a href="{{ $cancelUrl }}"
                class="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-900 hover:decoration-slate-600">
