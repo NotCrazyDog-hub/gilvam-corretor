@@ -194,7 +194,7 @@
                                         <th scope="col" class="px-2 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Responsável</th>
                                     @endif
                                 @endforeach
-                                <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Ações</th>
+                                <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">Ações</th>
                             </tr>
                         </thead>
 
