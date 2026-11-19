@@ -106,6 +106,16 @@ $especificos = [
         'form_view'      => 'contracts.forms.prestacao-servicos.form',
         'clausulas_padrao' => 'prestacao-servicos.html',
     ],
+
+    'comodato' => [
+        'titulo'         => 'contrato particular de comodato',
+        'subtitulo'      => 'EMPRÉSTIMO GRATUITO',
+        'base_legal'     => 'CÓDIGO CIVIL (LEI Nº 10.406/2002), ARTS. 579 A 585',
+        'form_supported' => true,
+        'template'       => 'contrato-de-comodato.docx',
+        'form_view'      => 'contracts.forms.comodato.form',
+        'clausulas_padrao' => 'comodato.html',
+    ],
 ];
 
 $contractTypes = [];
