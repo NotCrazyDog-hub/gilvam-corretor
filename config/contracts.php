@@ -93,7 +93,7 @@ $especificos = [
         'subtitulo'      => 'COM INTERVENIÊNCIA DE CORRETOR(A) DE IMÓVEIS',
         'base_legal'     => 'CÓDIGO CIVIL (LEI Nº 10.406/2002), ARTS. 481 E SEGUINTES · LEI Nº 6.530/1978',
         'form_supported' => true,
-        'template'       => 'contrato-compra-e-venda.docx',
+        'template'       => 'contrato-de-compra-e-venda.docx',
         'form_view'      => 'contracts.forms.compra-venda.form',
         'clausulas_padrao' => 'compra-venda.html',
     ],
