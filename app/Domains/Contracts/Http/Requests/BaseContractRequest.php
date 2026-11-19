@@ -99,7 +99,7 @@ abstract class BaseContractRequest extends FormRequest
         if ($this->input('contract_type') === 'locacao') {
             foreach (array_keys($rules) as $key) {
                 if (str_starts_with($key, 'contratante') || str_starts_with($key, 'contratado')
-                    || in_array($key, ['imovel.preco_venda', 'imovel.condicoes_pagamento', 'data_termino', 'prazo_indeterminado'], true)) {
+                    || in_array($key, ['imovel.preco_venda', 'imovel.condicoes_pagamento', 'data_termino'], true)) {
                     unset($rules[$key]);
                 }
             }
@@ -134,7 +134,7 @@ abstract class BaseContractRequest extends FormRequest
                 'locacao.finalidade' => 'required|string|max:255',
                 'locacao.prazo' => 'required|string|max:100',
                 'locacao.data_inicio' => 'required|date',
-                'locacao.data_termino' => 'required|date|after:locacao.data_inicio',
+                'locacao.data_termino' => 'nullable|required_unless:prazo_indeterminado,1|date|after:locacao.data_inicio',
                 'locacao.valor_aluguel' => 'required|string|max:100',
                 'locacao.indice_reajuste' => 'required|string|max:100',
                 'locacao.dia_vencimento' => 'required|string|max:20',
@@ -329,6 +329,8 @@ abstract class BaseContractRequest extends FormRequest
 
             'data_termino.required_if' => 'Informe a data de término ou marque como prazo indeterminado.',
             'data_termino.after'       => 'A data de término deve ser posterior a hoje.',
+            'locacao.data_termino.required_unless' => 'Informe o término da locação ou marque o prazo como indeterminado.',
+            'locacao.data_termino.after' => 'O término da locação deve ser posterior ao início.',
         ];
     }
 

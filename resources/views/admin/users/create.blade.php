@@ -60,7 +60,7 @@
                     <div class="flex items-center justify-end gap-3">
                         <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:underline">Cancelar</a>
                         <button type="submit"
-                                class="bg-green-600 font-bold text-white px-5 py-2 rounded-md hover:bg-green-700 transition">
+                                class="bg-emerald-600 font-bold text-white px-5 py-2 rounded-md hover:bg-emerald-700 transition">
                             Cadastrar
                         </button>
                     </div>

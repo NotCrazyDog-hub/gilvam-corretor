@@ -20,6 +20,9 @@ Route::middleware(['auth'])->prefix('contratos')->name('contracts.')->group(func
     Route::get('/{group:uuid}/editar', [ContractController::class, 'edit'])->name('edit');
     Route::put('/{group:uuid}', [ContractController::class, 'update'])->name('update');
 
+    Route::get('/{group:uuid}/versoes/{version}', [ContractController::class, 'show'])
+        ->whereNumber('version')
+        ->name('show');
     Route::get('/{group:uuid}/versoes', [ContractController::class, 'versions'])->name('versions');
     Route::get('/{group:uuid}/versoes/{version}/download', [ContractController::class, 'download'])
         ->whereNumber('version')

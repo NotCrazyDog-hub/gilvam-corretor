@@ -20,12 +20,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div class="mb-4 rounded bg-green-100 p-4 text-green-800">
-                    {{ session('success') }}
-                </div>
-            @endif
-
             <div class="rounded-lg bg-white p-6 shadow-sm">
                 <div class="flex flex-col gap-3 xl:flex-row xl:items-center">
                     <form method="GET" action="{{ route('contracts.index') }}"
@@ -174,10 +168,10 @@
                             <col class="w-[18%]">
                             <col class="w-[12%]">
                             <col class="w-[13%]">
-                            <col class="w-[22%]">
+                            <col class="w-[20%]">
                             <col class="w-[16%]">
                             <col class="w-[11%]">
-                            <col class="w-[8%]">
+                            <col class="w-[10%]">
                         </colgroup>
                         <thead>
                             <tr class="divide-x divide-gray-200 border-b border-gray-200 bg-gray-50">
