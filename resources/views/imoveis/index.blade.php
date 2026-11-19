@@ -63,11 +63,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($imoveis as $index => $imovel)
-                                {{-- Linha inteira clicável: leva ao show do imóvel --}}
-                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-blue-50 cursor-pointer
-                                           {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}"
-                                    onclick="window.location='{{ route('imoveis.show', $imovel) }}'">
+                           @forelse ($imoveis as $index => $imovel)
+                                <tr class="border-b border-gray-100 last:border-b-0 divide-x divide-gray-100 transition hover:bg-blue-50
+                                        {{ $index % 2 === 0 ? 'bg-white' : 'bg-gray-50/60' }}">
 
                                     <td class="py-3 px-4">
                                         <div class="flex justify-center">
