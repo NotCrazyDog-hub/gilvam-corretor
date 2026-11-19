@@ -31,7 +31,7 @@
         ] as $field => $label)
             <div class="field-wrapper px-2 py-1.5"><div class="flex items-baseline gap-1">
                 <label class="font-bold whitespace-nowrap">{{ $label }}:</label>
-                <input name="locacao[{{ $field }}]" value="{{ $locacao[$field] ?? '' }}" @if (in_array($field, ['data_inicio', 'data_termino'], true)) type="date" @endif class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
+                <input name="locacao[{{ $field }}]" value="{{ $locacao[$field] ?? '' }}" @if (in_array($field, ['data_inicio', 'data_termino'], true)) type="date" @endif @if ($field === 'data_termino') id="locacao_data_termino" {{ old('prazo_indeterminado', $contract?->prazo_indeterminado ?? false) ? 'disabled' : '' }} onchange="const dataTermino = document.getElementById('data_termino'); if (dataTermino) dataTermino.value = this.value;" @endif class="flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none p-0 min-w-0">
             </div></div>
         @endforeach
         <div class="field-wrapper px-2 py-1.5">

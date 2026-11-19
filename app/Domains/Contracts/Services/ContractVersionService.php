@@ -14,15 +14,22 @@ class ContractVersionService
      */
     public function normalizeLocacao(array $data): array
     {
+        $prazoIndeterminado = filter_var(
+            $data['prazo_indeterminado'] ?? false,
+            FILTER_VALIDATE_BOOLEAN,
+        );
         $data['locador'] = $data['locador'] ?? $data['contratante'] ?? [];
         $data['locatario'] = $data['locatario'] ?? $data['contratado'] ?? [];
         $data['contratante'] = $data['locador'];
         $data['contratado'] = $data['locatario'];
+        $data['locacao']['data_termino'] = $prazoIndeterminado
+            ? null
+            : ($data['locacao']['data_termino'] ?? null);
         $data['content_json'] = array_merge($data['content_json'] ?? [], [
             'locacao' => $data['locacao'] ?? [],
         ]);
         $data['data_termino'] = $data['locacao']['data_termino'] ?? null;
-        $data['prazo_indeterminado'] = empty($data['data_termino']);
+        $data['prazo_indeterminado'] = $prazoIndeterminado;
         $data['contract_type'] = 'locacao';
 
         return $data;

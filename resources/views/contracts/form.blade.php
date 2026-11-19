@@ -148,6 +148,7 @@
                             <input type="date" name="data_termino" id="data_termino"
                                 value="{{ old('data_termino', optional($contract?->data_termino)->format('Y-m-d')) }}"
                                 {{ old('prazo_indeterminado', $contract?->prazo_indeterminado ?? false) ? 'disabled' : '' }}
+                                onchange="const dataTerminoLocacao = document.getElementById('locacao_data_termino'); if (dataTerminoLocacao) dataTerminoLocacao.value = this.value;"
                                 class="mt-1 w-full border border-slate-300 text-sm px-2 py-1.5 focus:border-black focus:ring-0 focus:outline-none">
                             @error('data_termino')
                                 <span class="text-red-600 text-xs">{{ $message }}</span>
@@ -157,7 +158,7 @@
                         <div class="flex items-center gap-2 pb-2">
                             <input type="checkbox" name="prazo_indeterminado" id="prazo_indeterminado" value="1"
                                 {{ old('prazo_indeterminado', $contract?->prazo_indeterminado) ? 'checked' : '' }}
-                                onchange="document.getElementById('data_termino').disabled = this.checked; if (this.checked) document.getElementById('data_termino').value = '';">
+                                onchange="const checked = this.checked; const dataTermino = document.getElementById('data_termino'); dataTermino.disabled = checked; if (checked) dataTermino.value = ''; const dataTerminoLocacao = document.getElementById('locacao_data_termino'); if (dataTerminoLocacao) { dataTerminoLocacao.disabled = checked; if (checked) dataTerminoLocacao.value = ''; }">
                             <label for="prazo_indeterminado" class="text-sm text-slate-700">Prazo indeterminado</label>
                         </div>
                     </div>
